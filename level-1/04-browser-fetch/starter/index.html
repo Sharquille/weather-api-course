@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Weather Dashboard — Starter</title>
+<style>
+  body { font-family: system-ui; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; text-align: left; }
+  th { background: #f4f4f4; }
+  input, button { padding: 0.5rem; font-size: 1rem; }
+  .err { color: #a00; }
+  .ok  { color: #0a0; }
+</style>
+</head>
+<body>
+<h1>🌤 Weather Dashboard — Phase 04 Starter</h1>
+<p>Three APIs, called in parallel from the browser.</p>
+
+<input id="city" value="Roseau" placeholder="City name">
+<button id="go">Get Weather</button>
+
+<table id="out">
+  <thead><tr><th>Source</th><th>Temp °C</th><th>Wind kph</th><th>Humidity</th><th>Desc</th></tr></thead>
+  <tbody></tbody>
+</table>
+<p id="status"></p>
+
+<script>
+// ─────────────────────────────────────────────
+//  Part A — Open-Meteo (no key)
+// ─────────────────────────────────────────────
+
+async function fetchOpenMeteo(city) {
+  // TODO 1: Geocode the city using the Open-Meteo geocoding API
+  // TODO 2: Fetch current weather using the Open-Meteo forecast API
+  // Return: { source, temp_c, wind_kph, humidity, desc }
+}
+
+
+// ─────────────────────────────────────────────
+//  Part B — OpenWeatherMap (key in localStorage)
+// ─────────────────────────────────────────────
+
+async function fetchOWM(city) {
+  // TODO 3: Read OWM_KEY from localStorage
+  // TODO 4: Call the OWM current weather endpoint
+  // Return: same shape
+}
+
+
+// ─────────────────────────────────────────────
+//  Part C — WeatherAPI (key in localStorage)
+// ─────────────────────────────────────────────
+
+async function fetchWeatherAPI(city) {
+  // TODO 5: Read WEATHERAPI_KEY from localStorage
+  // TODO 6: Call the WeatherAPI current.json endpoint
+  // Return: same shape
+}
+
+
+// ─────────────────────────────────────────────
+//  Part D — Click handler — run all 3 in parallel
+// ─────────────────────────────────────────────
+
+const sources = [fetchOpenMeteo, fetchOWM, fetchWeatherAPI];
+
+document.getElementById("go").addEventListener("click", async () => {
+  const city = document.getElementById("city").value;
+  const tbody = document.querySelector("#out tbody");
+  const status = document.getElementById("status");
+  tbody.innerHTML = "";
+  status.textContent = "Loading…";
+
+  // TODO 7: Use Promise.allSettled() to call all 3 sources
+  // TODO 8: For each settled result, append a <tr> to tbody
+  //   - fulfilled → row with data
+  //   - rejected  → row with colspan=5 and the error message in red
+});
+</script>
+</body>
+</html>

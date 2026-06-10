@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Weather Dashboard</title>
+<style>
+  body { font-family: system-ui; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; text-align: left; }
+  th { background: #f4f4f4; }
+  input, button { padding: 0.5rem; font-size: 1rem; }
+  .err { color: #a00; }
+</style>
+</head>
+<body>
+<h1>🌤 Weather Dashboard</h1>
+<p>Open-Meteo (no key) + OpenWeatherMap + WeatherAPI — parallel fetch from the browser.</p>
+
+<input id="city" value="Roseau" placeholder="City name">
+<button id="go">Get Weather</button>
+
+<table id="out">
+  <thead><tr><th>Source</th><th>Temp °C</th><th>Wind kph</th><th>Humidity</th><th>Desc</th></tr></thead>
+  <tbody></tbody>
+</table>
+<p id="status"></p>
+
+<script>
+async function fetchOpenMeteo(city) {
+  const geo = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
+  ).then(r => r.json());
+  if (!geo.results) throw new Error("city not found");
+  const { latitude: lat, longitude: lon } = geo.results[0];
+
+  const url = new URL("https://api.open-meteo.com/v1/forecast");
+  url.searchParams.set("latitude", lat);
+  url.searchParams.set("longitude", lon);
+  url.searchParams.set("current", "temperature_2m,wind_speed_10m,relative_humidity_2m,weather_code");
+  url.searchParams.set("wind_speed_unit", "kmh");
+
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  const cw = d.current;
+  return {
+    source: "Open-Meteo",
+    temp_c: cw.temperature_2m,
+    wind_kph: cw.wind_speed_10m,
+    humidity: cw.relative_humidity_2m,
+    desc: "code " + cw.weather_code,
+  };
+}
+
+async function fetchOWM(city) {
+  const key = localStorage.getItem("OWM_KEY");
+  if (!key) throw new Error("set localStorage.OWM_KEY in console first");
+  const r = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${key}&units=metric`
+  );
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  return {
+    source: "OpenWeatherMap",
+    temp_c: d.main.temp,
+    wind_kph: Math.round(d.wind.speed * 3.6 * 10) / 10,
+    humidity: d.main.humidity,
+    desc: d.weather[0].description,
+  };
+}
+
+async function fetchWeatherAPI(city) {
+  const key = localStorage.getItem("WEATHERAPI_KEY");
+  if (!key) throw new Error("set localStorage.WEATHERAPI_KEY in console first");
+  const r = await fetch(
+    `https://api.weatherapi.com/v1/current.json?key=${key}&q=${encodeURIComponent(city)}&aqi=no`
+  );
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  return {
+    source: "WeatherAPI",
+    temp_c: d.current.temp_c,
+    wind_kph: d.current.wind_kph,
+    humidity: d.current.humidity,
+    desc: d.current.condition.text,
+  };
+}
+
+const sources = [fetchOpenMeteo, fetchOWM, fetchWeatherAPI];
+
+document.getElementById("go").addEventListener("click", async () => {
+  const city = document.getElementById("city").value;
+  const tbody = document.querySelector("#out tbody");
+  const status = document.getElementById("status");
+  tbody.innerHTML = "";
+  status.textContent = "Loading…";
+
+  const settled = await Promise.allSettled(sources.map(fn => fn(city)));
+  for (const s of settled) {
+    const tr = document.createElement("tr");
+    if (s.status === "fulfilled") {
+      const r = s.value;
+      tr.innerHTML = `<td>${r.source}</td><td>${r.temp_c}</td><td>${r.wind_kph}</td><td>${r.humidity}</td><td>${r.desc}</td>`;
+    } else {
+      tr.innerHTML = `<td colspan="5" class="err">${s.reason.message}</td>`;
+    }
+    tbody.appendChild(tr);
+  }
+  status.textContent = `Done at ${new Date().toLocaleTimeString()}`;
+});
+</script>
+</body>
+</html>

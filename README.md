@@ -1,0 +1,150 @@
+# Weather API Course
+
+A two-level, hands-on course for learning HTTP, REST APIs, Python automation,
+browser `fetch()`, deployment, security, and scheduled API workflows by building
+weather integrations.
+
+The course is designed for two learners working independently on their own
+machines. Each person clones the same course repo, keeps their own API keys in
+local `.env` files, and deploys their own finished app when they reach the
+deployment phase.
+
+## Quick Start
+
+```bash
+git clone https://github.com/Sharquille/weather-api-course.git
+cd weather-api-course
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Windows PowerShell:
+
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+Open the course site by opening `index.html`, or serve it locally:
+
+```bash
+python3 -m http.server 8080
+```
+
+Then visit `http://localhost:8080`.
+
+## Deploy The Course Site To Cloudflare Pages
+
+This repository is ready to deploy as a static Cloudflare Pages site from the
+repo root. There is no framework build step.
+
+Recommended Pages settings:
+
+```text
+Framework preset: None
+Production branch: main
+Build command: exit 0
+Build output directory: /
+Root directory: /
+```
+
+The `_headers` file is included so Cloudflare Pages applies basic security
+headers to the deployed site.
+
+This deploys the course site itself. Level 1 Phase 05 is different: that phase
+asks each learner to create a separate repo for their own finished weather app.
+
+## Repository Structure
+
+```text
+weather-api-course/
+├── _headers                    Cloudflare Pages security headers
+├── index.html                  Course site and progress tracker
+├── requirements.txt            Shared Python dependencies
+├── level-1/                    API fundamentals
+│   ├── 00-curl-basics/
+│   ├── 01-python-requests/
+│   ├── 02-auth-apis/
+│   ├── 03-multi-source/
+│   ├── 04-browser-fetch/
+│   ├── 05-deploy/
+│   ├── 06-api-security/
+│   └── 07-json-deep/
+└── level-2/                    Automation and integration workflows
+    ├── 00-postman-properly/
+    ├── 01-python-structure/
+    ├── 02-chaining-apis/
+    ├── 03-schedules-cron/
+    ├── 04-webhooks/
+    ├── 05-newman-testing/
+    └── 06-capstone/
+```
+
+Most coding phases include a `starter/` folder and a `solution/` folder.
+Learners work in `starter/`. The `solution/` folder is a reference answer for
+review, debugging, and comparison after attempting the exercise.
+
+## Levels
+
+Level 1 builds the fundamentals:
+
+- `curl` and raw HTTP
+- Python `requests`
+- API keys and `.env` files
+- Multi-source API aggregation
+- Browser `fetch()`
+- Cloudflare Pages deployment
+- API security
+- JSON parsing, caching, and validation
+
+Level 2 turns those fundamentals into automation:
+
+- Postman collections and Newman
+- Python package structure
+- API chaining and Discord webhooks
+- cron and scheduled jobs
+- receiving webhooks with Flask and ngrok
+- GitHub Actions API tests
+- an end-to-end capstone integration
+
+## API Keys
+
+Never commit real API keys. Copy the example file and keep your values local:
+
+```bash
+cp level-1/02-auth-apis/starter/.env.example level-1/02-auth-apis/starter/.env
+```
+
+Use `.env.example` for names and placeholders only. Put real keys in `.env`,
+which is ignored by Git.
+
+## About The Separate Deployment Repo
+
+The course repo is the curriculum. In Level 1 Phase 05, each learner creates a
+separate GitHub repository for their own deployed weather app. That separate
+repo is not nested inside this repo; it is a new remote repository connected to
+Cloudflare Pages.
+
+Why separate it?
+
+- The course repo stays clean and reusable.
+- Each learner gets their own deploy pipeline and URL.
+- API keys and deployment settings remain per learner.
+- It mirrors how real projects separate source curriculum, forks, and deployed
+  apps.
+
+The `starter/` and `solution/` folders inside this repo are not separate Git
+repositories. They are normal folders used for teaching.
+
+## Local Verification
+
+Run quick checks from the repo root:
+
+```bash
+python3 -m compileall level-1 level-2
+```
+
+Some scripts call live APIs and require keys. Those should be tested from their
+phase folder after creating the relevant `.env` file.

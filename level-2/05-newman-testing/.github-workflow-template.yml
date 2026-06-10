@@ -1,0 +1,30 @@
+name: API tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run collection
+        env:
+          OWM_KEY: ${{ secrets.OWM_KEY }}
+          WEATHERAPI_KEY: ${{ secrets.WEATHERAPI_KEY }}
+        run: |
+          newman run level-2/05-newman-testing/collection.json \
+            -e level-2/05-newman-testing/env.json \
+            --reporters cli,json

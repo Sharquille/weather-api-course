@@ -1,0 +1,28 @@
+{
+  "info": {
+    "name": "Weather APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Open-Meteo current weather",
+      "request": {
+        "method": "GET",
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=15.30&longitude=-61.39&current=temperature_2m"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('has current weather', () => pm.expect(body.current).to.be.an('object'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
