@@ -4,313 +4,954 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="A two-level Weather API course for learning HTTP, Python requests, browser fetch, deployment, security, and API automation." />
-  <meta name="theme-color" content="#101211" />
+  <meta name="theme-color" content="#0f172a" />
   <title>Weather API Course — LexLabs</title>
   <style>
     :root {
-      --bg:       #101211;
-      --surface:  #181b1a;
-      --surface2: #202522;
-      --border:   #303832;
-      --accent:   #5aa17f;
-      --cyan:     #63c7d4;
-      --green:    #57c785;
-      --yellow:   #d6a84c;
-      --red:      #ef6b65;
-      --text:     #edf2ed;
-      --muted:    #94a199;
-      --radius:   8px;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    body {
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:var(--bg); color:var(--text); min-height:100vh;
+      --bg:           #0f172a; /* Slate 900 */
+      --surface:      #1e293b; /* Slate 800 */
+      --surface2:     #334155; /* Slate 700 */
+      --border:       #1e293b; 
+      --border-light: #334155;
+      --accent:       #6366f1; /* Indigo 500 */
+      --accent-hover: #4f46e5; /* Indigo 600 */
+      --cyan:         #38bdf8; /* Sky 400 */
+      --green:        #10b981; /* Emerald 500 */
+      --yellow:       #f59e0b; /* Amber 500 */
+      --red:          #ef4444; /* Red 500 */
+      --text:         #f8fafc; /* Slate 50 */
+      --muted:        #94a3b8; /* Slate 400 */
+      --muted2:       #64748b; /* Slate 500 */
+      --radius:       8px;
+      --radius-sm:    6px;
+      --font-sans:    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono:    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
     }
 
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Container alignment */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Sticky Navigation */
     nav {
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items:center; justify-content:space-between;
-      padding: .9rem 2rem; position: sticky; top:0; background:rgba(16,18,17,.94);
-      backdrop-filter: blur(14px); z-index:100;
+      border-bottom: 1px solid var(--border-light);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
     }
     .nav-brand {
-      font-weight:700; font-size:1rem; display:flex; align-items:center; gap:.6rem;
-      color:var(--text);
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .brand-mark {
-      width:32px; height:32px; border:1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
-      border-radius:8px; display:inline-flex; align-items:center; justify-content:center;
-      color:var(--cyan); font-size:.68rem; letter-spacing:.06em; background:var(--surface);
+    .nav-brand::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
     }
-    .nav-right { display:flex; gap:.85rem; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
-    .nav-link { color:var(--muted); font-size:.85rem; text-decoration:none; transition:color .2s; }
-    .nav-link:hover { color:var(--text); }
-    .nav-link.btn { color:var(--text); }
+    .nav-right {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+    }
+    .nav-link {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    .nav-link:hover {
+      color: var(--text);
+    }
 
-    .hero { text-align:center; padding:4rem 1.25rem 1.8rem; max-width:820px; margin:0 auto; }
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 5rem 1.5rem 3.5rem;
+      max-width: 840px;
+      margin: 0 auto;
+    }
     .eyebrow {
-      color:var(--cyan); font-size:.72rem; font-weight:700; letter-spacing:.14em;
-      text-transform:uppercase; margin-bottom:.85rem;
+      color: var(--cyan);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
     }
-    .hero h1 { font-size:clamp(2rem,5vw,3.35rem); font-weight:800; line-height:1.08; margin-bottom:1rem; letter-spacing:0; }
-    .hero h1 span { background:linear-gradient(135deg,var(--accent),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-    .hero p { color:var(--muted); font-size:1.03rem; line-height:1.7; margin:0 auto 1.75rem; max-width:650px; }
-
-    .btn { border:none; border-radius:var(--radius); cursor:pointer; font-size:.85rem; font-weight:600; padding:.65rem 1.25rem; transition:opacity .2s,transform .1s; text-decoration:none; display:inline-flex; align-items:center; gap:.35rem; }
-    .btn:active { transform:scale(.97); }
-    .btn-primary  { background:var(--accent); color:#fff; }
-    .btn-secondary{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
-    .btn-sm       { font-size:.78rem; padding:.4rem .9rem; }
-    .btn:hover    { opacity:.85; }
-    .hero-btns    { display:flex; gap:.75rem; justify-content:center; flex-wrap:wrap; }
-
-    .course-stats {
-      max-width:900px; margin:0 auto 2.2rem; padding:0 1.5rem;
-      display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem;
+    .hero h1 {
+      font-size: clamp(2.25rem, 6vw, 3.25rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.03em;
     }
-    .stat {
-      border:1px solid var(--border); border-radius:var(--radius);
-      padding:1rem; background:color-mix(in srgb, var(--surface) 86%, transparent);
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .stat strong { display:block; font-size:1.15rem; margin-bottom:.2rem; }
-    .stat span { color:var(--muted); font-size:.78rem; line-height:1.45; }
+    .hero p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin: 0 auto 2rem;
+      max-width: 680px;
+    }
 
-    .tabs-wrap { max-width:1100px; margin:0 auto; padding:0 1.5rem; }
-    .tabs { display:flex; gap:.5rem; border-bottom:1px solid var(--border); margin-bottom:2rem; }
+    /* Buttons */
+    .btn {
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.625rem 1.25rem;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      font-family: var(--font-sans);
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    .btn-secondary {
+      background: var(--surface);
+      border-color: var(--border-light);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: var(--surface2);
+      border-color: var(--muted2);
+    }
+    .btn-sm {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.85rem;
+    }
+    .hero-btns {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Segmented Control Tabs */
+    .tabs-wrap {
+      margin-bottom: 2rem;
+    }
+    .tabs {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      padding: 4px;
+      border-radius: 24px;
+      margin-bottom: 2.5rem;
+    }
     .tab-btn {
-      background:none; border:none; color:var(--muted); cursor:pointer;
-      font-size:.92rem; font-weight:600; padding:.75rem 1.25rem;
-      border-bottom:2px solid transparent; margin-bottom:-1px;
-      transition:color .2s, border-color .2s;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      border-radius: 20px;
+      transition: all 0.15s ease;
     }
-    .tab-btn.active { color:var(--text); border-bottom-color:var(--accent); }
-    .tab-btn:hover  { color:var(--text); }
-    .tab-btn.locked { cursor:not-allowed; opacity:.45; }
-    .tab-panel { display:none; }
-    .tab-panel.active { display:block; }
+    .tab-btn.active {
+      background: var(--bg);
+      color: var(--text);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .tab-btn:hover:not(.active):not(.locked) {
+      color: var(--text);
+    }
+    .tab-btn.locked {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
 
-    .lock-banner { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; text-align:center; margin-bottom:2rem; }
-    .lock-icon { font-size:2.5rem; margin-bottom:.75rem; }
-    .lock-banner h3 { font-size:1.1rem; margin-bottom:.5rem; }
-    .lock-banner p  { color:var(--muted); font-size:.88rem; line-height:1.6; }
+    /* Progress UI */
+    .progress-section {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .progress-header span:first-child {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+    .progress-header span:last-child {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+    .progress-track {
+      height: 6px;
+      background: var(--bg);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+      border-radius: 999px;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-    .progress-section { margin-bottom:1.75rem; }
-    .progress-header  { display:flex; justify-content:space-between; align-items:center; margin-bottom:.45rem; }
-    .progress-header span { font-size:.83rem; color:var(--muted); }
-    .progress-track   { height:5px; background:var(--border); border-radius:999px; overflow:hidden; }
-    .progress-fill    { height:100%; background:linear-gradient(90deg,var(--accent),var(--cyan)); border-radius:999px; transition:width .5s ease; }
+    /* Lock Banner */
+    .lock-banner {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 3rem 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .lock-icon {
+      color: var(--yellow);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .lock-icon::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--yellow);
+      border-radius: 1px;
+    }
+    .lock-banner h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .lock-banner p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
 
-    .phases { display:grid; gap:1rem; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); margin-bottom:2.5rem; }
+    /* Setup Callout Card */
+    .setup-card {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.04) 0%, rgba(15, 23, 42, 0) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-left: 4px solid var(--yellow);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .setup-card:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      background-color: rgba(245, 158, 11, 0.06);
+    }
+    .setup-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--yellow);
+      margin-bottom: 0.35rem;
+    }
+    .setup-card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    /* Grid Layouts */
+    .phases {
+      display: grid;
+      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      margin-bottom: 3rem;
+    }
+
+    /* Phase Cards */
     .phase-card {
-      background:var(--surface); border:1px solid var(--border);
-      border-radius:var(--radius); padding:1.2rem; cursor:pointer;
-      min-height:220px; display:flex; flex-direction:column;
-      transition:border-color .2s, transform .15s, background .2s;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      cursor: pointer;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
     }
-    .phase-card:hover { border-color:color-mix(in srgb, var(--accent) 60%, transparent); background:color-mix(in srgb, var(--surface) 90%, var(--accent)); transform:translateY(-2px); }
-    .phase-card.done  { border-color:var(--green); }
-    .phase-card.locked-card { opacity:.45; pointer-events:none; }
-    .phase-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.65rem; }
-    .phase-num { font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+    .phase-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      background: rgba(30, 41, 59, 0.8);
+    }
+    .phase-card.done {
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .phase-card.done:hover {
+      border-color: var(--green);
+    }
+    .phase-card.locked-card {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .phase-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .phase-num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
     .phase-check {
-      width:22px; height:22px; border-radius:50%; border:2px solid var(--border);
-      display:flex; align-items:center; justify-content:center;
-      cursor:pointer; transition:all .2s; flex-shrink:0; font-size:.75rem;
-      background:transparent; color:var(--text); padding:0;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1.5px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: transparent;
+      color: transparent;
+      font-weight: 700;
+      font-size: 0.75rem;
     }
-    .phase-check:hover { border-color:var(--green); }
-    .phase-card.done .phase-check { background:var(--green); border-color:var(--green); color:#fff; }
-    .phase-title { font-size:.97rem; font-weight:700; margin-bottom:.3rem; }
-    .phase-desc  { color:var(--muted); font-size:.82rem; line-height:1.5; margin-bottom:.9rem; }
-    .phase-pills { display:flex; flex-wrap:wrap; gap:.3rem; margin-bottom:.9rem; }
-    .pill { background:var(--bg); border:1px solid var(--border); border-radius:999px; font-size:.68rem; font-family:monospace; padding:.18rem .55rem; color:var(--cyan); }
-    .phase-cta { font-size:.75rem; color:var(--accent); margin-top:auto; font-weight:600; }
+    .phase-check:hover {
+      border-color: var(--green);
+      background: rgba(16, 185, 129, 0.15);
+    }
+    .phase-card.done .phase-check {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+    .phase-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+    .phase-desc {
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+    .phase-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 1.25rem;
+      margin-top: auto;
+    }
+    .pill {
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      padding: 0.15rem 0.5rem;
+      color: var(--cyan);
+    }
+    .phase-cta {
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .phase-cta:hover {
+      color: var(--cyan);
+    }
 
-    .section    { margin-bottom:2.5rem; }
-    .section h2 { font-size:1.05rem; font-weight:700; margin-bottom:1rem; }
-    .repos      { display:grid; gap:.65rem; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); }
-    .repo-card  {
-      background:var(--surface); border:1px solid var(--border);
-      border-radius:var(--radius); padding:.9rem;
-      text-decoration:none; color:inherit; display:block; transition:border-color .2s;
+    /* Sections */
+    .section {
+      margin-bottom: 3.5rem;
     }
-    .repo-card:hover { border-color:var(--accent); }
-    .repo-name  { font-size:.82rem; font-weight:600; color:var(--cyan); margin-bottom:.25rem; }
-    .repo-phase { font-size:.7rem; color:var(--muted); margin-bottom:.2rem; font-style:italic; }
-    .repo-desc  { font-size:.78rem; color:var(--muted); line-height:1.4; }
+    .section h2 {
+      font-size: 1.35rem;
+      font-weight: 750;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
+    }
 
-    .deploy-panel { margin-bottom:1.5rem; }
-    .deploy-inner, .gist-inner {
-      background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem;
+    /* Repo Cards */
+    .repos {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     }
-    .deploy-inner { display:grid; grid-template-columns:1.05fr .95fr; gap:1.25rem; align-items:start; }
-    .deploy-inner h2, .gist-inner h3 { font-size:1rem; margin-bottom:.6rem; }
-    .deploy-inner p { color:var(--muted); font-size:.84rem; line-height:1.65; }
+    .repo-card {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .repo-card:hover {
+      border-color: var(--accent);
+      background-color: rgba(30, 41, 59, 0.6);
+    }
+    .repo-name {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--cyan);
+      margin-bottom: 0.35rem;
+    }
+    .repo-phase {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .repo-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* Cloudflare Deploy Panel */
+    .deploy-panel {
+      margin-bottom: 2.5rem;
+    }
+    .deploy-inner {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+    .deploy-inner h2 {
+      font-size: 1.25rem;
+      font-weight: 750;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+    .deploy-inner p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
     .deploy-settings {
-      list-style:none; padding:0; margin:.9rem 0 0; display:grid; gap:.45rem;
+      list-style: none;
+      padding: 0;
+      display: grid;
+      gap: 0.5rem;
     }
     .deploy-settings li {
-      display:flex; justify-content:space-between; gap:.75rem; border-top:1px solid var(--border);
-      padding-top:.45rem; color:var(--muted); font-size:.78rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.5rem;
+      color: var(--muted);
+      font-size: 0.82rem;
     }
-    .deploy-settings code { color:var(--text); white-space:nowrap; }
-    .deploy-code pre { margin:0; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1rem; overflow:auto; }
-    .deploy-code code { background:transparent; padding:0; }
+    .deploy-settings code {
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .deploy-code pre {
+      margin: 0;
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      overflow: auto;
+    }
+    .deploy-code code {
+      background: transparent;
+      padding: 0;
+      font-size: 0.8rem;
+    }
 
-    .gist-panel { margin-bottom:2.5rem; }
-    .gist-inner h3 { font-size:.95rem; margin-bottom:.65rem; }
-    .gist-row  { display:flex; align-items:center; gap:.65rem; margin-bottom:.55rem; }
-    .gist-row label { font-size:.8rem; color:var(--muted); min-width:115px; }
+    /* Gist Save Panel */
+    .gist-panel {
+      margin-bottom: 3.5rem;
+    }
+    .gist-inner {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+    .gist-inner h3 {
+      font-size: 1.25rem;
+      font-weight: 750;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+    .gist-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .gist-row label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      min-width: 120px;
+    }
     .gist-row input {
-      flex:1; background:var(--bg); border:1px solid var(--border);
-      border-radius:8px; color:var(--text); font-family:monospace;
-      font-size:.8rem; padding:.42rem .7rem; outline:none;
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 0.6rem 0.85rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    .gist-row input:focus { border-color:var(--accent); }
-    .gist-actions { display:flex; gap:.5rem; margin-top:.4rem; flex-wrap:wrap; }
-    .gist-note  { font-size:.76rem; color:var(--muted); line-height:1.5; margin-top:.6rem; }
-    .gist-note a { color:var(--accent); }
-    #gist-status { font-size:.8rem; margin-top:.45rem; min-height:1.1em; }
+    .gist-row input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+    .gist-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .gist-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 1rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+    .gist-note a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .gist-note a:hover {
+      text-decoration: underline;
+    }
+    #gist-status {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+      min-height: 1.2em;
+    }
 
-    /* Modal */
+    /* Modal Backdrop */
     .modal-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.75);
-      z-index:200; display:none; overflow-y:auto;
-      padding:2rem 1rem; backdrop-filter:blur(4px);
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      overflow-y: auto;
+      padding: 3rem 1.5rem;
     }
-    .modal-overlay.open { display:flex; justify-content:center; align-items:flex-start; }
+    .modal-overlay.open {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* Modal Structure */
     .modal {
-      background:var(--surface); border:1px solid var(--border);
-      border-radius:var(--radius); max-width:780px; width:100%;
-      padding:2rem; position:relative; margin:auto;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      max-width: 800px;
+      width: 100%;
+      padding: 2.5rem;
+      position: relative;
+      margin: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
     }
     .modal-close {
-      position:absolute; top:1rem; right:1rem;
-      background:var(--bg); border:1px solid var(--border);
-      color:var(--text); width:32px; height:32px; border-radius:8px;
-      cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      color: var(--muted);
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
     }
-    .modal-close:hover { border-color:var(--accent); }
-    .modal h2 { font-size:1.4rem; margin-bottom:.3rem; padding-right:2rem; }
-    .modal .modal-meta { color:var(--muted); font-size:.82rem; margin-bottom:1rem; }
-    .modal h3 { font-size:1rem; margin-top:1.5rem; margin-bottom:.5rem; color:var(--cyan); }
-    .modal h3:first-of-type { margin-top:0; }
-    .modal p, .modal li { font-size:.88rem; line-height:1.65; color:var(--text); }
-    .modal ol, .modal ul { padding-left:1.4rem; margin-bottom:.5rem; }
-    .modal li { margin-bottom:.3rem; }
+    .modal-close:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .modal h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      padding-right: 2rem;
+      letter-spacing: -0.02em;
+    }
+    .modal .modal-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 1.5rem;
+    }
+    .modal h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      color: var(--cyan);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.35rem;
+    }
+    .modal h3:first-of-type {
+      margin-top: 0;
+    }
+    .modal p, .modal li {
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .modal ol, .modal ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .modal li {
+      margin-bottom: 0.5rem;
+    }
     .modal pre {
-      background:var(--bg); border:1px solid var(--border);
-      border-radius:8px; padding:.9rem; overflow-x:auto;
-      font-size:.78rem; line-height:1.5; margin:.6rem 0;
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin: 1rem 0;
     }
-    .modal code { font-family:monospace; background:var(--surface2); padding:.1rem .35rem; border-radius:4px; font-size:.85em; }
-    .modal pre code { background:transparent; padding:0; }
-    .modal a { color:var(--accent); text-decoration:none; }
-    .modal a:hover { text-decoration:underline; }
-    .modal-pills { display:flex; flex-wrap:wrap; gap:.3rem; margin-bottom:1rem; }
-    .modal-actions { display:flex; gap:.5rem; margin-top:1.5rem; flex-wrap:wrap; }
+    .modal code {
+      font-family: var(--font-mono);
+      background: var(--surface2);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    .modal pre code {
+      background: transparent;
+      padding: 0;
+    }
+    .modal a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .modal a:hover {
+      text-decoration: underline;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 2.5rem;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+    }
 
-    /* New: file location badge */
+    /* Details styling inside modal */
     .file-location {
-      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      background: rgba(99, 102, 241, 0.08);
       border-left: 3px solid var(--accent);
-      padding: .6rem .9rem; border-radius: 6px;
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      font-size: .82rem; margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      margin-bottom: 1.5rem;
     }
-    .file-location strong { color: var(--accent); margin-right: .4rem; }
+    .file-location strong {
+      color: var(--accent);
+      margin-right: 0.5rem;
+    }
 
-    /* New: parts checklist */
-    .parts-checklist { list-style: none; padding: 0; margin: .5rem 0 1rem; }
+    .parts-checklist {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 1.5rem;
+    }
     .parts-checklist li {
-      padding: .55rem .75rem; border: 1px solid var(--border);
-      border-radius: 8px; margin-bottom: .4rem; background: var(--bg);
-      font-size: .86rem; display: flex; align-items: flex-start; gap: .5rem;
+      padding: 0.65rem 1rem;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.5rem;
+      background: var(--bg);
+      font-size: 0.88rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
     }
     .parts-checklist li::before {
-      content: "☐"; color: var(--muted); font-size: 1.05rem; flex-shrink: 0;
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      margin-top: 0.6rem;
+      flex-shrink: 0;
     }
-    .parts-checklist .part-label { color: var(--cyan); font-weight: 700; margin-right: .4rem; }
+    .parts-checklist .part-label {
+      color: var(--cyan);
+      font-weight: 700;
+      margin-right: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
 
-    /* New: reference notes */
     .reference-note {
-      background: color-mix(in srgb, var(--green) 10%, transparent);
+      background: rgba(16, 185, 129, 0.06);
       border-left: 3px solid var(--green);
-      padding: .65rem .9rem; border-radius: 6px;
-      font-size: .83rem; margin-top: 1rem; line-height: 1.55;
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      margin-top: 1.5rem;
+      line-height: 1.6;
     }
-    .reference-note strong { color: var(--green); }
-
-    /* Setup card (special) */
-    .setup-card {
-      background: color-mix(in srgb, var(--yellow) 8%, transparent);
-      border: 1px solid color-mix(in srgb, var(--yellow) 30%, transparent);
-      border-radius: var(--radius);
-      padding: 1.3rem; margin-bottom: 1.5rem; cursor: pointer;
-      transition: border-color .2s;
+    .reference-note strong {
+      color: var(--green);
     }
-    .setup-card:hover { border-color: var(--yellow); }
-    .setup-card h3 { font-size: 1rem; color: var(--yellow); margin-bottom: .4rem; }
-    .setup-card p { font-size: .83rem; color: var(--muted); }
 
-    footer { border-top:1px solid var(--border); color:var(--muted); font-size:.76rem; margin-top:3rem; padding:1.75rem; text-align:center; line-height:1.8; }
-    footer a { color:var(--accent); text-decoration:none; }
+    /* Global Utils */
+    code {
+      font-family: var(--font-mono);
+      background: var(--surface2);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
 
-    .spinner { display:inline-block; width:12px; height:12px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:.3rem; }
-    @keyframes spin { to { transform:rotate(360deg); } }
+    /* Loading Spinner */
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--border-light);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
-    code { font-family:monospace; background:var(--surface2); padding:.1rem .35rem; border-radius:4px; font-size:.85em; }
-    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-light);
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-top: 5rem;
+      padding: 2.5rem 0;
+      line-height: 1.8;
+    }
+    footer .footer-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
 
-    @media (max-width: 760px) {
-      nav { align-items:flex-start; padding:.85rem 1rem; gap:.8rem; flex-direction:column; }
-      .nav-right { justify-content:flex-start; gap:.65rem; }
-      .hero { text-align:left; padding:2.75rem 1rem 1.5rem; }
-      .hero p { margin-left:0; }
-      .hero-btns { justify-content:flex-start; }
-      .course-stats { grid-template-columns:1fr; padding:0 1rem; }
-      .tabs-wrap { padding:0 1rem; }
-      .tabs { display:grid; grid-template-columns:1fr 1fr; overflow:visible; padding-bottom:.2rem; }
-      .tab-btn { min-width:0; white-space:normal; padding:.75rem .7rem; font-size:.82rem; }
-      .deploy-inner { grid-template-columns:1fr; }
-      .gist-row { align-items:flex-start; flex-direction:column; gap:.3rem; }
-      .gist-row label { min-width:auto; }
-      .gist-row input { width:100%; }
-      .modal { padding:1.35rem; }
+    /* Responsive Viewports */
+    @media (max-width: 768px) {
+      .nav-container {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem 0;
+        gap: 0.75rem;
+        align-items: flex-start;
+      }
+      .nav-right {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      .hero {
+        text-align: left;
+        padding: 4rem 0 2.5rem;
+      }
+      .hero h1 {
+        font-size: 2.25rem;
+      }
+      .hero-btns {
+        justify-content: flex-start;
+      }
+      .tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-radius: var(--radius-sm);
+        width: 100%;
+      }
+      .tab-btn {
+        border-radius: 4px;
+        text-align: center;
+        padding: 0.6rem;
+      }
+      .deploy-inner {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .gist-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+      }
+      .gist-row label {
+        min-width: auto;
+      }
+      .gist-row input {
+        width: 100%;
+      }
+      .modal {
+        padding: 1.5rem;
+      }
+      footer .footer-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
     }
   </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-brand"><span class="brand-mark">WAC</span><span>Weather API Course</span></div>
-  <div class="nav-right">
-    <a class="nav-link" href="#tabs">Course Map</a>
-    <a class="nav-link" href="#deploy">Deploy</a>
-    <a class="nav-link" href="https://github.com/Sharquille/weather-api-course" target="_blank">GitHub ↗</a>
-    <a class="nav-link btn btn-secondary btn-sm" href="#gist-panel">Sync Progress</a>
+  <div class="container nav-container">
+    <div class="nav-brand">Weather API Course</div>
+    <div class="nav-right">
+      <a class="nav-link" href="#tabs">Course Map</a>
+      <a class="nav-link" href="#deploy">Deploy</a>
+      <a class="nav-link" href="https://github.com/Sharquille/weather-api-course" target="_blank" rel="noopener">GitHub ↗</a>
+      <a class="nav-link btn btn-secondary btn-sm" href="#gist-panel">Sync Progress</a>
+    </div>
   </div>
 </nav>
 
-<div class="hero">
-  <div class="eyebrow">HTTP -> Python -> Browser -> Automation</div>
-  <h1>Build API fluency with a <span>real weather project.</span></h1>
-  <p>Start with <code>curl</code>, move into Python and browser JavaScript, then ship scheduled automations with tests, deployment, and clear documentation.</p>
-  <div class="hero-btns">
-    <a class="btn btn-primary" href="#tabs">Start Learning</a>
-    <a class="btn btn-secondary" href="#deploy">Deploy Course Site</a>
-    <a class="btn btn-secondary" href="https://github.com/Sharquille/weather-api-course" target="_blank">View Repo</a>
+<div class="container">
+  <div class="hero">
+    <div class="eyebrow">HTTP &bull; Python &bull; Browser &bull; Automation</div>
+    <h1>Build API fluency with a <span>real weather project.</span></h1>
+    <p>Start with <code>curl</code>, move into Python and browser JavaScript, then ship scheduled automations with tests, deployment, and clear documentation.</p>
+    <div class="hero-btns">
+      <a class="btn btn-primary" href="#tabs">Start Learning</a>
+      <a class="btn btn-secondary" href="#deploy">Deploy Course Site</a>
+      <a class="btn btn-secondary" href="https://github.com/Sharquille/weather-api-course" target="_blank" rel="noopener">View Repo</a>
+    </div>
   </div>
 </div>
 
-<div class="course-stats" aria-label="Course summary">
-  <div class="stat"><strong>15 phases</strong><span>Level 1 fundamentals plus Level 2 automation.</span></div>
-  <div class="stat"><strong>Static deploy</strong><span>Cloudflare Pages-ready from the repository root.</span></div>
-  <div class="stat"><strong>Starter + solution</strong><span>Practice first, then compare against reference answers.</span></div>
-</div>
-
-<div class="tabs-wrap deploy-panel" id="deploy">
+<div class="container deploy-panel" id="deploy">
   <div class="deploy-inner">
     <div>
       <h2>Cloudflare Pages Deployment</h2>
@@ -331,19 +972,19 @@ Root directory: /</code></pre>
   </div>
 </div>
 
-<div class="tabs-wrap" id="tabs">
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('l1')" id="tab-l1">Level 1 — Fundamentals</button>
-    <button class="tab-btn locked" onclick="switchTab('l2')" id="tab-l2">🔒 Level 2 — Automation</button>
+<div class="container" id="tabs">
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('l1')" id="tab-l1">Level 1 — Fundamentals</button>
+      <button class="tab-btn locked" onclick="switchTab('l2')" id="tab-l2">Level 2 — Automation</button>
+    </div>
   </div>
 
   <!-- LEVEL 1 -->
   <div class="tab-panel active" id="panel-l1">
-
-    <!-- Setup card (special) -->
     <div class="setup-card" onclick="openSetup()">
       <h3>Setup — do this first (5 minutes)</h3>
-      <p>Clone the repo, create a Python virtual environment, install dependencies, copy the .env template. Click for full instructions.</p>
+      <p>Clone the repo, create a Python virtual environment, install dependencies, and copy the .env template. Click for full instructions.</p>
     </div>
 
     <div class="progress-section">
@@ -353,10 +994,11 @@ Root directory: /</code></pre>
       </div>
       <div class="progress-track"><div class="progress-fill" id="l1-fill" style="width:0%"></div></div>
     </div>
+    
     <div class="phases" id="l1-grid"></div>
 
     <div class="section">
-        <h2>Level 1 Reference Repos</h2>
+      <h2>Level 1 Reference Repos</h2>
       <div class="repos" id="l1-repos"></div>
     </div>
   </div>
@@ -364,11 +1006,11 @@ Root directory: /</code></pre>
   <!-- LEVEL 2 -->
   <div class="tab-panel" id="panel-l2">
     <div id="l2-lock-banner" class="lock-banner">
-      <div class="lock-icon">🔒</div>
+      <div class="lock-icon">Locked</div>
       <h3>Level 2 unlocks when Level 1 is complete</h3>
-      <p>Complete all 8 phases in Level 1 first.<br>The skills build on each other — jumping ahead won't work.</p>
-      <div class="lock-progress" style="margin-top:1rem">
-        <span id="l2-lock-label" style="font-size:.85rem;color:var(--muted)">0 / 8 complete</span>
+      <p>Complete all 8 phases in Level 1 first. The skills build on each other — jumping ahead won't work.</p>
+      <div class="lock-progress" style="margin-top:1.5rem">
+        <span id="l2-lock-label" style="font-size:0.85rem; font-family: var(--font-mono); color: var(--muted)">0 / 8 complete</span>
       </div>
     </div>
 
@@ -380,6 +1022,7 @@ Root directory: /</code></pre>
         </div>
         <div class="progress-track"><div class="progress-fill" id="l2-fill" style="width:0%"></div></div>
       </div>
+      
       <div class="phases" id="l2-grid"></div>
 
       <div class="section">
@@ -390,13 +1033,12 @@ Root directory: /</code></pre>
   </div>
 </div>
 
-<div class="tabs-wrap" id="gist-panel">
+<div class="container" id="gist-panel">
   <div class="gist-panel">
     <div class="gist-inner">
-      <h3>☁️ Save Progress to GitHub Gist</h3>
-      <p style="color:var(--muted);font-size:.8rem;margin-bottom:.85rem;line-height:1.6">
-        Progress saves to <code>localStorage</code> by default — clearing your cache wipes it.
-        Connect a GitHub token to save to a private Gist instead.
+      <h3>Save Progress to GitHub Gist</h3>
+      <p style="color:var(--muted); font-size:0.88rem; margin-bottom:1.25rem; line-height:1.6">
+        Progress saves to <code>localStorage</code> by default — clearing your cache wipes it. Connect a GitHub token to save to a private Gist instead. <a href="PROGRESS_SYNC.md" target="_blank" rel="noopener">Read the setup guide.</a>
       </p>
       <div class="gist-row">
         <label>GitHub Token</label>
@@ -413,21 +1055,26 @@ Root directory: /</code></pre>
       </div>
       <div id="gist-status"></div>
       <p class="gist-note">
-        Create a token at <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank">github.com/settings/tokens</a>
-        — scope: <code>gist</code> only. Stored in localStorage, sent only to GitHub.
+        Create a token at <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" rel="noopener">github.com/settings/tokens</a> — scope: <code>gist</code> only. Stored in localStorage, sent only to GitHub.
       </p>
     </div>
   </div>
 </div>
 
 <footer>
-  <p>Built for <a href="https://lexlabs.org">LexLabs</a> — run locally, deploy the course site, then deploy your own app in Phase 05</p>
-  <p>APIs: <a href="https://open-meteo.com">Open-Meteo</a> · <a href="https://openweathermap.org">OpenWeatherMap</a> · <a href="https://weatherapi.com">WeatherAPI</a></p>
+  <div class="container footer-container">
+    <div>
+      <p>Built for <a href="https://lexlabs.org" target="_blank" rel="noopener">LexLabs</a> — run locally, deploy the course site, then deploy your own app in Phase 05</p>
+    </div>
+    <div>
+      <p>APIs: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://openweathermap.org" target="_blank" rel="noopener">OpenWeatherMap</a> &middot; <a href="https://weatherapi.com" target="_blank" rel="noopener">WeatherAPI</a></p>
+    </div>
+  </div>
 </footer>
 
 <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this) closeModal()">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">×</button>
+    <button class="modal-close" onclick="closeModal()" aria-label="Close modal">&times;</button>
     <div id="modal-content"></div>
   </div>
 </div>
@@ -917,12 +1564,12 @@ function phaseCard(p, isDone, isLocked) {
         <div class="phase-num">${escapeHtml(p.num)}</div>
         ${!isLocked
           ? `<button class="phase-check" type="button" aria-label="Toggle ${escapeHtml(p.title)} complete" onclick="event.stopPropagation(); toggle('${p.id}')">${isDone ? '✓' : ''}</button>`
-          : '<div style="font-size:.8rem;color:var(--muted)" aria-label="Locked">🔒</div>'}
+          : '<div style="font-size:0.7rem; font-family:var(--font-mono); color:var(--muted2); font-weight:700; text-transform:uppercase; letter-spacing:0.05em" aria-label="Locked">Locked</div>'}
       </div>
       <div class="phase-title">${escapeHtml(p.title)}</div>
       <div class="phase-desc">${escapeHtml(p.desc)}</div>
       <div class="phase-pills">${pills}</div>
-      <div class="phase-cta">View full lesson →</div>
+      <div class="phase-cta">View full lesson &rarr;</div>
     </div>`;
 }
 
@@ -958,7 +1605,7 @@ function render() {
     document.getElementById('l2-content').style.display     = 'block';
   } else {
     tabL2.classList.add('locked');
-    tabL2.textContent = '🔒 Level 2 — Automation';
+    tabL2.textContent = 'Level 2 — Automation';
     document.getElementById('l2-lock-banner').style.display = 'block';
     document.getElementById('l2-content').style.display     = 'none';
     document.getElementById('l2-lock-label').textContent    = `${l1Done} / ${l1Total} complete`;
@@ -985,7 +1632,7 @@ function resetProgress() {
   document.getElementById('gh-token').value = '';
   document.getElementById('gist-id-input').value = '';
   render();
-  setGistStatus('Reset', 'var(--yellow)');
+  setGistStatus('Reset complete.', 'var(--yellow)');
 }
 
 // ════════════════════════════════════════════════
@@ -1008,7 +1655,7 @@ function openPhase(id) {
     <div class="modal-meta">${pills}</div>
 
     <div class="file-location">
-      <strong>📁 File:</strong> <code>${escapeHtml(p.file)}</code>
+      <strong>Source file location:</strong> <code>${escapeHtml(p.file)}</code>
     </div>
 
     <h3>Goal</h3>
@@ -1017,32 +1664,32 @@ function openPhase(id) {
     <h3>Concept</h3>
     <p>${formatInline(p.concept)}</p>
 
-    <h3>What you'll do — ${p.parts.length} parts</h3>
+    <h3>Execution checklist</h3>
     <ul class="parts-checklist">${partsList}</ul>
 
-    <h3>How to work through it</h3>
+    <h3>Step-by-step instructions</h3>
     <ol>${steps}</ol>
 
     <h3>Research task</h3>
     <p>${formatInline(p.research)}</p>
 
-    <h3>Checkpoint — answer before moving on</h3>
+    <h3>Checkpoint — verify your understanding</h3>
     <ul>${checkpoint}</ul>
 
-    <h3>Go deeper</h3>
+    <h3>Additional resources</h3>
     <ul>${deeper}</ul>
 
-    <h3>How to run</h3>
+    <h3>Execution command</h3>
     <pre><code>${escapeHtml(p.run)}</code></pre>
 
     ${p.curlNote ? `
     <div class="reference-note">
-      <strong>💡 Curl reference:</strong> Open the file in <code>${escapeHtml(p.file)}</code> — the header has a "curl equivalent" comment showing the curl command for every Python request you write. Use it as a translation reference, not a shortcut.
+      <strong>Curl mapping:</strong> Review the comments in <code>${escapeHtml(p.file)}</code> — the header contains exact <code>curl</code> translations for every python request you write. Use this for diagnostic cross-referencing.
     </div>` : ''}
 
     <div class="modal-actions">
       <button class="btn ${isDone ? 'btn-secondary' : 'btn-primary'} btn-sm" onclick="toggle('${id}'); openPhase('${id}')">
-        ${isDone ? '✓ Marked complete — click to undo' : 'Mark as complete'}
+        ${isDone ? 'Mark as incomplete' : 'Mark phase complete'}
       </button>
       <button class="btn btn-secondary btn-sm" onclick="closeModal()">Close</button>
     </div>
@@ -1053,49 +1700,49 @@ function openPhase(id) {
 
 function openSetup() {
   document.getElementById('modal-content').innerHTML = `
-    <h2>Setup — do this first</h2>
-    <div class="modal-meta">~5 minutes, once per machine</div>
+    <h2>Initial Environment Setup</h2>
+    <div class="modal-meta"><span class="pill">~5 minutes</span></div>
 
     <div class="file-location">
-      <strong>📁 You'll need:</strong> Python 3.10+, git, a GitHub account
+      <strong>Requirements:</strong> Python 3.10+, git, GitHub account
     </div>
 
-    <h3>1. Clone the repo</h3>
+    <h3>1. Clone the repository</h3>
     <pre><code>$ git clone https://github.com/Sharquille/weather-api-course.git
 $ cd weather-api-course</code></pre>
 
-    <h3>2. Create a virtual environment</h3>
+    <h3>2. Initialize a Python virtual environment</h3>
     <pre><code>$ python3 -m venv .venv
 $ source .venv/bin/activate    # macOS/Linux
 # .venv\\Scripts\\activate     # Windows PowerShell</code></pre>
 
-    <h3>3. Install dependencies</h3>
-    <p>Create <code>requirements.txt</code> in the repo root with:</p>
+    <h3>3. Install course package dependencies</h3>
+    <p>Verify or create <code>requirements.txt</code> in the repo root with:</p>
     <pre><code>requests>=2.31.0
 python-dotenv>=1.0.0
 flask>=3.0.0
 pytest>=7.4.0</code></pre>
-    <p>Then:</p>
+    <p>Then install via pip:</p>
     <pre><code>$ pip install -r requirements.txt</code></pre>
 
-    <h3>4. Set up the .env file (for Phase 02+)</h3>
+    <h3>4. Establish environment credentials (for Phase 02+)</h3>
     <pre><code>$ cp level-1/02-auth-apis/starter/.env.example level-1/02-auth-apis/starter/.env
-# Edit .env and add your OpenWeatherMap and WeatherAPI keys</code></pre>
+# Open .env and insert your secure keys for OpenWeatherMap and WeatherAPI</code></pre>
 
-    <h3>5. Sign up for the free API keys you'll need</h3>
+    <h3>5. Provision required API credentials</h3>
     <ul>
-      <li><strong>OpenWeatherMap</strong> — <a href="https://openweathermap.org/api" target="_blank">openweathermap.org/api</a> (free tier: 1000 calls/day)</li>
-      <li><strong>WeatherAPI</strong> — <a href="https://www.weatherapi.com/" target="_blank">weatherapi.com</a> (free tier: 1M calls/month)</li>
-      <li><strong>Open-Meteo</strong> — <strong>no key needed</strong>, used in Phase 00–01</li>
+      <li><strong>OpenWeatherMap</strong> — <a href="https://openweathermap.org/api" target="_blank" rel="noopener">openweathermap.org/api</a> (free tier: 1000 requests/day)</li>
+      <li><strong>WeatherAPI</strong> — <a href="https://www.weatherapi.com/" target="_blank" rel="noopener">weatherapi.com</a> (free tier: 1M requests/month)</li>
+      <li><strong>Open-Meteo</strong> — <strong>Public utility: no key needed</strong>, used in Phase 00–01</li>
     </ul>
 
-    <h3>6. Verify your setup</h3>
+    <h3>6. Diagnostic run</h3>
     <pre><code>$ cd level-1/00-curl-basics/starter
 $ bash exercises.sh
-# Should print weather for Roseau and complete all 7 exercises without errors</code></pre>
+# Confirm the terminal successfully returns the forecast for Roseau and passes diagnostics.</code></pre>
 
     <div class="reference-note">
-      <strong>💡 Each learner runs their own setup.</strong> Both of you clone the same repo to your own machine. You don't share a deployed environment until Phase 05 (and even then, you deploy your own version, not a shared one).
+      <strong>Environment boundaries:</strong> Each system operates on its own configuration. Cloning the repository to your local runtime keeps configurations separated. Sharing deployed code takes place in Phase 05, using unique accounts.
     </div>
 
     <div class="modal-actions">
@@ -1121,7 +1768,7 @@ function switchTab(level) {
   const l1Complete = L1_PHASES.filter(p => state[p.id]).length === L1_PHASES.length;
   if (level === 'l2' && !l1Complete) {
     const done = L1_PHASES.filter(p => state[p.id]).length;
-    alert(`Level 2 is locked. Complete all 8 Level 1 phases first. (${done}/8 done)`);
+    alert(`Level 2 is locked. Complete all 8 Level 1 phases first. (${done}/8 complete)`);
     return;
   }
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1144,15 +1791,15 @@ function setGistStatus(msg, color = 'var(--muted)') {
 
 async function saveToGist() {
   const token  = document.getElementById('gh-token').value.trim() || localStorage.getItem('gh_token');
-  if (!token) { setGistStatus('⚠️ Enter a GitHub token first', 'var(--yellow)'); return; }
+  if (!token) { setGistStatus('Provide a valid GitHub personal access token.', 'var(--yellow)'); return; }
   localStorage.setItem('gh_token', token);
 
   const gistId  = document.getElementById('gist-id-input').value.trim() || localStorage.getItem('gist_id') || '';
   const content = JSON.stringify(load(), null, 2);
-  const payload = { description: 'Weather API Course Progress', public: false,
+  const payload = { description: 'Weather API Course Progress Tracker', public: false,
                     files: { [GIST_FILE]: { content } } };
 
-  setGistStatus('<span class="spinner"></span>Saving…');
+  setGistStatus('<span class="spinner"></span>Saving to GitHub Gist API…');
   try {
     const url    = gistId ? `https://api.github.com/gists/${gistId}` : 'https://api.github.com/gists';
     const method = gistId ? 'PATCH' : 'POST';
@@ -1161,31 +1808,31 @@ async function saveToGist() {
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error(`GitHub ${res.status}: ${await res.text()}`);
+    if (!res.ok) throw new Error(`GitHub Gist API error: ${res.status}: ${await res.text()}`);
     const data = await res.json();
     localStorage.setItem('gist_id', data.id);
     document.getElementById('gist-id-input').value = data.id;
-    setGistStatus(`✅ Saved to <a href="${data.html_url}" target="_blank">gist ${data.id.slice(0,8)}…</a>`, 'var(--green)');
-  } catch(e) { setGistStatus(`❌ ${e.message}`, 'var(--red)'); }
+    setGistStatus(`Progress saved to <a href="${data.html_url}" target="_blank">gist ${data.id.slice(0,8)}...</a>`, 'var(--green)');
+  } catch(e) { setGistStatus(e.message, 'var(--red)'); }
 }
 
 async function loadFromGist() {
   const token  = document.getElementById('gh-token').value.trim() || localStorage.getItem('gh_token');
   const gistId = document.getElementById('gist-id-input').value.trim() || localStorage.getItem('gist_id');
-  if (!token || !gistId) { setGistStatus('⚠️ Enter token and Gist ID', 'var(--yellow)'); return; }
+  if (!token || !gistId) { setGistStatus('Ensure both GitHub Token and Gist ID are configured.', 'var(--yellow)'); return; }
 
-  setGistStatus('<span class="spinner"></span>Loading…');
+  setGistStatus('<span class="spinner"></span>Synchronizing state from GitHub Gist…');
   try {
     const res = await fetch(`https://api.github.com/gists/${gistId}`,
       { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) throw new Error(`GitHub ${res.status}`);
+    if (!res.ok) throw new Error(`GitHub Error Code: ${res.status}`);
     const data    = await res.json();
     const content = data.files[GIST_FILE]?.content;
-    if (!content) throw new Error('Progress file not found in this Gist');
+    if (!content) throw new Error('Progress record could not be parsed from target Gist');
     save(JSON.parse(content));
     render();
-    setGistStatus('✅ Progress loaded', 'var(--green)');
-  } catch(e) { setGistStatus(`❌ ${e.message}`, 'var(--red)'); }
+    setGistStatus('Progress sync completed successfully.', 'var(--green)');
+  } catch(e) { setGistStatus(e.message, 'var(--red)'); }
 }
 
 window.addEventListener('load', () => {

@@ -62,6 +62,7 @@ asks each learner to create a separate repo for their own finished weather app.
 weather-api-course/
 ├── _headers                    Cloudflare Pages security headers
 ├── index.html                  Course site and progress tracker
+├── PROGRESS_SYNC.md            GitHub Gist progress sync guide
 ├── requirements.txt            Shared Python dependencies
 ├── level-1/                    API fundamentals
 │   ├── 00-curl-basics/
@@ -119,6 +120,14 @@ cp level-1/02-auth-apis/starter/.env.example level-1/02-auth-apis/starter/.env
 
 Use `.env.example` for names and placeholders only. Put real keys in `.env`,
 which is ignored by Git.
+
+## Progress Sync
+
+The course site saves phase progress locally in your browser. To sync progress
+across browsers or devices, use the GitHub Gist sync panel in the site.
+
+Read [PROGRESS_SYNC.md](PROGRESS_SYNC.md) for setup, save/load behavior, privacy
+notes, and troubleshooting.
 
 ## About The Separate Deployment Repo
 
