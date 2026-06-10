@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather API Course — LexLabs</title>
+  <style>
+    :root {
+      --bg:       #0f1117;
+      --surface:  #1a1d27;
+      --surface2: #22263a;
+      --border:   #2a2d3a;
+      --accent:   #6366f1;
+      --cyan:     #22d3ee;
+      --green:    #22c55e;
+      --yellow:   #f59e0b;
+      --red:      #ef4444;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --radius:   12px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    nav {
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items:center; justify-content:space-between;
+      padding: 1rem 2rem; position: sticky; top:0; background:var(--bg); z-index:100;
+    }
+    .nav-brand {
+      font-weight:700; font-size:1rem;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .nav-right { display:flex; gap:.75rem; align-items:center; }
+    .nav-link { color:var(--muted); font-size:.85rem; text-decoration:none; transition:color .2s; }
+    .nav-link:hover { color:var(--text); }
+
+    .hero { text-align:center; padding:3.5rem 1rem 2rem; max-width:680px; margin:0 auto; }
+    .hero h1 { font-size:clamp(1.8rem,5vw,2.6rem); font-weight:800; line-height:1.2; margin-bottom:.9rem; }
+    .hero h1 span { background:linear-gradient(135deg,var(--accent),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hero p { color:var(--muted); font-size:1rem; line-height:1.7; margin-bottom:1.75rem; }
+
+    .btn { border:none; border-radius:var(--radius); cursor:pointer; font-size:.85rem; font-weight:600; padding:.65rem 1.25rem; transition:opacity .2s,transform .1s; text-decoration:none; display:inline-flex; align-items:center; gap:.35rem; }
+    .btn:active { transform:scale(.97); }
+    .btn-primary  { background:var(--accent); color:#fff; }
+    .btn-secondary{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
+    .btn-sm       { font-size:.78rem; padding:.4rem .9rem; }
+    .btn:hover    { opacity:.85; }
+    .hero-btns    { display:flex; gap:.75rem; justify-content:center; flex-wrap:wrap; }
+
+    .tabs-wrap { max-width:1100px; margin:0 auto; padding:0 1.5rem; }
+    .tabs { display:flex; gap:.5rem; border-bottom:1px solid var(--border); margin-bottom:2rem; }
+    .tab-btn {
+      background:none; border:none; color:var(--muted); cursor:pointer;
+      font-size:.92rem; font-weight:600; padding:.75rem 1.25rem;
+      border-bottom:2px solid transparent; margin-bottom:-1px;
+      transition:color .2s, border-color .2s;
+    }
+    .tab-btn.active { color:var(--text); border-bottom-color:var(--accent); }
+    .tab-btn:hover  { color:var(--text); }
+    .tab-btn.locked { cursor:not-allowed; opacity:.45; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    .lock-banner { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; text-align:center; margin-bottom:2rem; }
+    .lock-icon { font-size:2.5rem; margin-bottom:.75rem; }
+    .lock-banner h3 { font-size:1.1rem; margin-bottom:.5rem; }
+    .lock-banner p  { color:var(--muted); font-size:.88rem; line-height:1.6; }
+
+    .progress-section { margin-bottom:1.75rem; }
+    .progress-header  { display:flex; justify-content:space-between; align-items:center; margin-bottom:.45rem; }
+    .progress-header span { font-size:.83rem; color:var(--muted); }
+    .progress-track   { height:5px; background:var(--border); border-radius:999px; overflow:hidden; }
+    .progress-fill    { height:100%; background:linear-gradient(90deg,var(--accent),var(--cyan)); border-radius:999px; transition:width .5s ease; }
+
+    .phases { display:grid; gap:1rem; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); margin-bottom:2.5rem; }
+    .phase-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:1.2rem; cursor:pointer;
+      transition:border-color .2s, transform .15s;
+    }
+    .phase-card:hover { border-color:color-mix(in srgb, var(--accent) 60%, transparent); transform:translateY(-2px); }
+    .phase-card.done  { border-color:var(--green); }
+    .phase-card.locked-card { opacity:.45; pointer-events:none; }
+    .phase-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.65rem; }
+    .phase-num { font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+    .phase-check {
+      width:22px; height:22px; border-radius:50%; border:2px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; flex-shrink:0; font-size:.75rem;
+    }
+    .phase-check:hover { border-color:var(--green); }
+    .phase-card.done .phase-check { background:var(--green); border-color:var(--green); color:#fff; }
+    .phase-title { font-size:.97rem; font-weight:700; margin-bottom:.3rem; }
+    .phase-desc  { color:var(--muted); font-size:.82rem; line-height:1.5; margin-bottom:.9rem; }
+    .phase-pills { display:flex; flex-wrap:wrap; gap:.3rem; margin-bottom:.9rem; }
+    .pill { background:var(--bg); border:1px solid var(--border); border-radius:999px; font-size:.68rem; font-family:monospace; padding:.18rem .55rem; color:var(--cyan); }
+    .phase-cta { font-size:.75rem; color:var(--accent); margin-top:.5rem; font-weight:600; }
+
+    .section    { margin-bottom:2.5rem; }
+    .section h2 { font-size:1.05rem; font-weight:700; margin-bottom:1rem; }
+    .repos      { display:grid; gap:.65rem; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); }
+    .repo-card  {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:.9rem;
+      text-decoration:none; color:inherit; display:block; transition:border-color .2s;
+    }
+    .repo-card:hover { border-color:var(--accent); }
+    .repo-name  { font-size:.82rem; font-weight:600; color:var(--cyan); margin-bottom:.25rem; }
+    .repo-phase { font-size:.7rem; color:var(--muted); margin-bottom:.2rem; font-style:italic; }
+    .repo-desc  { font-size:.78rem; color:var(--muted); line-height:1.4; }
+
+    .gist-panel { margin-bottom:2.5rem; }
+    .gist-inner { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem; }
+    .gist-inner h3 { font-size:.95rem; margin-bottom:.65rem; }
+    .gist-row  { display:flex; align-items:center; gap:.65rem; margin-bottom:.55rem; }
+    .gist-row label { font-size:.8rem; color:var(--muted); min-width:115px; }
+    .gist-row input {
+      flex:1; background:var(--bg); border:1px solid var(--border);
+      border-radius:8px; color:var(--text); font-family:monospace;
+      font-size:.8rem; padding:.42rem .7rem; outline:none;
+    }
+    .gist-row input:focus { border-color:var(--accent); }
+    .gist-actions { display:flex; gap:.5rem; margin-top:.4rem; flex-wrap:wrap; }
+    .gist-note  { font-size:.76rem; color:var(--muted); line-height:1.5; margin-top:.6rem; }
+    .gist-note a { color:var(--accent); }
+    #gist-status { font-size:.8rem; margin-top:.45rem; min-height:1.1em; }
+
+    /* Modal */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.75);
+      z-index:200; display:none; overflow-y:auto;
+      padding:2rem 1rem; backdrop-filter:blur(4px);
+    }
+    .modal-overlay.open { display:flex; justify-content:center; align-items:flex-start; }
+    .modal {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); max-width:780px; width:100%;
+      padding:2rem; position:relative; margin:auto;
+    }
+    .modal-close {
+      position:absolute; top:1rem; right:1rem;
+      background:var(--bg); border:1px solid var(--border);
+      color:var(--text); width:32px; height:32px; border-radius:8px;
+      cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;
+    }
+    .modal-close:hover { border-color:var(--accent); }
+    .modal h2 { font-size:1.4rem; margin-bottom:.3rem; padding-right:2rem; }
+    .modal .modal-meta { color:var(--muted); font-size:.82rem; margin-bottom:1rem; }
+    .modal h3 { font-size:1rem; margin-top:1.5rem; margin-bottom:.5rem; color:var(--cyan); }
+    .modal h3:first-of-type { margin-top:0; }
+    .modal p, .modal li { font-size:.88rem; line-height:1.65; color:var(--text); }
+    .modal ol, .modal ul { padding-left:1.4rem; margin-bottom:.5rem; }
+    .modal li { margin-bottom:.3rem; }
+    .modal pre {
+      background:var(--bg); border:1px solid var(--border);
+      border-radius:8px; padding:.9rem; overflow-x:auto;
+      font-size:.78rem; line-height:1.5; margin:.6rem 0;
+    }
+    .modal code { font-family:monospace; background:var(--surface2); padding:.1rem .35rem; border-radius:4px; font-size:.85em; }
+    .modal pre code { background:transparent; padding:0; }
+    .modal a { color:var(--accent); text-decoration:none; }
+    .modal a:hover { text-decoration:underline; }
+    .modal-pills { display:flex; flex-wrap:wrap; gap:.3rem; margin-bottom:1rem; }
+    .modal-actions { display:flex; gap:.5rem; margin-top:1.5rem; flex-wrap:wrap; }
+
+    /* New: file location badge */
+    .file-location {
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      border-left: 3px solid var(--accent);
+      padding: .6rem .9rem; border-radius: 6px;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: .82rem; margin-bottom: 1rem;
+    }
+    .file-location strong { color: var(--accent); margin-right: .4rem; }
+
+    /* New: parts checklist */
+    .parts-checklist { list-style: none; padding: 0; margin: .5rem 0 1rem; }
+    .parts-checklist li {
+      padding: .55rem .75rem; border: 1px solid var(--border);
+      border-radius: 8px; margin-bottom: .4rem; background: var(--bg);
+      font-size: .86rem; display: flex; align-items: flex-start; gap: .5rem;
+    }
+    .parts-checklist li::before {
+      content: "☐"; color: var(--muted); font-size: 1.05rem; flex-shrink: 0;
+    }
+    .parts-checklist .part-label { color: var(--cyan); font-weight: 700; margin-right: .4rem; }
+
+    /* New: reference notes */
+    .reference-note {
+      background: color-mix(in srgb, var(--green) 10%, transparent);
+      border-left: 3px solid var(--green);
+      padding: .65rem .9rem; border-radius: 6px;
+      font-size: .83rem; margin-top: 1rem; line-height: 1.55;
+    }
+    .reference-note strong { color: var(--green); }
+
+    /* Setup card (special) */
+    .setup-card {
+      background: color-mix(in srgb, var(--yellow) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--yellow) 30%, transparent);
+      border-radius: var(--radius);
+      padding: 1.3rem; margin-bottom: 1.5rem; cursor: pointer;
+      transition: border-color .2s;
+    }
+    .setup-card:hover { border-color: var(--yellow); }
+    .setup-card h3 { font-size: 1rem; color: var(--yellow); margin-bottom: .4rem; }
+    .setup-card p { font-size: .83rem; color: var(--muted); }
+
+    footer { border-top:1px solid var(--border); color:var(--muted); font-size:.76rem; margin-top:3rem; padding:1.75rem; text-align:center; line-height:1.8; }
+    footer a { color:var(--accent); text-decoration:none; }
+
+    .spinner { display:inline-block; width:12px; height:12px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:.3rem; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    code { font-family:monospace; background:var(--surface2); padding:.1rem .35rem; border-radius:4px; font-size:.85em; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">🌦 Weather API Course</div>
+  <div class="nav-right">
+    <a class="nav-link" href="https://github.com/Sharquille/weather-api-course" target="_blank">GitHub ↗</a>
+    <a class="nav-link btn btn-secondary btn-sm" href="#gist-panel">☁ Sync Progress</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Learn APIs<br><span>the right way.</span></h1>
+  <p>Start with <code>curl</code>. Understand HTTP. Write Python.
+     Build a real weather app. Deploy it. An API is just an interface —
+     any tool that can send headers can use one.</p>
+  <div class="hero-btns">
+    <a class="btn btn-primary" href="#tabs">Start Learning →</a>
+    <a class="btn btn-secondary" href="https://github.com/Sharquille/weather-api-course" target="_blank">View Repo</a>
+  </div>
+</div>
+
+<div class="tabs-wrap" id="tabs">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('l1')" id="tab-l1">Level 1 — Fundamentals</button>
+    <button class="tab-btn locked" onclick="switchTab('l2')" id="tab-l2">🔒 Level 2 — Automation</button>
+  </div>
+
+  <!-- LEVEL 1 -->
+  <div class="tab-panel active" id="panel-l1">
+
+    <!-- Setup card (special) -->
+    <div class="setup-card" onclick="openSetup()">
+      <h3>⚙️ Setup — do this first (5 minutes)</h3>
+      <p>Clone the repo, create a Python virtual environment, install dependencies, copy the .env template. Click for full instructions.</p>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-header">
+        <span>Level 1 Progress</span>
+        <span id="l1-progress-label">0 / 8 phases</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="l1-fill" style="width:0%"></div></div>
+    </div>
+    <div class="phases" id="l1-grid"></div>
+
+    <div class="section">
+      <h2>📦 Level 1 Reference Repos</h2>
+      <div class="repos" id="l1-repos"></div>
+    </div>
+  </div>
+
+  <!-- LEVEL 2 -->
+  <div class="tab-panel" id="panel-l2">
+    <div id="l2-lock-banner" class="lock-banner">
+      <div class="lock-icon">🔒</div>
+      <h3>Level 2 unlocks when Level 1 is complete</h3>
+      <p>Complete all 8 phases in Level 1 first.<br>The skills build on each other — jumping ahead won't work.</p>
+      <div class="lock-progress" style="margin-top:1rem">
+        <span id="l2-lock-label" style="font-size:.85rem;color:var(--muted)">0 / 8 complete</span>
+      </div>
+    </div>
+
+    <div id="l2-content" style="display:none">
+      <div class="progress-section">
+        <div class="progress-header">
+          <span>Level 2 Progress</span>
+          <span id="l2-progress-label">0 / 7 phases</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="l2-fill" style="width:0%"></div></div>
+      </div>
+      <div class="phases" id="l2-grid"></div>
+
+      <div class="section">
+        <h2>📦 Level 2 Reference Repos</h2>
+        <div class="repos" id="l2-repos"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-wrap" id="gist-panel">
+  <div class="gist-panel">
+    <div class="gist-inner">
+      <h3>☁️ Save Progress to GitHub Gist</h3>
+      <p style="color:var(--muted);font-size:.8rem;margin-bottom:.85rem;line-height:1.6">
+        Progress saves to <code>localStorage</code> by default — clearing your cache wipes it.
+        Connect a GitHub token to save to a private Gist instead. Persistent. Cross-device.
+        And using the GitHub API to save your course progress is itself a lesson in how APIs work.
+      </p>
+      <div class="gist-row">
+        <label>GitHub Token</label>
+        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" />
+      </div>
+      <div class="gist-row">
+        <label>Gist ID</label>
+        <input type="text" id="gist-id-input" placeholder="Auto-created on first save" />
+      </div>
+      <div class="gist-actions">
+        <button class="btn btn-primary btn-sm" onclick="saveToGist()">💾 Save to Gist</button>
+        <button class="btn btn-secondary btn-sm" onclick="loadFromGist()">⬇ Load from Gist</button>
+        <button class="btn btn-secondary btn-sm" onclick="resetProgress()">🗑️ Reset</button>
+      </div>
+      <div id="gist-status"></div>
+      <p class="gist-note">
+        Create a token at <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank">github.com/settings/tokens</a>
+        — scope: <code>gist</code> only. Stored in localStorage, sent only to GitHub.
+      </p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Built for <a href="https://lexlabs.org">LexLabs</a> — run locally, deploy your own version</p>
+  <p>APIs: <a href="https://open-meteo.com">Open-Meteo</a> · <a href="https://openweathermap.org">OpenWeatherMap</a> · <a href="https://weatherapi.com">WeatherAPI</a></p>
+</footer>
+
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this) closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+//  COURSE DATA — fully self-contained
+// ════════════════════════════════════════════════
+const L1_PHASES = [
+  {
+    id:'l1p00', num:'Phase 00', title:'curl Basics',
+    file:'level-1/00-curl-basics/starter/exercises.sh',
+    desc:'7 hands-on curl blocks. Methods, headers, status codes, auth. See the HTTP conversation with -v.',
+    pills:['curl','GET','POST','PUT','DELETE','headers','-v','status codes'],
+    goal:'Prove an API is just a URL any tool can hit.',
+    concept:'`curl` and a browser are the same thing — both send HTTP. `curl` prints the raw response; the browser renders it. That\'s the whole magic of APIs. The `-v` flag shows the full HTTP conversation (lines starting with `>` are your request, `<` are the server\'s response).',
+    parts:[
+      {label:'Exercise 1', text:'Plain text vs JSON from wttr.in (no key, no signup). What does the Accept header do?'},
+      {label:'Exercise 2', text:'See the full HTTP conversation with `-v`. Find the status code.'},
+      {label:'Exercise 3', text:'POST a JSON body to httpbin.org. What does -X do? What about -d? Content-Type?'},
+      {label:'Exercise 4', text:'PUT and DELETE. REST methods for different actions.'},
+      {label:'Exercise 5', text:'Auth failure (expect 401). 401 vs 403 — write the difference in your notes.'},
+      {label:'Exercise 6', text:'HEAD request — headers only, no body. Is the API alive? What content type?'},
+      {label:'Exercise 7', text:'Research task: read Open-Meteo docs, find the hourly forecast param, modify the URL.'}
+    ],
+    steps:[
+      'Open a terminal in `level-1/00-curl-basics/starter/`',
+      'Work through each `=== Exercise N ===` block in order — one at a time',
+      'Read the output before moving to the next block. The comments after each `TODO:` tell you what to look for.',
+      'Do NOT run them all at once with `bash exercises.sh` — run them line by line',
+      'After Exercise 5, write 401 vs 403 in your notes.md',
+      'For Exercise 7, open https://open-meteo.com/en/docs and find the hourly param before running the curl'
+    ],
+    research:'Open https://httpbin.org/headers. Call it with `curl -H "X-Learner: your-name" https://httpbin.org/headers`. Why does the server see exactly what you sent?',
+    checkpoint:['Difference between GET and POST','What 404 vs 500 means','Why `-v` helps debugging','401 vs 403 — different problems','Why HTML response ≠ API'],
+    deeper:[['MDN — HTTP','https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview'],['curl docs','https://curl.se/docs/manual.html'],['HTTP status codes','https://httpstatuses.com'],['open-meteo/open-meteo','https://github.com/open-meteo/open-meteo']],
+    run:'$ cd level-1/00-curl-basics/starter\n# Run each block one at a time — do NOT run the whole file\n$ bash exercises.sh',
+    curlNote:true
+  },
+  {
+    id:'l1p01', num:'Phase 01', title:'Python + requests',
+    file:'level-1/01-python-requests/starter/weather_basic.py',
+    desc:'13 numbered TODOs across 5 parts (A–E). requests.get(), JSON parsing, error handling, POST, CLI args.',
+    pills:['requests','json','try/except','f-strings','sys.argv','POST','CLI'],
+    goal:'Replace curl with a Python CLI tool.',
+    concept:'`requests` is Python\'s de facto HTTP client. Same model as curl: build URL → add params/headers → send → inspect response → handle errors. The starter has a "curl equivalent" comment at the top showing the curl → Python mapping you already learned in Phase 00.',
+    parts:[
+      {label:'Part A', text:'Basic fetch — params dict, requests.get(), raise_for_status(), return nested "current" key'},
+      {label:'Part B', text:'Error handling — Timeout, HTTPError, ConnectionError, return None gracefully'},
+      {label:'Part C', text:'Format display — f-strings, WEATHER_CODES dict for readable conditions'},
+      {label:'Part D', text:'POST request — requests.post(url, json=payload) auto-sets Content-Type'},
+      {label:'Part E', text:'CLI entry point — sys.argv for lat/lon, default to Roseau, fetch + display + bonus POST'}
+    ],
+    steps:[
+      'Setup: `cd level-1/01-python-requests/starter && python3 -m venv .venv && source .venv/bin/activate && pip install requests`',
+      'Work through TODOs 1-13 in order. Each TODO has inline hints — read them.',
+      'Run after each TODO: `python3 weather_basic.py`',
+      'If it fails, READ the error. Fix it. Run again. The error IS the lesson.',
+      'Part B tests error handling — try passing a bad URL on purpose to see each error type',
+      'Part D shows the Python equivalent of the curl POST you did in Phase 00 Exercise 3'
+    ],
+    research:'Read https://open-meteo.com/en/docs and find: (1) the parameter for 7-day hourly forecast, (2) the parameter for temperature units. Modify your script to print tomorrow\'s high in Fahrenheit.',
+    checkpoint:['What does `raise_for_status()` do?','`status_code` vs `ok` — when would you use each?','What happens if you remove the `timeout` parameter?','Why use a `params` dict vs building the URL string manually?','What does `requests.post(url, json=...)` do differently from `requests.post(url, data=...)`?'],
+    deeper:[['requests Quickstart','https://requests.readthedocs.io/en/master/user/quickstart/'],['Open-Meteo docs','https://open-meteo.com/en/docs'],['nnja/learn_requests','https://github.com/nnja/learn_requests']],
+    run:'$ cd level-1/01-python-requests/starter\n$ python3 -m venv .venv\n$ source .venv/bin/activate\n$ pip install requests\n$ python3 weather_basic.py',
+    curlNote:true
+  },
+  {
+    id:'l1p02', num:'Phase 02', title:'Authenticated APIs',
+    file:'level-1/02-auth-apis/starter/weather_auth.py',
+    desc:'API keys as passwords. .env files, python-dotenv, 401/403/429 handling, normalising two different APIs into one shape.',
+    pills:['API keys','.env','os.getenv','dotenv','401','403','429','normalisation'],
+    goal:'Use API keys, keep them out of git.',
+    concept:'Most real APIs need a key. It\'s a password. Send it as a header or query param, never in source code, never in a public repo. A `python-dotenv` loader reads `.env` so you can keep secrets out of code.',
+    parts:[
+      {label:'Part A', text:'Sign up for free OWM and WeatherAPI keys, fill in .env'},
+      {label:'Part B', text:'fetch_owm() — query-param auth, handle 401 / 429 / raise_for_status'},
+      {label:'Part C', text:'fetch_weatherapi() — same pattern, different API'},
+      {label:'Part D', text:'normalize_*() — turn two different response shapes into one consistent dict'},
+      {label:'Part E', text:'main() — call both, print side by side, exit codes'}
+    ],
+    steps:[
+      'Sign up: https://openweathermap.org/api and https://www.weatherapi.com/ (both have free tiers)',
+      '`cp starter/.env.example starter/.env` and paste in your keys',
+      'Verify `.env` is in `.gitignore` — never commit it',
+      'Fill in the 4 functions in order',
+      'Test 401 handling: corrupt your key on purpose, confirm the script says "invalid key" not "crash"',
+      'Test 429 handling: hammer the API 60 times in a loop if you want to see rate limit in action (or just trust the docs)'
+    ],
+    research:'Read both APIs\' auth docs. Why do both use query params instead of headers? What do their rate-limit docs say? Is one method more secure than the other?',
+    checkpoint:['Why use `python-dotenv` instead of `os.environ` directly?','What does `.gitignore` have to do with API security?','If you accidentally commit a key, what should you do IMMEDIATELY?','401 vs 403 vs 429 — three different problems, name them','How would you test key validation without burning real API calls?'],
+    deeper:[['OWASP API Top 10','https://owasp.org/API-Security/editions/2023/en/0x11-t10/'],['OWM docs','https://openweathermap.org/api'],['WeatherAPI docs','https://www.weatherapi.com/docs/'],['theskumar/python-dotenv','https://github.com/theskumar/python-dotenv']],
+    run:'$ cd level-1/02-auth-apis/starter\n$ cp .env.example .env  # fill in real keys\n$ pip install requests python-dotenv\n$ python3 weather_auth.py Roseau',
+    curlNote:false
+  },
+  {
+    id:'l1p03', num:'Phase 03', title:'Multi-Source Aggregation',
+    file:'level-1/03-multi-source/starter/dashboard.py',
+    desc:'3 APIs in parallel with ThreadPoolExecutor. Graceful degradation when one source fails. Print a side-by-side table.',
+    pills:['ThreadPoolExecutor','parallel I/O','as_completed','graceful degradation','table rendering'],
+    goal:'Hit 3 APIs simultaneously, handle partial failures.',
+    concept:'Real apps fan out to multiple sources and aggregate. The hard part: some succeed, some fail — you keep what you got. ThreadPoolExecutor lets you fire all 3 calls in parallel; total time = slowest source, not sum of all sources.',
+    parts:[
+      {label:'Part A', text:'Build 3 source callables (open_meteo, openweather, weatherapi) that return normalised dicts'},
+      {label:'Part B', text:'fetch_all() — ThreadPoolExecutor with map() or submit(), collect results, ignore exceptions'},
+      {label:'Part C', text:'render_table() — fixed-width table with all 3 sources side by side'},
+      {label:'Part D', text:'main() — time the whole thing with time.perf_counter(), print execution time'},
+      {label:'Part E', text:'Failure test — corrupt one key, confirm the other 2 still return and the table shows the error'}
+    ],
+    steps:[
+      'Reuse the source functions from Phase 02 (you can copy them in)',
+      'Import `concurrent.futures.ThreadPoolExecutor`',
+      'Build SOURCES dict: {name: callable}',
+      'Use `with ThreadPoolExecutor(max_workers=3) as ex:` then `ex.map(fn, cities)`',
+      'Iterate `as_completed(futures)` to handle results as they come in',
+      'Wrap each source call in try/except — failed sources show "N/A" in the table, not a crash',
+      'Run with one key intentionally broken to verify graceful degradation'
+    ],
+    research:'Read https://docs.python.org/3/library/concurrent.futures.html. What is the difference between `map()` and `submit()`? Why threads and not processes for I/O? What is the GIL and why doesn\'t it matter here?',
+    checkpoint:['What does `as_completed()` do and why is it useful?','How do you handle one source failing without losing the others?','What is the Python equivalent of `Promise.allSettled()` from JavaScript?','Why is parallel I/O faster than sequential?','What is the GIL and why doesn\'t it block this from being faster?'],
+    deeper:[['concurrent.futures docs','https://docs.python.org/3/library/concurrent.futures.html'],['public-apis','https://github.com/public-apis/public-apis'],['GIL explained','https://realpython.com/python-gil/']],
+    run:'$ cd level-1/03-multi-source/solution\n$ python3 dashboard.py Roseau',
+    curlNote:false
+  },
+  {
+    id:'l1p04', num:'Phase 04', title:'Browser fetch()',
+    file:'level-1/04-browser-fetch/solution/index.html',
+    desc:'Same 3 APIs, now from inside the browser. fetch(), async/await, URLSearchParams, Promise.allSettled. Run on localhost.',
+    pills:['fetch()','async/await','URLSearchParams','DOM','Promise.allSettled','CORS'],
+    goal:'Call the same APIs from the browser.',
+    concept:'`fetch()` is the browser\'s `requests`. Same HTTP contract, returns Promises, CORS-aware. `await` unwraps a Promise. `Promise.allSettled()` is the JavaScript equivalent of Python\'s `as_completed()` — it waits for all, never throws, gives you success/failure per item.',
+    parts:[
+      {label:'Part A', text:'fetchOpenMeteo() — geocode first, then forecast, build URL with URLSearchParams'},
+      {label:'Part B', text:'fetchOWM() — read key from localStorage, query-param auth, handle errors'},
+      {label:'Part C', text:'fetchWeatherAPI() — same pattern, different base URL'},
+      {label:'Part D', text:'Click handler — call all 3 in parallel with Promise.allSettled(), render rows'},
+      {label:'Part E', text:'Run on localhost — `python3 -m http.server 8080`, open in browser'}
+    ],
+    steps:[
+      '`cd level-1/04-browser-fetch/solution`',
+      'Run: `python3 -m http.server 8080` (NOT just opening the file — fetch() needs http:// not file://)',
+      'Open http://localhost:8080 in your browser',
+      'Open DevTools → Network tab → watch the 3 requests fire when you click the button',
+      'Set your OWM and WeatherAPI keys in browser console: `localStorage.setItem("OWM_KEY", "your_key")`',
+      'Break one of the 3 functions on purpose — confirm the other 2 still render and the broken one shows an error row'
+    ],
+    research:'Read https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch. What is the difference between `response.ok` and `response.status`? What is `Promise.allSettled()` and why is it useful for multi-source dashboards?',
+    checkpoint:['Why does the browser need CORS but curl doesn\'t?','What does `await` actually do?','Why is `response.json()` async?','How do you handle a network error in `fetch()`?','What\'s the difference between `Promise.all()` and `Promise.allSettled()`?'],
+    deeper:[['MDN fetch','https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch'],['Promise.allSettled','https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled'],['CORS explained','https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS']],
+    run:'$ cd level-1/04-browser-fetch/solution\n$ python3 -m http.server 8080\n# Open http://localhost:8080 in your browser',
+    curlNote:false
+  },
+  {
+    id:'l1p05', num:'Phase 05', title:'Deploy YOUR version',
+    file:'level-1/05-deploy/README.md',
+    desc:'git push → live URL. Each person deploys their own finished app to Cloudflare Pages. Env vars, custom domain.',
+    pills:['git','Cloudflare Pages','env vars','CI/CD','custom domain','preview branches'],
+    goal:'Push your own finished app to the public internet.',
+    concept:'Each person deploys independently — yours is yours, not a shared URL. The deploy is a separate skill from writing the app: branches, env vars, build outputs, preview deploys. By doing it yourself, you learn the pipeline end to end.',
+    parts:[
+      {label:'Step 1', text:'Make sure your Phase 04 solution works locally first'},
+      {label:'Step 2', text:'Create a separate GitHub repo just for your deploy: `gh repo create YOUR-USERNAME/weather-my-deploy`'},
+      {label:'Step 3', text:'Cloudflare Dashboard → Pages → Connect that repo. Set build output: `level-1/04-browser-fetch/solution`'},
+      {label:'Step 4', text:'Save & Deploy — you get a `*.pages.dev` URL within ~60 seconds'},
+      {label:'Step 5', text:'Optional: Pages → Custom domains → set up `weather.YOUR-DOMAIN.com`'},
+      {label:'Step 6', text:'SECURITY: if you ever hardcode a key, revoke it from the OWM dashboard and switch to env vars immediately'}
+    ],
+    steps:[
+      'Read https://developers.cloudflare.com/pages/getting-started/',
+      'Make a new repo for your deploy (not the course repo — that\'s the source for both of you)',
+      'Connect Cloudflare Pages to your deploy repo',
+      'Set build command: (empty), build output directory: `level-1/04-browser-fetch/solution`',
+      'Push a change — verify auto-deploy happens',
+      'Optional: add a custom domain, set up a CNAME'
+    ],
+    research:'What does "build output directory" actually mean? What is the difference between production and preview deployments? How do env vars in Cloudflare Pages differ from `.env` files locally?',
+    checkpoint:['What is a build command? What happens if it\'s empty?','What is a build output directory?','Where do env vars live in Cloudflare Pages?','How do preview branches work?','What should you do IMMEDIATELY if you commit a key?'],
+    deeper:[['Cloudflare Pages docs','https://developers.cloudflare.com/pages/'],['GitHub integration','https://developers.cloudflare.com/pages/configuration/git-integration/github-integration/'],['Custom domains','https://developers.cloudflare.com/pages/configuration/custom-domains/']],
+    run:'Deploy happens on Cloudflare.\nLocal sanity check:\n$ cd level-1/04-browser-fetch/solution\n$ python3 -m http.server 8080',
+    curlNote:false
+  },
+  {
+    id:'l1p06', num:'Phase 06', title:'API Security',
+    file:'level-1/06-api-security/starter/security_checks.py',
+    desc:'4 parts: secret scanner regex, auth method comparison, rate limit handler, key validator. Defensive mindset.',
+    pills:['OWASP','secret scanning','regex','auth methods','429 handling','key validation'],
+    goal:'Understand how keys leak and how to design safely.',
+    concept:'API keys are passwords. This phase makes the consequences concrete. You\'ll build the same kind of scanner that GitGuardian and TruffleHog use (simplified), compare auth methods side by side, handle 429/401/403 distinctly, and validate keys before burning them on real work.',
+    parts:[
+      {label:'Part A', text:'Secret scanner — regex for `api_key = "..."`, `password = "..."`, scan a whole directory, skip comments and `os.getenv` lines'},
+      {label:'Part B', text:'compare_auth_methods() — same API call, key as query param vs key as header. Show what ends up in server logs.'},
+      {label:'Part C', text:'fetch_with_rate_limit_handling() — handle 429 by reading Retry-After header, handle 401/403 distinctly, return None gracefully'},
+      {label:'Part D', text:'validate_api_key() — make a minimal test call, return bool, never raise. Run before any production code.'}
+    ],
+    steps:[
+      '`cd level-1/06-api-security/starter`',
+      'Work through Parts A–D in order',
+      'Part A: run `scan_directory("../../level-1")` — what does it find? (Should be nothing if you\'ve been using .env)',
+      'Part B: read the output carefully — notice the key is in the URL in Method 1, not in Method 2',
+      'Part C: test 429 handling by hitting a public API hard (or just trust the docs and write the handler)',
+      'Part D: validate both your keys before doing anything else — make this a habit'
+    ],
+    research:'Find 3 real GitHub commits that leaked API keys. What happened next? What does GitHub\'s secret scanning do? How do you opt-in? What is "principle of least privilege" in API key terms?',
+    checkpoint:['How would you know if your key was leaked?','Read-only vs write key — what\'s the difference?','What layers of protection beyond `.env` should you add?','What does CORS actually protect against? (Hint: not what you think.)','Why is query-param auth considered less secure than header auth?'],
+    deeper:[['OWASP API Top 10','https://owasp.org/API-Security/editions/2023/en/0x11-t10/'],['GitHub secret scanning','https://docs.github.com/en/code-security/secret-scanning'],['TruffleHog (real scanner)','https://github.com/trufflesecurity/trufflehog']],
+    run:'$ cd level-1/06-api-security/solution\n$ python3 security_checks.py',
+    curlNote:false
+  },
+  {
+    id:'l1p07', num:'Phase 07', title:'JSON Deep Dive',
+    file:'level-1/07-json-deep/starter/json_practice.py',
+    desc:'5 parts: file cache, safe_get, batch fetcher, schema validator, response comparison. Read AND write JSON.',
+    pills:['json.dump','json.load','safe_get','schema validation','file cache','batching'],
+    goal:'Treat JSON as a first-class structure.',
+    concept:'JSON is just nested dicts and lists. The hard parts: navigating safely (keys might be missing), persisting to disk, validating the shape, comparing two responses. This phase teaches you to stop thinking of JSON as "whatever the API sent" and start treating it as data you own.',
+    parts:[
+      {label:'Part A', text:'save_response_to_file() / load_response_from_file() — add cached_at timestamp, json.dump with indent=2'},
+      {label:'Part B', text:'safe_get(d, *keys, default=None) — navigate nested dicts without crashing. Reusable utility.'},
+      {label:'Part C', text:'load_cities_config() + fetch_and_cache_cities() — batch process from a JSON config, cache per city'},
+      {label:'Part D', text:'validate_schema() — check keys exist AND types match EXPECTED_KEYS dict, return list of errors'},
+      {label:'Part E', text:'compare_weather_responses() — side-by-side comparison of two cities using safe_get'}
+    ],
+    steps:[
+      '`cd level-1/07-json-deep/starter`',
+      'Part A: fetch weather, save to `cache/roseau_current.json`, load it back, print `cached_at`',
+      'Part B: try `safe_get(data, "a", "b", "c")` on `{a: {b: 1}}` — should return default. Try on the real data — should return value.',
+      'Part C: create `cities.json`, run twice. Second run should say "from cache"',
+      'Part D: delete a key from weather data, run validate_schema, confirm the error is caught',
+      'Part E: fetch two different cities, compare temp/wind/humidity side by side'
+    ],
+    research:'What is `json.dumps()` vs `json.dump()`? What does `indent=2` do? `sort_keys=True`? Why does `json.loads()` raise on invalid JSON but `json.load()` reads from a file? How would you handle a 500MB JSON file?',
+    checkpoint:['What is the difference between `json` and `simplejson`?','When would you use YAML instead of JSON?','How do you handle a JSON file that\'s 500MB? (Hint: it\'s not `json.load()`.)','What does `safe_get` prevent that direct `data["a"]["b"]["c"]` doesn\'t?','Why validate schema instead of trusting the API response?'],
+    deeper:[['json module docs','https://docs.python.org/3/library/json.html'],['ijson (streaming JSON)','https://github.com/ICRAR/ijson'],['jsonschema library','https://github.com/python-jsonschema/jsonschema']],
+    run:'$ cd level-1/07-json-deep/solution\n$ python3 json_practice.py',
+    curlNote:false
+  }
+];
+
+const L2_PHASES = [
+  {
+    id:'l2p00', num:'Phase 00', title:'Postman Properly',
+    file:'level-2/00-postman-properly/README.md',
+    desc:'Collections, environments, variables, pre-request scripts, test assertions. Export as JSON, run from CLI with Newman.',
+    pills:['collections','environments','test scripts','Newman','pre-request','variables'],
+    goal:'Use Postman beyond a GUI curl.',
+    concept:'Collections group requests. Environments hold variables. Tests assert behaviour. Newman runs collections from CLI. The exported collection JSON IS the test suite — it\'s just a structured file you can read.',
+    parts:[
+      {label:'Step 1', text:'Install Postman + Newman (`npm i -g newman`)'},
+      {label:'Step 2', text:'Create "Weather APIs" collection with 3 requests'},
+      {label:'Step 3', text:'Create environment with OWM_KEY and WEATHERAPI_KEY variables'},
+      {label:'Step 4', text:'Use {{OWM_KEY}} in OWM request — Postman substitutes it'},
+      {label:'Step 5', text:'Add test scripts: status code, JSON shape, response time'},
+      {label:'Step 6', text:'Export collection v2.1 and environment as JSON'},
+      {label:'Step 7', text:'Run from CLI: `newman run collection.json -e env.json`'}
+    ],
+    steps:[
+      'Install Postman desktop app and create an account',
+      'Install Newman: `npm install -g newman`',
+      'Create the 3 requests you built in Level 1 Phase 02',
+      'Group them in a "Weather APIs" collection',
+      'Create an environment with your OWM and WeatherAPI keys',
+      'Add at least 2 test assertions per request',
+      'Export both files, commit them to your repo, run via Newman'
+    ],
+    research:'What is a pre-request script vs a test script? What does `pm.environment.set("key", value)` do? How would you run a collection on a schedule? (Hint: CI/CD, which you\'ll do in Level 2 Phase 05.)',
+    checkpoint:['What is a collection? An environment?','What is Newman? How does it differ from running Postman in the GUI?','What is a pre-request script?','What does the exported collection JSON look like? (Open it — you\'ll see it\'s just a structured file.)'],
+    deeper:[['Postman learning','https://learning.postman.com/'],['Newman docs','https://github.com/postmanlabs/newman'],['Test scripts','https://learning.postman.com/docs/writing-scripts/test-scripts/']],
+    run:'# Postman runs in the desktop app\n# Newman runs from CLI:\n$ newman run weather.postman_collection.json -e weather-env.postman_environment.json',
+    curlNote:false
+  },
+  {
+    id:'l2p01', num:'Phase 01', title:'Python Project Structure',
+    file:'level-2/01-python-structure/starter/',
+    desc:'Convert dashboard.py into a proper package: src/, pyproject.toml, tests/, __init__.py. Install with pip install -e .',
+    pills:['src/ layout','pyproject.toml','pytest','__init__.py','type hints','-e install'],
+    goal:'Move from one-file scripts to a package.',
+    concept:'Real Python projects have layout, packaging, and tests. `src/` layout keeps tests from importing your code accidentally. `pyproject.toml` is the modern replacement for `setup.py`. `pip install -e .` installs your package in editable mode.',
+    parts:[
+      {label:'Step 1', text:'Restructure to `src/weather/` with submodules per source'},
+      {label:'Step 2', text:'Create `pyproject.toml` (use setuptools or hatchling)'},
+      {label:'Step 3', text:'Create `tests/test_sources.py` with pytest'},
+      {label:'Step 4', text:'`pip install -e .` then `pytest`'},
+      {label:'Step 5', text:'Verify CLI still works after refactor'}
+    ],
+    steps:[
+      'Create new structure: `mkdir -p src/weather/sources tests`',
+      'Move your source files into `src/weather/sources/`',
+      'Add `__init__.py` files (can be empty)',
+      'Write `pyproject.toml` with build-system and project metadata',
+      'Write at least 3 pytest tests',
+      'Run `pip install -e .` and confirm `pytest` passes'
+    ],
+    research:'What is `pyproject.toml` and why is it replacing `setup.py`? How does `pip install -e .` work? What does `__init__.py` actually do? What\'s the difference between `src/` layout and flat layout?',
+    checkpoint:['Why use `src/` layout?','What is `pyproject.toml`?','What does editable install mean?','Why pytest over unittest?','How do you run only one test file? One test?'],
+    deeper:[['pytest docs','https://docs.pytest.org/'],['pyproject.toml guide','https://pip.pypa.io/en/stable/specifications/pyproject-toml/'],['Real Python project structure','https://docs.python-guide.org/writing/structure/']],
+    run:'$ pip install -e .\n$ pytest',
+    curlNote:false
+  },
+  {
+    id:'l2p02', num:'Phase 02', title:'Chaining APIs',
+    file:'level-2/02-chaining-apis/starter/notify.py',
+    desc:'Output of one API becomes input to another. Weather → if rain forecast → Discord webhook message.',
+    pills:['chaining','webhooks','conditional logic','Discord API','Telegram API','data pipeline'],
+    goal:'Use one API\'s output as another\'s input.',
+    concept:'Automation = one script calling multiple APIs and making a decision. Webhooks are how services like Discord, Slack, Telegram, and GitHub accept data. The flow: your script makes decision → POSTs to webhook URL → message appears in channel.',
+    parts:[
+      {label:'Step 1', text:'Create Discord webhook, store URL in `.env` as DISCORD_WEBHOOK_URL'},
+      {label:'Step 2', text:'Fetch weather (reuse your weather module)'},
+      {label:'Step 3', text:'Inspect forecast — if rain coming in 6h, build rain message; else build sunny message'},
+      {label:'Step 4', text:'POST to Discord webhook with `requests.post(webhook_url, json=payload)`'},
+      {label:'Step 5', text:'Test by editing the weather data to force both branches'}
+    ],
+    steps:[
+      'Create a Discord server (or use existing), channel → settings → Integrations → Webhooks → New webhook → copy URL',
+      'Add `DISCORD_WEBHOOK_URL=...` to your `.env`',
+      'Build `notify.py` with the flow above',
+      'Run it: `python3 notify.py`',
+      'Confirm the message arrives in Discord',
+      'Force both branches by mocking the weather response'
+    ],
+    research:'What is a webhook? Why does Discord\'s webhook endpoint accept POST but not GET? What does the response from a webhook look like?',
+    checkpoint:['What\'s a webhook?','Discord webhook flow?','How do you make a decision based on API data?','What HTTP status does a successful webhook POST return?'],
+    deeper:[['Discord webhooks','https://discord.com/developers/docs/resources/webhook#execute-webhook'],['Telegram Bot API','https://core.telegram.org/bots/api'],['n8n (no-code alternative)','https://n8n.io/']],
+    run:'$ python3 notify.py',
+    curlNote:false
+  },
+  {
+    id:'l2p03', num:'Phase 03', title:'Schedules + cron',
+    file:'level-2/03-schedules-cron/README.md',
+    desc:'Run notify.py automatically every morning at 7am. cron on Linux, Task Scheduler on Windows, logging.',
+    pills:['cron','crontab','Task Scheduler','logging','idempotency','automation'],
+    goal:'Run notify.py every morning at 7am.',
+    concept:'Scheduled automation is how most "smart home" and "daily brief" tools work. The script itself doesn\'t know it\'s scheduled — cron (or Task Scheduler) just runs it on a timer. Idempotency matters: running it twice shouldn\'t send 2 messages.',
+    parts:[
+      {label:'Step 1', text:'Edit your crontab: `crontab -e`'},
+      {label:'Step 2', text:'Add: `0 7 * * * /usr/bin/python3 /path/to/notify.py >> /tmp/weather.log 2>&1`'},
+      {label:'Step 3', text:'Verify log file gets created and fills up'},
+      {label:'Step 4', text:'Test by changing the time temporarily to 1 minute from now'},
+      {label:'Step 5', text:'Make notify.py idempotent — check if you already sent today\'s message before sending'}
+    ],
+    steps:[
+      'Linux/macOS: `crontab -e` and add the line above',
+      'Windows: Task Scheduler → Create Task → Trigger: Daily 7am → Action: `python.exe notify.py`',
+      'Test: temporarily change the schedule to `* * * * *` (every minute) and watch the log',
+      'Once verified, change back to `0 7 * * *`',
+      'Add idempotency: write a state file with today\'s date, skip if already sent today'
+    ],
+    research:'What does `>>` vs `>` do in shell redirection? Why redirect both stdout AND stderr? How do you monitor whether the cron job actually ran? What\'s the difference between cron and systemd timers?',
+    checkpoint:['Cron syntax basics — what does `0 7 * * *` mean?','`>>` vs `>` — when to use each?','Why log to a file instead of just printing?','What is idempotency and why does it matter?','How do you debug a cron job that\'s not running?'],
+    deeper:[['Cron wiki','https://en.wikipedia.org/wiki/Cron'],['crontab.guru','https://crontab.guru/'],['systemd timers (modern alternative)','https://www.freedesktop.org/software/systemd/man/systemd.timer.html']],
+    run:'# Cron runs in background — verify it worked:\n$ tail -f /tmp/weather.log',
+    curlNote:false
+  },
+  {
+    id:'l2p04', num:'Phase 04', title:'Webhooks (Receiving)',
+    file:'level-2/04-webhooks/starter/server.py',
+    desc:'Flip the direction. Build a Flask server, expose via ngrok, receive a webhook from webhook.site. OR use n8n.',
+    pills:['webhooks','ngrok','Flask','event-driven','n8n','reverse tunnel'],
+    goal:'Be the server — accept incoming webhooks.',
+    concept:'Until now, you\'ve been the client. Webhooks make you the server. An external service POSTs to YOUR URL when something happens. You process the body and respond 200 OK. ngrok gives you a public URL pointing at your localhost — perfect for development.',
+    parts:[
+      {label:'Step 1', text:'Install ngrok, sign up, get auth token, run `ngrok http 8080`'},
+      {label:'Step 2', text:'Build minimal Flask server with `POST /webhook` endpoint'},
+      {label:'Step 3', text:'Run it on port 8080, copy the ngrok HTTPS URL'},
+      {label:'Step 4', text:'Go to webhook.site, copy their unique URL, set up a forwarding to your ngrok URL (or use their test feature)'},
+      {label:'Step 5', text:'Confirm the body shows up in your Flask logs'},
+      {label:'Step 6', text:'Optional: replace Flask with an n8n workflow since you already self-host it'}
+    ],
+    steps:[
+      'Install Flask: `pip install flask`',
+      'Build the server with one endpoint that logs the body and returns 200',
+      'Run it: `python3 server.py`',
+      'In another terminal: `ngrok http 8080` — copy the HTTPS URL',
+      'Send a test POST from https://webhook.site to your ngrok URL',
+      'Confirm your Flask log shows the body',
+      'Reply with 200 — confirm webhook.site shows success'
+    ],
+    research:'What is the difference between a webhook and an API call? How does ngrok work under the hood? What is the difference between an event-driven and a request-response architecture?',
+    checkpoint:['Webhook vs API call — what flips?','Why does ngrok exist?','What does 200 OK mean in this context?','How would you secure a webhook endpoint? (Hint: signature verification.)','Why is n8n relevant here?'],
+    deeper:[['ngrok docs','https://ngrok.com/docs'],['Flask quickstart','https://flask.palletsprojects.com/quickstart/'],['Webhook security','https://webhook.site/security'],['n8n webhook trigger','https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/']],
+    run:'$ python3 server.py     # terminal 1\n$ ngrok http 8080          # terminal 2\n# Send test POST from webhook.site to your ngrok URL',
+    curlNote:false
+  },
+  {
+    id:'l2p05', num:'Phase 05', title:'Newman + CI',
+    file:'level-2/05-newman-testing/README.md',
+    desc:'Run your Postman collection automatically on every git push using GitHub Actions. Encrypted secrets for keys.',
+    pills:['Newman','GitHub Actions','CI/CD','secrets','workflows','yaml'],
+    goal:'Run Postman tests on every git push.',
+    concept:'CI/CD = "run tests automatically when code changes." GitHub Actions gives you a free Linux runner for public repos. Your collection + environment files get tested on every push. Failures block merges if you enable branch protection.',
+    parts:[
+      {label:'Step 1', text:'Export collection + environment as JSON, commit to repo'},
+      {label:'Step 2', text:'Create `.github/workflows/api-tests.yml`'},
+      {label:'Step 3', text:'Add OWM_KEY and WEATHERAPI_KEY to GitHub repo → Settings → Secrets'},
+      {label:'Step 4', text:'Push a change — check the Actions tab in your repo'},
+      {label:'Step 5', text:'Add a status badge to your README'},
+      {label:'Step 6', text:'Break a test on purpose — confirm the workflow fails (red X)'}
+    ],
+    steps:[
+      'Read https://docs.github.com/en/actions/quickstart',
+      'Create `.github/workflows/api-tests.yml` in your repo',
+      'Add the workflow content (see README in this phase)',
+      'Go to repo Settings → Secrets and variables → Actions → New repository secret',
+      'Add `OWM_KEY` and `WEATHERAPI_KEY` with your real keys',
+      'Push to trigger the workflow',
+      'Watch the Actions tab — green check = tests passed'
+    ],
+    research:'What\'s a workflow? What\'s a step? What\'s a job? What\'s a runner? Why is `on: [push]` the trigger? What\'s the difference between `${{ secrets.X }}` and `${{ vars.X }}`?',
+    checkpoint:['Workflow syntax — what are jobs, steps, runs-on?','Secrets vs vars — when to use each?','PR vs push triggers — what\'s the difference?','How do you cache dependencies in Actions?','What does `actions/checkout@v4` do?'],
+    deeper:[['GitHub Actions','https://docs.github.com/en/actions'],['Encrypted secrets','https://docs.github.com/en/actions/security-guides/encrypted-secrets'],['Newman in CI','https://learning.postman.com/docs/running-collections/using-newman-cli/integration-with-ci/']],
+    run:'# Workflow runs automatically on push\n# Check the Actions tab in your GitHub repo',
+    curlNote:false
+  },
+  {
+    id:'l2p06', num:'Phase 06', title:'Capstone',
+    file:'level-2/06-capstone/README.md',
+    desc:'Pick 2+ APIs. Chain them. Schedule. Notify. Test. Deploy. Document. End-to-end integration of your own design.',
+    pills:['capstone','integration','automation','deploy','portfolio','documentation'],
+    goal:'Your own end-to-end API integration.',
+    concept:'Capstone = everything you learned, applied to a real problem you choose. This is the artifact you can show in a portfolio. Pick something you\'d actually use — a daily brief, a price alert, a server monitor. The technology is the easy part; the design decisions are the lesson.',
+    parts:[
+      {label:'Step 1', text:'Pick 2+ APIs that solve a real problem for you'},
+      {label:'Step 2', text:'Run on a schedule (cron, Cloudflare Worker cron trigger, or GitHub Actions schedule)'},
+      {label:'Step 3', text:'Notify via Discord / Telegram / email / Slack'},
+      {label:'Step 4', text:'Write tests (pytest for code, Newman for API)'},
+      {label:'Step 5', text:'Deploy (Cloudflare Worker, Cloudflare Pages, your homelab, or a VPS)'},
+      {label:'Step 6', text:'Write a README explaining what it does and how to set it up'},
+      {label:'Step 7', text:'Share the URL — this is your portfolio piece'}
+    ],
+    steps:[
+      'Brainstorm: what would you actually use?',
+      'Examples: morning brief (weather + quote + news), price alert (CoinGecko + Telegram), server monitor (your homelab services + Discord), Reddit digest (top posts + email)',
+      'Build the minimum viable version first',
+      'Add the schedule, then the tests, then the deploy',
+      'Write the README LAST — you\'ll know what needs documenting only after you\'ve built it'
+    ],
+    research:'N/A — you choose the project. The research is reading the docs of the APIs you pick.',
+    checkpoint:['Working deployed artifact','Tests pass','README is clear (someone else could set it up from your README alone)','All keys in env vars, never in code','You can explain why you made each design choice'],
+    deeper:[['Cloudflare Workers','https://developers.cloudflare.com/workers/'],['GitHub Actions schedule','https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule'],['n8n workflows','https://docs.n8n.io/']],
+    run:'Wherever you deploy it',
+    curlNote:false
+  }
+];
+
+const L1_REPOS = [
+  { name:'miguelgrinberg/REST-tutorial',  phase:'Phase 01', desc:'Clean Python REST server + JS client',         href:'https://github.com/miguelgrinberg/REST-tutorial' },
+  { name:'dwyl/learn-api-design',         phase:'Phase 01', desc:'Best reference for REST design decisions',      href:'https://github.com/dwyl/learn-api-design' },
+  { name:'open-meteo/open-meteo',         phase:'Phase 00', desc:'Source of the no-key API you use throughout',   href:'https://github.com/open-meteo/open-meteo' },
+  { name:'public-apis/public-apis',       phase:'Phase 03', desc:'1000+ free APIs to extend your dashboard',      href:'https://github.com/public-apis/public-apis' },
+  { name:'OWASP/API-Security',            phase:'Phase 06', desc:'The source for API security best practices',    href:'https://github.com/OWASP/API-Security' },
+  { name:'theskumar/python-dotenv',       phase:'Phase 02', desc:'.env management — read the README',              href:'https://github.com/theskumar/python-dotenv' },
+  { name:'trufflesecurity/trufflehog',    phase:'Phase 06', desc:'Real secret scanner (study after you build yours)', href:'https://github.com/trufflesecurity/trufflehog' },
+];
+
+const L2_REPOS = [
+  { name:'postmanlabs/newman',            phase:'Phase 00 + 05', desc:'Newman CLI — run Postman collections from terminal', href:'https://github.com/postmanlabs/newman' },
+  { name:'n8n-io/n8n',                    phase:'Phase 04', desc:'n8n automation — relevant to webhook phase',          href:'https://github.com/n8n-io/n8n' },
+  { name:'tiangolo/fastapi',              phase:'Phase 04', desc:'FastAPI — build your own webhook endpoint',           href:'https://github.com/tiangolo/fastapi' },
+  { name:'realpython/materials',          phase:'Phase 01', desc:'Real Python tutorial code reference',                 href:'https://github.com/realpython/materials' },
+  { name:'public-apis/public-apis',       phase:'Phase 02 + 06', desc:'Find APIs to chain in your capstone',              href:'https://github.com/public-apis/public-apis' },
+];
+
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+const KEY = 'wac_v3_progress';
+const load  = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+const save  = s  => localStorage.setItem(KEY, JSON.stringify(s));
+
+// ════════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════════
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function phaseCard(p, isDone, isLocked) {
+  const pills = p.pills.map(t => `<span class="pill">${escapeHtml(t)}</span>`).join('');
+  const cls   = [isDone ? 'done' : '', isLocked ? 'locked-card' : ''].filter(Boolean).join(' ');
+  return `
+    <div class="phase-card ${cls}" id="card-${p.id}" onclick="openPhase('${p.id}')">
+      <div class="phase-top">
+        <div class="phase-num">${escapeHtml(p.num)}</div>
+        ${!isLocked
+          ? `<div class="phase-check" onclick="event.stopPropagation(); toggle('${p.id}')">${isDone ? '✓' : ''}</div>`
+          : '<div style="font-size:.8rem;color:var(--muted)">🔒</div>'}
+      </div>
+      <div class="phase-title">${escapeHtml(p.title)}</div>
+      <div class="phase-desc">${escapeHtml(p.desc)}</div>
+      <div class="phase-pills">${pills}</div>
+      <div class="phase-cta">View full lesson →</div>
+    </div>`;
+}
+
+function repoCard(r) {
+  return `
+    <a class="repo-card" href="${r.href}" target="_blank" rel="noopener">
+      <div class="repo-name">${escapeHtml(r.name)}</div>
+      <div class="repo-phase">Read for: ${escapeHtml(r.phase)}</div>
+      <div class="repo-desc">${escapeHtml(r.desc)}</div>
+    </a>`;
+}
+
+function render() {
+  const state   = load();
+  const l1Done  = L1_PHASES.filter(p => state[p.id]).length;
+  const l1Total = L1_PHASES.length;
+  const l1Pct   = Math.round((l1Done / l1Total) * 100);
+  const l2Done  = L2_PHASES.filter(p => state[p.id]).length;
+  const l2Total = L2_PHASES.length;
+  const l2Pct   = Math.round((l2Done / l2Total) * 100);
+  const l1Complete = l1Done === l1Total;
+
+  document.getElementById('l1-fill').style.width          = `${l1Pct}%`;
+  document.getElementById('l1-progress-label').textContent = `${l1Done} / ${l1Total} phases`;
+  document.getElementById('l1-grid').innerHTML  = L1_PHASES.map(p => phaseCard(p, !!state[p.id], false)).join('');
+  document.getElementById('l1-repos').innerHTML = L1_REPOS.map(repoCard).join('');
+
+  const tabL2 = document.getElementById('tab-l2');
+  if (l1Complete) {
+    tabL2.classList.remove('locked');
+    tabL2.textContent = 'Level 2 — Automation';
+    document.getElementById('l2-lock-banner').style.display = 'none';
+    document.getElementById('l2-content').style.display     = 'block';
+  } else {
+    tabL2.classList.add('locked');
+    tabL2.textContent = '🔒 Level 2 — Automation';
+    document.getElementById('l2-lock-banner').style.display = 'block';
+    document.getElementById('l2-content').style.display     = 'none';
+    document.getElementById('l2-lock-label').textContent    = `${l1Done} / ${l1Total} complete`;
+  }
+
+  document.getElementById('l2-fill').style.width          = `${l2Pct}%`;
+  document.getElementById('l2-progress-label').textContent = `${l2Done} / ${l2Total} phases`;
+  document.getElementById('l2-grid').innerHTML  = L2_PHASES.map(p => phaseCard(p, !!state[p.id], !l1Complete)).join('');
+  document.getElementById('l2-repos').innerHTML = L2_REPOS.map(repoCard).join('');
+}
+
+function toggle(id) {
+  const state = load();
+  if (state[id]) delete state[id]; else state[id] = true;
+  save(state);
+  render();
+}
+
+function resetProgress() {
+  if (!confirm('Reset all progress on this device?')) return;
+  save({});
+  localStorage.removeItem('gh_token');
+  localStorage.removeItem('gist_id');
+  document.getElementById('gh-token').value = '';
+  document.getElementById('gist-id-input').value = '';
+  render();
+  setGistStatus('Reset', 'var(--yellow)');
+}
+
+// ════════════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════════════
+function openPhase(id) {
+  const all = [...L1_PHASES, ...L2_PHASES];
+  const p   = all.find(x => x.id === id);
+  if (!p) return;
+
+  const pills      = p.pills.map(t => `<span class="pill">${escapeHtml(t)}</span>`).join('');
+  const partsList  = p.parts.map(part => `<li><span class="part-label">${escapeHtml(part.label)}</span>${escapeHtml(part.text)}</li>`).join('');
+  const steps      = p.steps.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+  const checkpoint = p.checkpoint.map(c => `<li>${escapeHtml(c)}</li>`).join('');
+  const deeper     = p.deeper.map(([t,u]) => `<li><a href="${escapeHtml(u)}" target="_blank" rel="noopener">${escapeHtml(t)} ↗</a></li>`).join('');
+  const isDone     = !!load()[id];
+
+  document.getElementById('modal-content').innerHTML = `
+    <h2>${escapeHtml(p.num)} — ${escapeHtml(p.title)}</h2>
+    <div class="modal-meta">${pills}</div>
+
+    <div class="file-location">
+      <strong>📁 File:</strong> <code>${escapeHtml(p.file)}</code>
+    </div>
+
+    <h3>Goal</h3>
+    <p>${escapeHtml(p.goal)}</p>
+
+    <h3>Concept</h3>
+    <p>${escapeHtml(p.concept)}</p>
+
+    <h3>What you'll do — ${p.parts.length} parts</h3>
+    <ul class="parts-checklist">${partsList}</ul>
+
+    <h3>How to work through it</h3>
+    <ol>${steps}</ol>
+
+    <h3>Research task</h3>
+    <p>${escapeHtml(p.research)}</p>
+
+    <h3>Checkpoint — answer before moving on</h3>
+    <ul>${checkpoint}</ul>
+
+    <h3>Go deeper</h3>
+    <ul>${deeper}</ul>
+
+    <h3>How to run</h3>
+    <pre><code>${escapeHtml(p.run)}</code></pre>
+
+    ${p.curlNote ? `
+    <div class="reference-note">
+      <strong>💡 Curl reference:</strong> Open the file in <code>${escapeHtml(p.file)}</code> — the header has a "curl equivalent" comment showing the curl command for every Python request you write. Use it as a translation reference, not a shortcut.
+    </div>` : ''}
+
+    <div class="modal-actions">
+      <button class="btn ${isDone ? 'btn-secondary' : 'btn-primary'} btn-sm" onclick="toggle('${id}'); openPhase('${id}')">
+        ${isDone ? '✓ Marked complete — click to undo' : 'Mark as complete'}
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">Close</button>
+    </div>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function openSetup() {
+  document.getElementById('modal-content').innerHTML = `
+    <h2>⚙️ Setup — do this first</h2>
+    <div class="modal-meta">~5 minutes, once per machine</div>
+
+    <div class="file-location">
+      <strong>📁 You'll need:</strong> Python 3.10+, git, a GitHub account
+    </div>
+
+    <h3>1. Clone the repo</h3>
+    <pre><code>$ git clone https://github.com/Sharquille/weather-api-course.git
+$ cd weather-api-course</code></pre>
+
+    <h3>2. Create a virtual environment</h3>
+    <pre><code>$ python3 -m venv .venv
+$ source .venv/bin/activate    # macOS/Linux
+# .venv\\Scripts\\activate     # Windows PowerShell</code></pre>
+
+    <h3>3. Install dependencies</h3>
+    <p>Create <code>requirements.txt</code> in the repo root with:</p>
+    <pre><code>requests>=2.31.0
+python-dotenv>=1.0.0
+flask>=3.0.0</code></pre>
+    <p>Then:</p>
+    <pre><code>$ pip install -r requirements.txt</code></pre>
+
+    <h3>4. Set up the .env file (for Phase 02+)</h3>
+    <pre><code>$ cp level-1/02-auth-apis/starter/.env.example level-1/02-auth-apis/starter/.env
+# Edit .env and add your OpenWeatherMap and WeatherAPI keys</code></pre>
+
+    <h3>5. Sign up for the free API keys you'll need</h3>
+    <ul>
+      <li><strong>OpenWeatherMap</strong> — <a href="https://openweathermap.org/api" target="_blank">openweathermap.org/api</a> (free tier: 1000 calls/day)</li>
+      <li><strong>WeatherAPI</strong> — <a href="https://www.weatherapi.com/" target="_blank">weatherapi.com</a> (free tier: 1M calls/month)</li>
+      <li><strong>Open-Meteo</strong> — <strong>no key needed</strong>, used in Phase 00–01</li>
+    </ul>
+
+    <h3>6. Verify your setup</h3>
+    <pre><code>$ cd level-1/00-curl-basics/starter
+$ bash exercises.sh
+# Should print weather for Roseau and complete all 7 exercises without errors</code></pre>
+
+    <div class="reference-note">
+      <strong>💡 Each learner runs their own setup.</strong> Both of you clone the same repo to your own machine. You don't share a deployed environment until Phase 05 (and even then, you deploy your own version, not a shared one).
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">Close</button>
+    </div>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ════════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════════
+function switchTab(level) {
+  const state = load();
+  const l1Complete = L1_PHASES.filter(p => state[p.id]).length === L1_PHASES.length;
+  if (level === 'l2' && !l1Complete) {
+    const done = L1_PHASES.filter(p => state[p.id]).length;
+    alert(`Level 2 is locked. Complete all 8 Level 1 phases first. (${done}/8 done)`);
+    return;
+  }
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`tab-${level}`).classList.add('active');
+  document.getElementById(`panel-${level}`).classList.add('active');
+  document.getElementById(`panel-${level}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ════════════════════════════════════════════════
+//  GIST PERSISTENCE
+// ════════════════════════════════════════════════
+const GIST_FILE = 'wac-progress.json';
+
+function setGistStatus(msg, color = 'var(--muted)') {
+  const el = document.getElementById('gist-status');
+  el.style.color = color;
+  el.innerHTML   = msg;
+}
+
+async function saveToGist() {
+  const token  = document.getElementById('gh-token').value.trim() || localStorage.getItem('gh_token');
+  if (!token) { setGistStatus('⚠️ Enter a GitHub token first', 'var(--yellow)'); return; }
+  localStorage.setItem('gh_token', token);
+
+  const gistId  = document.getElementById('gist-id-input').value.trim() || localStorage.getItem('gist_id') || '';
+  const content = JSON.stringify(load(), null, 2);
+  const payload = { description: 'Weather API Course Progress', public: false,
+                    files: { [GIST_FILE]: { content } } };
+
+  setGistStatus('<span class="spinner"></span>Saving…');
+  try {
+    const url    = gistId ? `https://api.github.com/gists/${gistId}` : 'https://api.github.com/gists';
+    const method = gistId ? 'PATCH' : 'POST';
+    const res    = await fetch(url, {
+      method,
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(`GitHub ${res.status}: ${await res.text()}`);
+    const data = await res.json();
+    localStorage.setItem('gist_id', data.id);
+    document.getElementById('gist-id-input').value = data.id;
+    setGistStatus(`✅ Saved to <a href="${data.html_url}" target="_blank">gist ${data.id.slice(0,8)}…</a>`, 'var(--green)');
+  } catch(e) { setGistStatus(`❌ ${e.message}`, 'var(--red)'); }
+}
+
+async function loadFromGist() {
+  const token  = document.getElementById('gh-token').value.trim() || localStorage.getItem('gh_token');
+  const gistId = document.getElementById('gist-id-input').value.trim() || localStorage.getItem('gist_id');
+  if (!token || !gistId) { setGistStatus('⚠️ Enter token and Gist ID', 'var(--yellow)'); return; }
+
+  setGistStatus('<span class="spinner"></span>Loading…');
+  try {
+    const res = await fetch(`https://api.github.com/gists/${gistId}`,
+      { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new Error(`GitHub ${res.status}`);
+    const data    = await res.json();
+    const content = data.files[GIST_FILE]?.content;
+    if (!content) throw new Error('Progress file not found in this Gist');
+    save(JSON.parse(content));
+    render();
+    setGistStatus('✅ Progress loaded', 'var(--green)');
+  } catch(e) { setGistStatus(`❌ ${e.message}`, 'var(--red)'); }
+}
+
+window.addEventListener('load', () => {
+  render();
+  const token  = localStorage.getItem('gh_token');
+  const gistId = localStorage.getItem('gist_id');
+  if (token)  document.getElementById('gh-token').value      = token;
+  if (gistId) document.getElementById('gist-id-input').value = gistId;
+});
+</script>
+</body>
+</html>
