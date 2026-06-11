@@ -1,0 +1,1830 @@
+================================================================================
+WEATHER API COURSE SPECIFICATION AND RECREATION GUIDE
+================================================================================
+This is a highly comprehensive documentation guide of the "weather-api-course"
+repository, compiled in detail specifically for analysis, recreation, and
+improvement by an AI Model (such as Claude).
+
+This guide captures:
+1. Executive Summary & Pedagogical Purpose
+2. Core Architectural & Professional Design Patterns
+3. Full Project Directory Structure & File Catalog
+4. Complete Step-by-Step Level 1 (Phases 00 to 07) Curriculum & Solutions
+5. Complete Step-by-Step Level 2 (Phases 00 to 06) Curriculum & Solutions
+6. Complete Reference Source Code of all Key Solutions
+7. Architectural Recreation & Enhancement Guidelines
+
+================================================================================
+SECTION 1: COURSE ARCHITECTURE & OVERVIEW
+================================================================================
+
+1.1 COURSE PURPOSE
+The "Weather API Course" is a hands-on, two-level curriculum designed to teach
+software engineering students and professionals the core fundamentals of HTTP,
+REST APIs, Python automation, asynchronous browser interactions (fetch), API
+security, packaging, scheduled workflows (cron), webhooks, and Continuous
+Integration (CI). 
+
+Instead of teaching these dry subjects in isolation, the course tasks learners 
+with building an increasingly sophisticated weather aggregation dashboard, moving 
+from simple curl commands to a fully secure, scheduled, type-checked, and 
+unit-tested enterprise automation system.
+
+1.2 MULTI-SOURCE INTEGRATION & NORMALIZATION
+One of the core architectural lessons of this course is "Response Normalization". 
+Third-party APIs vary widely in response layouts, query parameter names, units, 
+and error structures. Learners fetch weather data from three distinct providers:
+- Open-Meteo: Requires geocoding lookups, returns data without keys, and uses
+  WMO weather codes.
+- OpenWeatherMap: Requires an API key (passed via query params) and uses standard
+  JSON nested objects.
+- WeatherAPI: Requires an API key and returns highly nested values including AQI.
+
+The course forces learners to normalize these various responses into a single,
+clean, unified data format:
+{
+    "source": str,        # "Open-Meteo" | "OpenWeatherMap" | "WeatherAPI"
+    "temp_c": float,       # Temperature in Celsius
+    "wind_kph": float,     # Wind speed in km/h
+    "humidity": int,       # Relative humidity (%)
+    "desc": str            # Cleaned up textual weather description
+}
+
+1.3 TESTING & TOOLING
+The course starts with basic shell scripting, moves to standard Python requests, 
+then scales to Postman/Newman for functional regression testing, Flask for webhooks, 
+pytest with offline mocking for isolation, and GitHub Actions for automated 
+CI pipelines.
+
+================================================================================
+SECTION 2: KEY ARCHITECTURAL & PROFESSIONAL DESIGN PATTERNS
+================================================================================
+
+The repository incorporates five core design patterns that mirror real-world,
+enterprise production environments:
+
+--------------------------------------------------------------------------------
+PATTERN A: CLIENT-SIDE KEY MANAGEMENT (localStorage Settings UI in Level 1 / Phase 04)
+--------------------------------------------------------------------------------
+- PROBLEM: Frontend browser applications speaking directly to third-party APIs
+  cannot securely read backend environment variables without a server. Hardcoding
+  keys exposes secrets to the public.
+- SOLUTION: A local "API Key Settings Panel" that captures keys securely via UI
+  inputs and persists them directly to the browser's native `localStorage` vault.
+  This allows developers to build, test, and run frontend weather dashboards
+  locally or on static hosts (like Cloudflare Pages) completely client-side without
+  needing databases or exposing credentials to Git.
+
+--------------------------------------------------------------------------------
+PATTERN B: STATIC CODE ANALYSIS & MODERN TOOLING (Level 2 / Phase 01)
+--------------------------------------------------------------------------------
+- PROBLEM: As a project scales from single-file scripts to multi-module packages,
+  runtime type errors and stylistic inconsistencies grow.
+- SOLUTION: Pyproject-based packaging with configuration files ('pyproject.toml')
+  enforcing:
+  * `ruff`: A lightning-fast linter and formatter that checks style violations,
+    unreferenced variables, and formats imports automatically.
+  * `mypy`: A strict static type-checker that checks python type hints (`strict = true`)
+    to catch algorithmic bugs before execution.
+
+--------------------------------------------------------------------------------
+PATTERN C: OFFLINE API MOCKING (Level 2 / Phase 01)
+--------------------------------------------------------------------------------
+- PROBLEM: Automated test suites should never make live HTTP requests. If tests
+  rely on real API endpoints, they are flaky (fail on network drops), slow, deplete
+  API rate limits, and require secrets to be injected into CI runners.
+- SOLUTION: Intercepting network traffic with Python's standard `unittest.mock.patch`
+  library. Outbound calls to `requests.get` are hijacked, and pre-defined mock JSON 
+  response payloads (with appropriate `.json()` return values and `raise_for_status`
+  mocks) are returned. Tests execute 100% offline, reliably, and in milliseconds.
+
+--------------------------------------------------------------------------------
+PATTERN D: CRYPTOGRAPHIC WEBHOOK SIGNATURES (Level 2 / Phase 04)
+--------------------------------------------------------------------------------
+- PROBLEM: Webhook receiver endpoints are open to the public internet. Anyone who
+  finds the URL can post fake or malicious weather payloads.
+- SOLUTION: Cryptographic symmetric signature verification. The webhook sender
+  signs the raw request body with a shared secret key using SHA256 HMAC. The Flask
+  receiver reads the raw payload, calculates the HMAC signature locally, and compares
+  it with the incoming `X-Hub-Signature-256` header. It uses `hmac.compare_digest` to
+  prevent timing-attack vulnerabilities.
+
+--------------------------------------------------------------------------------
+PATTERN E: PRODUCTION EDGE PROXIES (Cloudflare Pages Functions in Level 1 / Phase 05)
+--------------------------------------------------------------------------------
+- PROBLEM: Real-world client-side production apps cannot rely on localStorage
+  as user-facing keys. Secrets must stay on the server.
+- SOLUTION: Serverless API Proxies (Backend-for-Frontend). Instead of calling
+  external APIs directly from the browser, the frontend queries a local path:
+  `fetch('/api/weather?city=Roseau')`.
+  The platform (Cloudflare Pages) intercepts this path inside a `/functions` folder
+  and executes a lightweight secure Edge function that injects the secret API key 
+  from the platform's dashboard, performs the real fetch, and proxies the result 
+  back to the user without ever exposing the key.
+
+================================================================================
+SECTION 3: PROJECT DIRECTORY LAYOUT & FILE CATALOG
+================================================================================
+
+weather-api-course/
+│
+├── _headers                     # Cloudflare Pages custom security response headers
+├── .gitignore                   # Ignores .env, .venv, pytest caches, python __pycache__
+├── ARCHITECTURE_GUIDE.md        # Comprehensive technical guide of professional design patterns
+├── index.html                   # HTML course portal and browser-based lesson progress tracker
+├── PROGRESS_SYNC.md             # Guide on syncing course progress via a private GitHub Gist
+├── requirements.txt             # Primary Python dependency requirements (requests, dotenv, flask, etc.)
+│
+├── level-1/                     # LEVEL 1: API FUNDAMENTALS
+│   ├── README.md                # High-level level-1 overview
+│   │
+│   ├── 00-curl-basics/          # Phase 00: Raw HTTP request concepts
+│   │   ├── README.md            # Lessons on methods (GET/POST/PUT/DELETE), headers, status codes
+│   │   ├── starter/             # Incomplete starter exercises shell script
+│   │   └── solution/            # Reference answers for curl operations
+│   │
+│   ├── 01-python-requests/      # Phase 01: Moving from curl to programmatic Python scripts
+│   │   ├── README.md            # Python requests, timeout configurations, try/except error handling
+│   │   ├── starter/             # Incomplete weather_basic.py file with marked TODOs
+│   │   └── solution/            # Complete weather_basic.py CLI script with sys.argv support
+│   │
+│   ├── 02-auth-apis/            # Phase 02: Authenticated APIs & secrets protection
+│   │   ├── README.md            # Learning .env file management, dotenv, handling 401/403/429 codes
+│   │   ├── starter/             # Incomplete weather_auth.py and .env.example
+│   │   └── solution/            # Completed weather_auth.py resolving credentials from dotenv
+│   │
+│   ├── 03-multi-source/         # Phase 03: Performance concurrency & fault tolerance
+│   │   ├── README.md            # Executing multiple IO network tasks in parallel
+│   │   ├── starter/             # Incomplete dashboard.py file
+│   │   └── solution/            # Dashboard compiling parallel calls via ThreadPoolExecutor
+│   │
+│   ├── 04-browser-fetch/        # Phase 04: Modern web browser fetch & async actions
+│   │   ├── README.md            # Browser JS fetch API, Promise.allSettled, CORS, DOM rendering
+│   │   ├── starter/             # Empty or skeleton index.html file with JS inputs
+│   │   └── solution/            # index.html with interactive localStorage settings panel and fetch UI
+│   │
+│   ├── 05-deploy/               # Phase 05: Static deployments on Cloudflare Pages
+│   │   └── README.md            # Step-by-step instructions for creating separate repository pipelines
+│   │
+│   ├── 06-api-security/         # Phase 06: API Security scanning, validation and safe transport
+│   │   ├── README.md            # Secrets leakage, regex scanning, query parameters vs authorization headers
+│   │   ├── starter/             # Incomplete security_checks.py script
+│   │   └── solution/            # Complete scanning engine and rate limit validator script
+│   │
+│   └── 07-json-deep/            # Phase 07: Treating API data as custom entities
+│       ├── README.md            # Cache dumping/loading, safe nested gets, JSON schemas validation
+│       ├── starter/             # Incomplete json_practice.py script
+│       └── solution/            # Finished parser practicing validation, caching, and safe getters
+│
+└── level-2/                     # LEVEL 2: AUTOMATION & WORKFLOWS
+    ├── README.md                # High-level level-2 overview
+    │
+    ├── 00-postman-properly/     # Phase 00: Functional API verification & CLI execution
+    │   └── README.md            # Postman environments, API collections, Newman CLI executions
+    │
+    ├── 01-python-structure/     # Phase 01: Professional Python packages
+    │   ├── README.md            # Structural package conversion (src/ layout, pytest, ruff, mypy)
+    │   ├── starter/             # Incomplete package layout
+    │   └── solution/            # Clean weather package with unit-testing suite and pyproject.toml
+    │
+    ├── 02-chaining-apis/        # Phase 02: Connecting outputs to inputs
+    │   ├── README.md            # Extracting weather indicators and piping them as Discord Webhook payloads
+    │   ├── starter/             # Empty notify.py with environment variables schema
+    │   └── solution/            # Completed notify.py posting warning structures based on metrics
+    │
+    ├── 03-schedules-cron/       # Phase 03: Routine scheduling systems
+    │   └── README.md            # Linux cron / Windows Task Scheduler setup, logs management, idempotency
+    │
+    ├── 04-webhooks/             # Phase 04: Inbound webhook handling
+    │   ├── README.md            # Flask backend creation, public routing via ngrok, signature HMAC validation
+    │   ├── starter/             # Incomplete server.py file
+    │   └── solution/            # Complete secure Flask server verify_signature process using timing checks
+    │
+    ├── 05-newman-testing/       # Phase 05: Continuous Integration (CI) test executions
+    │   ├── README.md            # Triggering Postman automation tests on every branch push
+    │   ├── collection.example.json # Postman exported template
+    │   ├── env.example.json     # Sanitized environments template
+    │   └── .github-workflow-template.yml # GitHub Actions pipeline template running Newman checks
+    │
+    └── 06-capstone/             # Phase 06: Capstone project design
+        └── README.md            # Requirements list for custom end-to-end automated portfolio integrations
+
+================================================================================
+SECTION 4: LEVEL 1 (PHASES 00 TO 07) DETAILS & KEY CONCEPTS
+================================================================================
+
+--------------------------------------------------------------------------------
+PHASE 00: curl BASICS
+--------------------------------------------------------------------------------
+- Focus: Proving APIs are plain HTTP over the wire.
+- Key Tasks: Use `curl` to fetch raw text/JSON from endpoints like `wttr.in`,
+  debug conversations via verbose flag `-v`, perform HTTP methods (GET, POST,
+  PUT, DELETE) using `-X` against mock endpoints on `httpbin.org`, and inspect
+  authorization codes (401 Unauthorized, 403 Forbidden).
+- Core Learnings:
+  * Headers supply metadata (`Accept: application/json`, `Content-Type: application/json`).
+  * Body payloads are supplied with `-d '{"key": "val"}'`.
+  * Status codes dictate outcome categories (2xx success, 4xx client errors, 5xx server errors).
+
+--------------------------------------------------------------------------------
+PHASE 01: PYTHON REQUESTS
+--------------------------------------------------------------------------------
+- Focus: Translating curl into programmable Python automation scripts.
+- Key Tasks: Write a Python CLI tool using the `requests` library to fetch
+  weather from Open-Meteo's coordinates-based forecasting API. Parse the nested
+  JSON return object, manage connection/timeout errors, and accept command-line
+  arguments with `sys.argv`.
+- Core Learnings:
+  * The `params` parameter in `requests.get(url, params=...)` handles safe URL parameter escaping.
+  * `response.raise_for_status()` raises `requests.exceptions.HTTPError` on non-200 responses.
+  * Adding explicit timeouts (`timeout=10`) is mandatory to prevent hanging processes.
+  * Handling exceptions in blocks: `try ... except requests.exceptions.Timeout` is critical for robustness.
+
+--------------------------------------------------------------------------------
+PHASE 02: AUTHENTICATED APIs
+--------------------------------------------------------------------------------
+- Focus: Safely injecting secret keys and normalizing disparate response bodies.
+- Key Tasks: Copy `.env.example` to `.env` (which is git-ignored). Retrieve API keys
+  for OpenWeatherMap and WeatherAPI. Use `python-dotenv` to inject values into
+  the process environment. Write separate fetchers and translate their varied responses
+  into a unified standardized dictionary layout. Write logic to inspect rate-limiting
+  response headers (e.g. `X-RateLimit-Limit`).
+- Core Learnings:
+  * Secrets must never be hardcoded or checked into source control.
+  * Response normalization hides the complexity of diverse third-party APIs from
+    downstream client layers.
+  * API endpoints enforce limits; checking headers helps scripts adjust requests and avoid 429 errors.
+
+--------------------------------------------------------------------------------
+PHASE 03: MULTI-SOURCE AGGREGATION
+--------------------------------------------------------------------------------
+- Focus: Accelerating data retrieval using concurrency and preventing cascading failures.
+- Key Tasks: Read input city, run Open-Meteo, OpenWeatherMap, and WeatherAPI fetches
+  in parallel. Aggregate findings in a neat command-line table, outputting total latency.
+- Core Learnings:
+  * Parallel IO calls are initiated via `concurrent.futures.ThreadPoolExecutor`.
+  * Using `as_completed(futures)` allows processing results as soon as they return, instead of waiting for the slowest.
+  * A single source failing should be wrapped in `try-except` within the future loop, allowing the application to degrade gracefully and return partial results instead of crashing the process.
+
+--------------------------------------------------------------------------------
+PHASE 04: BROWSER FETCH
+--------------------------------------------------------------------------------
+- Focus: Transferring parallel execution onto a client-side browser dashboard.
+- Key Tasks: Write an interactive webpage (`index.html`) using raw vanilla JS that
+  asynchronously queries Open-Meteo, OpenWeatherMap, and WeatherAPI using native `fetch()`.
+  Create a UI credentials settings panel persisting credentials in browser `localStorage`.
+- Core Learnings:
+  * Asynchronous JavaScript is managed using `async`/`await` primitives.
+  * Parallel resolution is completed safely via `Promise.allSettled()`, which ensures
+    failing requests do not abort successful siblings (unlike `Promise.all()`).
+  * Cross-Origin Resource Sharing (CORS) security restricts how browsers request external domains.
+  * Input parameters are escaped dynamically using the browser's `URLSearchParams` object.
+
+--------------------------------------------------------------------------------
+PHASE 05: DEPLOY YOUR VERSION
+--------------------------------------------------------------------------------
+- Focus: Setting up real CI/CD pipelines to a public hosting platform.
+- Key Tasks: Extract the static frontend files and copy them to a separate personal
+  git repository. Configure Cloudflare Pages (or similar) to deploy the repository
+  on every main-branch push, utilizing basic security headers in a `_headers` config.
+- Core Learnings:
+  * Understanding static build environments (build commands, output directories, triggers).
+  * Separation of concerns: Curriculum repository stays clean, and the actual application is isolated in its own deployment repo.
+
+--------------------------------------------------------------------------------
+PHASE 06: API SECURITY
+--------------------------------------------------------------------------------
+- Focus: Eliminating API secret leakage, secure credentials transportation, and rate-limits.
+- Key Tasks: Build a custom static analyzer using Python's regular expressions (`re`)
+  to scan source files for hardcoded secrets, pattern-matching patterns like `sk_live_...`
+  or assignment keys (`api_key="..."`). Write an HTTP client checking for status 429 and
+  reading `Retry-After` headers. Contrast URL query parameters authorization (unsafe due to log leaks)
+  with Authorization header transport (safe).
+- Core Learnings:
+  * Web proxies and server logs capture complete URLs, making query-string API keys insecure. Header-based auth (`Authorization: Bearer <key>`) keeps credentials hidden inside encrypted HTTP packages.
+  * Static analysis gates help developers catch hardcoded keys locally before git staging.
+
+--------------------------------------------------------------------------------
+PHASE 07: JSON DEEP DIVE
+--------------------------------------------------------------------------------
+- Focus: Data integrity, local caching, and safety validation of third-party JSON bodies.
+- Key Tasks: Implement a local file-based cache in Python using `json.dump` and `json.load`.
+  Build a robust deep-getter utility `safe_get` traversing dictionaries with unknown structures
+  safely without raising `KeyError` failures. Implement lightweight schema type-validation.
+- Core Learnings:
+  * API caching limits roundtrips, saves bandwidth, and respects provider limits.
+  * Navigating highly nested objects must be guarded; `data.get("a", {}).get("b", {}).get("c")`
+    or recursive loops must be utilized.
+  * Python's `json.dump` writes dictionary structures directly to disk, and `json.load` reads them back.
+
+================================================================================
+SECTION 5: LEVEL 2 (PHASES 00 TO 06) DETAILS & KEY CONCEPTS
+================================================================================
+
+--------------------------------------------------------------------------------
+PHASE 00: POSTMAN PROPERLY & NEWMAN CLI
+--------------------------------------------------------------------------------
+- Focus: Moving from visual graphical interfaces to automated CLI collection testing.
+- Key Tasks: Create a Postman collection querying the three weather APIs. Configure
+  a local environment template using variables (e.g. `{{OWM_KEY}}`, `{{CITY}}`). Write
+  functional post-execution assertion checks inside Postman's Tests tab (checking status code 200,
+  JSON structure, values presence). Run the collection from the terminal command-line using `newman`.
+- Core Learnings:
+  * Test automation of API routes can be done outside of application-specific languages.
+  * Environmental variable files are exported as templates (`env.example.json`) without credentials.
+
+--------------------------------------------------------------------------------
+PHASE 01: PYTHON PACKAGE STRUCTURE
+--------------------------------------------------------------------------------
+- Focus: Refactoring scripts into production-ready packages with unit-testing isolation.
+- Key Tasks: Restructure code into a standardized `src/` layout package with `pyproject.toml` definition.
+  Expose executable script commands through project scripts entry points (`weather = "weather.cli:main"`).
+  Write robust pytest files isolating tests from third-party networks using `unittest.mock.patch`.
+  Configure `ruff` style-checkers and `mypy` strict type checking profiles.
+- Core Learnings:
+  * Packaging standardizes imports, package distributions, and binary CLI executions (`pip install -e .`).
+  * API tests must mock dependencies to remain fast, offline, and deterministic.
+
+--------------------------------------------------------------------------------
+PHASE 02: CHAINING APIS
+--------------------------------------------------------------------------------
+- Focus: Orchestrating output flows into inputs of external communication platforms.
+- Key Tasks: Import our custom structured `weather` package. Read the weather values,
+  evaluate condition indicators (such as raining, extreme hot/cold, high humidity),
+  and construct a rich Discord Webhook message payload. Post this payload to Discord
+  using `requests.post`.
+- Core Learnings:
+  * API Chaining is the backbone of automated actions, mapping output coordinates of
+    one fetch directly into parameters of a downstream notifier.
+
+--------------------------------------------------------------------------------
+PHASE 03: SCHEDULES & CRON
+--------------------------------------------------------------------------------
+- Focus: Routine scheduling and stateful idempotency.
+- Key Tasks: Configure cron jobs (Linux/macOS) or Windows Task Scheduler profiles executing
+  our Discord automation script daily. Write python code that stores state (such as the last execution date)
+  on the disk, checking against duplicate cron-trigger actions (idempotency safety).
+- Core Learnings:
+  * Schedules run scripts blindly. State verification (idempotency) ensures redundant triggers
+    do not bombard notification channels.
+  * Capturing system standard output and error redirections (`>> /tmp/weather.log 2>&1`) is essential
+    for cron debugging.
+
+--------------------------------------------------------------------------------
+PHASE 04: RECEIVING WEBHOOKS
+--------------------------------------------------------------------------------
+- Focus: Constructing inbound API systems, tunneling, and cryptographic verification.
+- Key Tasks: Build a Flask server operating on port 8080 exposing a `POST /webhook` and
+  `GET /health` routes. Create a public HTTPS routing mapping to the local port via `ngrok`.
+  Add a cryptographically secured endpoint `POST /webhook-secure` verifying payload authenticity
+  via SHA256 HMAC tokens comparing `X-Hub-Signature-256` signatures under a shared secret.
+- Core Learnings:
+  * Flask acts as a local HTTP receiver server.
+  * Ngrok routes internet callbacks directly to local workstations behind firewalls.
+  * Symmetrical cryptography validates that payload data has not been modified and comes from
+    an authorized sender, protecting open public endpoints.
+
+--------------------------------------------------------------------------------
+PHASE 05: NEWMAN AND CI
+--------------------------------------------------------------------------------
+- Focus: Automatic testing verification in continuous integration channels.
+- Key Tasks: Copy our Newman collection and variables files. Create a GitHub Actions workflow YAML
+  triggering on pull requests or commits. Set workflow runner steps setting up Node, installing Newman,
+  mapping target repo secrets to environment variables, and triggering the Newman pipeline command.
+- Core Learnings:
+  * Automated quality gates prevent broken or untested changes from merging into central codebases.
+  * Secret vaults in GitHub are mapped dynamically to runtime environment variables inside the action runners.
+
+--------------------------------------------------------------------------------
+PHASE 06: PORTFOLIO CAPSTONE
+--------------------------------------------------------------------------------
+- Focus: Independent design, testing, and deployment of a multi-source integration.
+- Requirements: Combine multiple custom APIs (e.g., weather + crypto, homelab monitor + DNS, quotes + news),
+  schedule daily executions, deliver output updates through selected channels, write mock testing profiles,
+  deploy the platform publicly, and document with a high-quality portfolio-ready README.
+
+================================================================================
+SECTION 6: COMPLETE REFERENCE SOURCE CODE of KEY SOLUTIONS
+================================================================================
+
+This section holds the actual completed code files of the solutions, providing
+the exact, functional Python scripts, HTML pages, and actions workflows. Use this
+as your source blueprint.
+
+--------------------------------------------------------------------------------
+FILE 1: level-1/00-curl-basics/solution/exercises.sh
+--------------------------------------------------------------------------------
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "=== Exercise 1: Plain GET ==="
+curl -s "https://wttr.in/Roseau?format=3"
+
+echo
+echo "=== Exercise 2: JSON response with Accept header ==="
+curl -s -H "Accept: application/json" "https://wttr.in/Roseau?format=j1" | head -40
+
+echo
+echo "=== Exercise 3: Verbose HTTP conversation ==="
+curl -v -s "https://api.open-meteo.com/v1/forecast?latitude=15.30&longitude=-61.39&current=temperature_2m" >/dev/null
+
+echo
+echo "=== Exercise 4: POST JSON to httpbin ==="
+curl -s -X POST "https://httpbin.org/post" \
+  -H "Content-Type: application/json" \
+  -d '{"city":"Roseau","source":"weather-api-course"}'
+
+echo
+echo "=== Exercise 5: PUT and DELETE ==="
+curl -s -X PUT "https://httpbin.org/put" \
+  -H "Content-Type: application/json" \
+  -d '{"city":"Roseau","status":"updated"}'
+curl -s -X DELETE "https://httpbin.org/delete"
+
+echo
+echo "=== Exercise 6: Expected 401 auth failure ==="
+curl -s -i -H "Authorization: Bearer fake-token" "https://httpbin.org/bearer"
+
+echo
+echo "=== Exercise 7: Hourly forecast ==="
+curl -s "https://api.open-meteo.com/v1/forecast?latitude=15.30&longitude=-61.39&hourly=temperature_2m&forecast_days=1" | head -50
+
+echo
+echo "=== All exercises complete ==="
+```
+
+--------------------------------------------------------------------------------
+FILE 2: level-1/01-python-requests/solution/weather_basic.py
+--------------------------------------------------------------------------------
+```python
+"""
+Level 1 — Phase 01: Python + requests (SOLUTION)
+"""
+
+import sys
+import requests
+
+WEATHER_CODES = {
+    0: "Clear sky",
+    1: "Mainly clear",
+    2: "Partly cloudy",
+    3: "Overcast",
+    45: "Foggy",
+    48: "Icy fog",
+    51: "Light drizzle",
+    61: "Light rain",
+    71: "Light snow",
+    80: "Rain showers",
+    95: "Thunderstorm",
+}
+
+
+def get_weather(latitude: float, longitude: float) -> dict:
+    """Fetch current weather from Open-Meteo. No API key needed."""
+    url = "https://api.open-meteo.com/v1/forecast"
+    params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "current": "temperature_2m,wind_speed_10m,relative_humidity_2m,weather_code",
+        "temperature_unit": "celsius",
+        "wind_speed_unit": "kmh",
+    }
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
+    return response.json()["current"]
+
+
+def get_weather_safe(latitude: float, longitude: float) -> dict | None:
+    """Same as get_weather() but returns None on failure."""
+    try:
+        return get_weather(latitude, longitude)
+    except requests.exceptions.Timeout:
+        print("❌ Request timed out")
+    except requests.exceptions.HTTPError as e:
+        print(f"❌ HTTP error: {e.response.status_code}")
+    except requests.exceptions.ConnectionError:
+        print("❌ Connection error — check your network")
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}")
+    return None
+
+
+def format_weather(data: dict, location: str = "Unknown") -> str:
+    """Format weather data as a readable string."""
+    code = data.get("weather_code", -1)
+    condition = WEATHER_CODES.get(code, f"Code {code}")
+    return (
+        f"🌤  {location}\n"
+        f"   Temperature : {data.get('temperature_2m', '?')}°C\n"
+        f"   Wind        : {data.get('wind_speed_10m', '?')} km/h\n"
+        f"   Humidity    : {data.get('relative_humidity_2m', '?')}%\n"
+        f"   Condition   : {condition}\n"
+    )
+
+
+def post_weather_report(weather_data: dict, learner_name: str) -> None:
+    """POST the weather data to httpbin.org to demonstrate sending data."""
+    url = "https://httpbin.org/post"
+    payload = {"learner": learner_name, "weather": weather_data}
+    response = requests.post(url, json=payload, timeout=10)
+    print(f"   POST status: {response.status_code}")
+    print(f"   Echoed back: {response.json().get('json', {}).get('learner', '?')}")
+
+
+if __name__ == "__main__":
+    lat = float(sys.argv[1]) if len(sys.argv) > 1 else 15.30
+    lon = float(sys.argv[2]) if len(sys.argv) > 2 else -61.39
+    location = sys.argv[3] if len(sys.argv) > 3 else "Roseau, Dominica"
+
+    data = get_weather_safe(lat, lon)
+    if data is not None:
+        print(format_weather(data, location))
+        post_weather_report(data, learner_name="weather-course-learner")
+    else:
+        print("Failed to fetch weather")
+        sys.exit(1)
+```
+
+--------------------------------------------------------------------------------
+FILE 3: level-1/02-auth-apis/solution/weather_auth.py
+--------------------------------------------------------------------------------
+```python
+"""
+Level 1 — Phase 02: Authenticated APIs (SOLUTION)
+"""
+
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def get_weather_owm(city: str) -> dict | None:
+    url = "https://api.openweathermap.org/data/2.5/weather"
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+
+    if not api_key:
+        print("❌ OPENWEATHER_API_KEY not found in .env")
+        return None
+
+    params = {"q": city, "appid": api_key, "units": "metric"}
+
+    try:
+        response = requests.get(url, params=params, timeout=10)
+
+        if response.status_code == 401:
+            print("❌ Invalid API key — check your .env")
+            return None
+        if response.status_code == 403:
+            print("❌ Access forbidden — check your plan")
+            return None
+        if response.status_code == 429:
+            print("❌ Rate limit exceeded — slow down")
+            return None
+
+        response.raise_for_status()
+        check_rate_limits(response)
+
+        d = response.json()
+        return {
+            "source": "OpenWeatherMap",
+            "city": d["name"],
+            "country": d["sys"]["country"],
+            "temp": d["main"]["temp"],
+            "feels_like": d["main"]["feels_like"],
+            "humidity": d["main"]["humidity"],
+            "description": d["weather"][0]["description"],
+            "wind_speed": round(d["wind"]["speed"] * 3.6, 1),  # m/s → km/h
+        }
+    except requests.exceptions.Timeout:
+        print("❌ OpenWeatherMap timed out")
+    except requests.exceptions.ConnectionError:
+        print("❌ Cannot reach OpenWeatherMap")
+    return None
+
+
+def get_weather_wapi(location: str) -> dict | None:
+    url = "https://api.weatherapi.com/v1/current.json"
+    api_key = os.getenv("WEATHERAPI_KEY")
+
+    if not api_key:
+        print("❌ WEATHERAPI_KEY not found in .env")
+        return None
+
+    params = {"key": api_key, "q": location, "aqi": "yes"}
+
+    try:
+        response = requests.get(url, params=params, timeout=10)
+
+        if response.status_code == 401:
+            print("❌ Invalid WeatherAPI key")
+            return None
+        if response.status_code == 429:
+            print("❌ WeatherAPI rate limit exceeded")
+            return None
+
+        response.raise_for_status()
+        d = response.json()
+        return {
+            "source": "WeatherAPI",
+            "city": d["location"]["name"],
+            "country": d["location"]["country"],
+            "temp": d["current"]["temp_c"],
+            "humidity": d["current"]["humidity"],
+            "uv_index": d["current"]["uv"],
+            "wind_kph": d["current"]["wind_kph"],
+            "condition": d["current"]["condition"]["text"],
+        }
+    except requests.exceptions.Timeout:
+        print("❌ WeatherAPI timed out")
+    except requests.exceptions.ConnectionError:
+        print("❌ Cannot reach WeatherAPI")
+    return None
+
+
+def check_rate_limits(response) -> None:
+    rate_headers = [
+        "X-RateLimit-Limit",
+        "X-RateLimit-Remaining",
+        "X-RateLimit-Reset",
+        "Retry-After",
+        "RateLimit-Limit",
+        "RateLimit-Remaining",
+    ]
+    found = {h: response.headers[h] for h in rate_headers if h in response.headers}
+    if found:
+        print("   Rate limit headers:")
+        for k, v in found.items():
+            print(f"     {k}: {v}")
+    else:
+        print("   No rate limit headers in this response")
+
+
+if __name__ == "__main__":
+    print("\n=== OpenWeatherMap ===")
+    owm = get_weather_owm("Roseau")
+    if owm:
+        print(f"   {owm['city']}, {owm['country']}")
+        print(f"   Temp      : {owm['temp']}°C (feels {owm['feels_like']}°C)")
+        print(f"   Condition : {owm['description'].title()}")
+        print(f"   Humidity  : {owm['humidity']}%")
+        print(f"   Wind      : {owm['wind_speed']} km/h")
+
+    print("\n=== WeatherAPI ===")
+    wapi = get_weather_wapi("Roseau, Dominica")
+    if wapi:
+        print(f"   {wapi['city']}, {wapi['country']}")
+        print(f"   Temp      : {wapi['temp']}°C")
+        print(f"   Condition : {wapi['condition']}")
+        print(f"   UV Index  : {wapi['uv_index']}")
+        print(f"   Wind      : {wapi['wind_kph']} km/h")
+
+    print("\n=== Temperature comparison ===")
+    if owm and wapi:
+        diff = abs(owm["temp"] - wapi["temp"])
+        print(f"   OWM:  {owm['temp']}°C")
+        print(f"   WAPI: {wapi['temp']}°C")
+        print(f"   Diff: {diff:.1f}°C")
+        print("   (small differences are normal — measurement station locations vary)")
+```
+
+--------------------------------------------------------------------------------
+FILE 4: level-1/03-multi-source/solution/dashboard.py
+--------------------------------------------------------------------------------
+```python
+"""
+Level 1 — Phase 03: Multi-Source Aggregation (SOLUTION)
+"""
+
+import os
+import sys
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+import requests
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")
+
+
+def fetch_open_meteo(city: str) -> dict:
+    geo = requests.get(
+        "https://geocoding-api.open-meteo.com/v1/search",
+        params={"name": city, "count": 1},
+        timeout=10,
+    ).json()
+    if not geo.get("results"):
+        raise ValueError(f"City not found: {city}")
+    lat, lon = geo["results"][0]["latitude"], geo["results"][0]["longitude"]
+
+    url = "https://api.open-meteo.com/v1/forecast"
+    r = requests.get(
+        url,
+        params={
+            "latitude": lat,
+            "longitude": lon,
+            "current": "temperature_2m,wind_speed_10m,relative_humidity_2m,weather_code",
+            "wind_speed_unit": "kmh",
+        },
+        timeout=10,
+    )
+    r.raise_for_status()
+    cw = r.json()["current"]
+    return {
+        "source": "Open-Meteo",
+        "temp_c": cw["temperature_2m"],
+        "wind_kph": cw["wind_speed_10m"],
+        "humidity": cw["relative_humidity_2m"],
+        "desc": f"code {cw['weather_code']}",
+    }
+
+
+def fetch_openweather(city: str) -> dict:
+    key = os.getenv("OPENWEATHER_API_KEY")
+    if not key:
+        raise RuntimeError("OPENWEATHER_API_KEY missing")
+    r = requests.get(
+        "https://api.openweathermap.org/data/2.5/weather",
+        params={"q": city, "appid": key, "units": "metric"},
+        timeout=10,
+    )
+    r.raise_for_status()
+    d = r.json()
+    return {
+        "source": "OpenWeatherMap",
+        "temp_c": d["main"]["temp"],
+        "wind_kph": round(d["wind"]["speed"] * 3.6, 1),
+        "humidity": d["main"]["humidity"],
+        "desc": d["weather"][0]["description"],
+    }
+
+
+def fetch_weatherapi(city: str) -> dict:
+    key = os.getenv("WEATHERAPI_KEY")
+    if not key:
+        raise RuntimeError("WEATHERAPI_KEY missing")
+    r = requests.get(
+        "https://api.weatherapi.com/v1/current.json",
+        params={"key": key, "q": city, "aqi": "no"},
+        timeout=10,
+    )
+    r.raise_for_status()
+    d = r.json()
+    return {
+        "source": "WeatherAPI",
+        "temp_c": d["current"]["temp_c"],
+        "wind_kph": d["current"]["wind_kph"],
+        "humidity": d["current"]["humidity"],
+        "desc": d["current"]["condition"]["text"],
+    }
+
+
+SOURCES = {
+    "Open-Meteo": fetch_open_meteo,
+    "OpenWeatherMap": fetch_openweather,
+    "WeatherAPI": fetch_weatherapi,
+}
+
+
+def fetch_all(city: str) -> list[dict]:
+    results = []
+    with ThreadPoolExecutor(max_workers=len(SOURCES)) as ex:
+        futures = {ex.submit(fn, city): name for name, fn in SOURCES.items()}
+        for fut in as_completed(futures):
+            name = futures[fut]
+            try:
+                results.append(fut.result())
+            except Exception as e:
+                print(f"   ⚠️  {name} failed: {e}")
+    return results
+
+
+def render_table(results: list[dict]) -> str:
+    if not results:
+        return "(no sources returned data)"
+    header = f"  {'Source':<16} {'Temp °C':<10} {'Wind kph':<12} {'Humidity':<10} Description"
+    sep = "  " + "-" * (len(header) - 2)
+    rows = [header, sep]
+    for r in results:
+        rows.append(
+            f"  {r['source']:<16} {r['temp_c']:<10} {r['wind_kph']:<12} {r['humidity']:<10} {r['desc']}"
+        )
+    return "\n".join(rows)
+
+
+if __name__ == "__main__":
+    city = sys.argv[1] if len(sys.argv) > 1 else "Roseau"
+    print(f"Fetching weather for {city} from {len(SOURCES)} sources in parallel...\n")
+
+    start = time.perf_counter()
+    results = fetch_all(city)
+    elapsed = time.perf_counter() - start
+
+    print(render_table(results))
+    print(f"\nFetched {len(results)}/{len(SOURCES)} sources in {elapsed:.2f}s")
+```
+
+--------------------------------------------------------------------------------
+FILE 5: level-1/04-browser-fetch/solution/index.html
+--------------------------------------------------------------------------------
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Weather Dashboard</title>
+<style>
+  body { font-family: system-ui; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; text-align: left; }
+  th { background: #f4f4f4; }
+  input, button { padding: 0.5rem; font-size: 1rem; }
+  .err { color: #a00; }
+</style>
+</head>
+<body>
+<h1>🌤 Weather Dashboard</h1>
+<p>Open-Meteo (no key) + OpenWeatherMap + WeatherAPI — parallel fetch from the browser.</p>
+
+<div id="key-manager" style="background: #f9f9f9; border: 1px solid #ddd; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; max-width: 400px;">
+  <h3 style="margin-top: 0;">🔑 Local API Key Settings</h3>
+  <div style="margin-bottom: 0.5rem;">
+    <label for="owm_key" style="display: inline-block; width: 140px; font-size: 0.9rem;">OpenWeatherMap Key:</label>
+    <input type="password" id="owm_key" style="padding: 0.25rem; font-size: 0.9rem;">
+  </div>
+  <div style="margin-bottom: 0.5rem;">
+    <label for="wapi_key" style="display: inline-block; width: 140px; font-size: 0.9rem;">WeatherAPI Key:</label>
+    <input type="password" id="wapi_key" style="padding: 0.25rem; font-size: 0.9rem;">
+  </div>
+  <button id="save-keys" style="padding: 0.25rem 0.5rem; font-size: 0.9rem;">Save to Browser</button>
+  <span id="save-msg" style="color: green; margin-left: 0.5rem; font-size: 0.9rem;"></span>
+</div>
+
+<input id="city" value="Roseau" placeholder="City name">
+<button id="go">Get Weather</button>
+
+<table id="out">
+  <thead><tr><th>Source</th><th>Temp °C</th><th>Wind kph</th><th>Humidity</th><th>Desc</th></tr></thead>
+  <tbody></tbody>
+</table>
+<p id="status"></p>
+
+<script>
+document.getElementById("owm_key").value = localStorage.getItem("OWM_KEY") || "";
+document.getElementById("wapi_key").value = localStorage.getItem("WEATHERAPI_KEY") || "";
+
+document.getElementById("save-keys").addEventListener("click", () => {
+  localStorage.setItem("OWM_KEY", document.getElementById("owm_key").value.trim());
+  localStorage.setItem("WEATHERAPI_KEY", document.getElementById("wapi_key").value.trim());
+  const msg = document.getElementById("save-msg");
+  msg.textContent = "Saved!";
+  setTimeout(() => msg.textContent = "", 2000);
+});
+
+async function fetchOpenMeteo(city) {
+  const geo = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
+  ).then(r => r.json());
+  if (!geo.results) throw new Error("city not found");
+  const { latitude: lat, longitude: lon } = geo.results[0];
+
+  const url = new URL("https://api.open-meteo.com/v1/forecast");
+  url.searchParams.set("latitude", lat);
+  url.searchParams.set("longitude", lon);
+  url.searchParams.set("current", "temperature_2m,wind_speed_10m,relative_humidity_2m,weather_code");
+  url.searchParams.set("wind_speed_unit", "kmh");
+
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  const cw = d.current;
+  return {
+    source: "Open-Meteo",
+    temp_c: cw.temperature_2m,
+    wind_kph: cw.wind_speed_10m,
+    humidity: cw.relative_humidity_2m,
+    desc: "code " + cw.weather_code,
+  };
+}
+
+async function fetchOWM(city) {
+  const key = localStorage.getItem("OWM_KEY");
+  if (!key) throw new Error("set localStorage.OWM_KEY in settings first");
+  const r = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${key}&units=metric`
+  );
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  return {
+    source: "OpenWeatherMap",
+    temp_c: d.main.temp,
+    wind_kph: Math.round(d.wind.speed * 3.6 * 10) / 10,
+    humidity: d.main.humidity,
+    desc: d.weather[0].description,
+  };
+}
+
+async function fetchWeatherAPI(city) {
+  const key = localStorage.getItem("WEATHERAPI_KEY");
+  if (!key) throw new Error("set localStorage.WEATHERAPI_KEY in settings first");
+  const r = await fetch(
+    `https://api.weatherapi.com/v1/current.json?key=${key}&q=${encodeURIComponent(city)}&aqi=no`
+  );
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  return {
+    source: "WeatherAPI",
+    temp_c: d.current.temp_c,
+    wind_kph: d.current.wind_kph,
+    humidity: d.current.humidity,
+    desc: d.current.condition.text,
+  };
+}
+
+const sources = [fetchOpenMeteo, fetchOWM, fetchWeatherAPI];
+
+document.getElementById("go").addEventListener("click", async () => {
+  const city = document.getElementById("city").value;
+  const tbody = document.querySelector("#out tbody");
+  const status = document.getElementById("status");
+  tbody.innerHTML = "";
+  status.textContent = "Loading…";
+
+  const settled = await Promise.allSettled(sources.map(fn => fn(city)));
+  for (const s of settled) {
+    const tr = document.createElement("tr");
+    if (s.status === "fulfilled") {
+      const r = s.value;
+      tr.innerHTML = `<td>${r.source}</td><td>${r.temp_c}</td><td>${r.wind_kph}</td><td>${r.humidity}</td><td>${r.desc}</td>`;
+    } else {
+      tr.innerHTML = `<td colspan="5" class="err">${s.reason.message}</td>`;
+    }
+    tbody.appendChild(tr);
+  }
+  status.textContent = `Done at ${new Date().toLocaleTimeString()}`;
+});
+</script>
+</body>
+</html>
+```
+
+--------------------------------------------------------------------------------
+FILE 6: level-1/06-api-security/solution/security_checks.py
+--------------------------------------------------------------------------------
+```python
+"""
+Level 1 — Phase 06: API Security (SOLUTION)
+"""
+
+import os
+import re
+from pathlib import Path
+
+import requests
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")
+
+SECRET_PATTERNS = [
+    re.compile(
+        r'(api[_-]?key|apikey|secret|token|password)\s*=\s*["\']', re.IGNORECASE
+    ),
+    re.compile(r"AKIA[0-9A-Z]{16}"),  # AWS access key
+    re.compile(r"sk_live_[A-Za-z0-9]{20,}"),  # Stripe live key
+    re.compile(r'["\']([A-Za-z0-9_\-]{40,})["\']'),  # Generic long random
+]
+
+
+def scan_file_for_secrets(filepath: str) -> list[str]:
+    p = Path(filepath)
+    if not p.exists():
+        return []
+    text = p.read_text()
+    findings = []
+    for i, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if "os.getenv" in line or "os.environ" in line:
+            continue
+        for pat in SECRET_PATTERNS:
+            if pat.search(line):
+                findings.append(f"  L{i}: {stripped[:100]}")
+                break
+    return findings
+
+
+def scan_directory(directory: str) -> None:
+    print(f"Scanning {directory}...")
+    root = Path(directory)
+    total_findings = 0
+    for py_file in root.rglob("*.py"):
+        findings = scan_file_for_secrets(str(py_file))
+        if findings:
+            print(f"\n  ⚠️  {py_file}")
+            for f in findings:
+                print(f)
+            total_findings += len(findings)
+    if total_findings == 0:
+        print("  ✅ Clean — no hardcoded secrets found")
+
+
+def compare_auth_methods() -> None:
+    api_key = os.getenv("OPENWEATHER_API_KEY", "demo_key_for_testing")
+    city = "Roseau"
+
+    url_with_key = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+    url_clean = f"https://api.openweathermap.org/data/2.5/weather?q={city}&units=metric"
+    headers = {"Authorization": f"Bearer {api_key}"}
+
+    print("Method 1 (query param) — what the server logs see:")
+    print(f"  {url_with_key}\n")
+    print("Method 2 (header) — what the server logs see:")
+    print(f"  {url_clean}")
+    print(f"  (key is only in the headers, NOT in the URL)\n")
+    print("Headers sent in Method 2:")
+    for k, v in headers.items():
+        print(f"  {k}: {v}")
+
+
+def fetch_with_rate_limit_handling(url: str, params: dict) -> dict | None:
+    try:
+        response = requests.get(url, params=params, timeout=10)
+
+        if response.status_code == 429:
+            retry_after = response.headers.get("Retry-After", "unknown")
+            print(f"❌ Rate limited. Retry after {retry_after} seconds.")
+            return None
+        if response.status_code == 401:
+            print("❌ Key is invalid or missing")
+            return None
+        if response.status_code == 403:
+            print("❌ Key valid but access denied — check your plan/scope")
+            return None
+
+        response.raise_for_status()
+        return response.json()
+
+    except requests.exceptions.Timeout:
+        print("❌ Request timed out")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Request failed: {e}")
+        return None
+
+
+def validate_api_key(service: str) -> bool:
+    try:
+        if service == "openweather":
+            key = os.getenv("OPENWEATHER_API_KEY")
+            if not key:
+                print("  OPENWEATHER_API_KEY not set in .env")
+                return False
+            r = requests.get(
+                "https://api.openweathermap.org/data/2.5/weather",
+                params={"q": "London", "appid": key},
+                timeout=10,
+            )
+            return r.status_code == 200
+
+        if service == "weatherapi":
+            key = os.getenv("WEATHERAPI_KEY")
+            if not key:
+                print("  WEATHERAPI_KEY not set in .env")
+                return False
+            r = requests.get(
+                "https://api.weatherapi.com/v1/current.json",
+                params={"key": key, "q": "London"},
+                timeout=10,
+            )
+            return r.status_code == 200
+
+        print(f"Unknown service: {service}")
+        return False
+    except requests.exceptions.RequestException as e:
+        print(f"  Network error during validation: {e}")
+        return False
+
+
+if __name__ == "__main__":
+    print("=== Part A: Secret Scanner ===")
+    scan_directory("../../level-1")
+
+    print("\n=== Part B: Auth Method Comparison ===")
+    compare_auth_methods()
+
+    print("\n=== Part C: Rate Limit Handler — happy path test ===")
+    fetch_with_rate_limit_handling(
+        "https://api.open-meteo.com/v1/forecast",
+        {"latitude": 15.3, "longitude": -61.4, "current": "temperature_2m"},
+    )
+
+    print("\n=== Part D: Key Validator ===")
+    owm_valid = validate_api_key("openweather")
+    wapi_valid = validate_api_key("weatherapi")
+```
+
+--------------------------------------------------------------------------------
+FILE 7: level-1/07-json-deep/solution/json_practice.py
+--------------------------------------------------------------------------------
+```python
+"""
+Level 1 — Phase 07: JSON Deep Dive (SOLUTION)
+"""
+
+import json
+import os
+from datetime import datetime
+from pathlib import Path
+
+import requests
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")
+
+CACHE_DIR = Path("./cache")
+CACHE_DIR.mkdir(exist_ok=True)
+
+EXPECTED_KEYS = {
+    "temperature_2m": float,
+    "wind_speed_10m": float,
+    "relative_humidity_2m": int,
+    "weather_code": int,
+}
+
+
+def save_response_to_file(data: dict, filename: str) -> None:
+    data = dict(data)
+    data["cached_at"] = datetime.now().isoformat()
+    with open(CACHE_DIR / filename, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def load_response_from_file(filename: str) -> dict | None:
+    path = CACHE_DIR / filename
+    if not path.exists():
+        return None
+    with open(path) as f:
+        return json.load(f)
+
+
+def safe_get(data, *keys, default=None):
+    for key in keys:
+        if isinstance(data, dict):
+            data = data.get(key, default)
+        else:
+            return default
+    return data
+
+
+def load_cities_config(config_file: str) -> list[dict]:
+    path = Path(config_file)
+    if not path.exists():
+        return [
+            {"city": "Roseau", "label": "Home"},
+            {"city": "London", "label": "Reference"},
+            {"city": "New York", "label": "Reference 2"},
+        ]
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return []
+
+
+def fetch_and_cache_cities(cities: list[dict]) -> dict:
+    results = {}
+    key = os.getenv("OPENWEATHER_API_KEY")
+
+    for entry in cities:
+        city, label = entry["city"], entry.get("label", city)
+        slug = city.lower().replace(" ", "_") + ".json"
+
+        cached = load_response_from_file(slug)
+        if cached:
+            print(f"  {label}: from cache ({cached.get('cached_at', '?')})")
+            results[label] = {
+                "temp": safe_get(cached, "main", "temp"),
+                "humidity": safe_get(cached, "main", "humidity"),
+                "desc": safe_get(cached, "weather", 0, "description"),
+                "source": "cache",
+            }
+            continue
+
+        if not key:
+            print(f"  {label}: no key, skipping fetch")
+            continue
+
+        r = requests.get(
+            "https://api.openweathermap.org/data/2.5/weather",
+            params={"q": city, "appid": key, "units": "metric"},
+            timeout=10,
+        )
+        r.raise_for_status()
+        save_response_to_file(r.json(), slug)
+        d = r.json()
+        results[label] = {
+            "temp": d["main"]["temp"],
+            "humidity": d["main"]["humidity"],
+            "desc": d["weather"][0]["description"],
+            "source": "fetched",
+        }
+        print(f"  {label}: fetched and cached")
+
+    return results
+
+
+def validate_schema(data: dict, expected: dict) -> list[str]:
+    errors = []
+    for key, expected_type in expected.items():
+        if key not in data:
+            errors.append(f"Missing key: {key}")
+            continue
+        if not isinstance(data[key], expected_type):
+            actual = type(data[key]).__name__
+            errors.append(
+                f"Wrong type for {key}: expected {expected_type.__name__}, got {actual}"
+            )
+    return errors
+
+
+def compare_weather_responses(
+    response_a: dict, response_b: dict, label_a: str = "A", label_b: str = "B"
+) -> None:
+    fields = ["temperature_2m", "wind_speed_10m", "relative_humidity_2m"]
+    print(f"\n  {'Field':<30} {label_a:<15} {label_b:<15} {'Diff'}")
+    # (Optional printing comparison format)
+```
+
+--------------------------------------------------------------------------------
+FILE 8: level-2/01-python-structure/solution/pyproject.toml
+--------------------------------------------------------------------------------
+```toml
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "weather"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+]
+
+[project.scripts]
+weather = "weather.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I"]
+
+[tool.mypy]
+ignore_missing_imports = true
+strict = true
+```
+
+--------------------------------------------------------------------------------
+FILE 9: level-2/01-python-structure/solution/src/weather/sources/open_meteo.py
+--------------------------------------------------------------------------------
+```python
+"""Open-Meteo source. No API key required."""
+
+import requests
+
+WEATHER_CODES = {
+    0: "clear sky",
+    1: "mainly clear",
+    2: "partly cloudy",
+    3: "overcast",
+    45: "fog",
+    48: "depositing rime fog",
+    51: "light drizzle",
+    53: "moderate drizzle",
+    55: "dense drizzle",
+    61: "slight rain",
+    63: "moderate rain",
+    65: "heavy rain",
+    80: "slight rain showers",
+    81: "moderate rain showers",
+    82: "violent rain showers",
+}
+
+
+def normalize_current(current: dict) -> dict:
+    code = current.get("weather_code")
+    return {
+        "source": "Open-Meteo",
+        "temp_c": current["temperature_2m"],
+        "wind_kph": current["wind_speed_10m"],
+        "humidity": current["relative_humidity_2m"],
+        "desc": WEATHER_CODES.get(code, f"weather code {code}"),
+    }
+
+
+def fetch(city: str) -> dict:
+    geo = requests.get(
+        "https://geocoding-api.open-meteo.com/v1/search",
+        params={"name": city, "count": 1},
+        timeout=10,
+    )
+    geo.raise_for_status()
+    geo_data = geo.json()
+    if not geo_data.get("results"):
+        raise ValueError(f"City not found: {city}")
+
+    first = geo_data["results"][0]
+    response = requests.get(
+        "https://api.open-meteo.com/v1/forecast",
+        params={
+            "latitude": first["latitude"],
+            "longitude": first["longitude"],
+            "current": "temperature_2m,wind_speed_10m,relative_humidity_2m,weather_code",
+            "wind_speed_unit": "kmh",
+        },
+        timeout=10,
+    )
+    response.raise_for_status()
+    return normalize_current(response.json()["current"])
+```
+
+--------------------------------------------------------------------------------
+FILE 10: level-2/01-python-structure/solution/src/weather/sources/openweather.py
+--------------------------------------------------------------------------------
+```python
+"""OpenWeatherMap source. Requires OPENWEATHER_API_KEY."""
+
+import os
+
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def normalize_response(data: dict) -> dict:
+    return {
+        "source": "OpenWeatherMap",
+        "temp_c": data["main"]["temp"],
+        "wind_kph": round(data["wind"]["speed"] * 3.6, 1),
+        "humidity": data["main"]["humidity"],
+        "desc": data["weather"][0]["description"],
+    }
+
+
+def fetch(city: str) -> dict:
+    key = os.getenv("OPENWEATHER_API_KEY")
+    if not key:
+        raise RuntimeError("OPENWEATHER_API_KEY missing")
+
+    response = requests.get(
+        "https://api.openweathermap.org/data/2.5/weather",
+        params={"q": city, "appid": key, "units": "metric"},
+        timeout=10,
+    )
+    response.raise_for_status()
+    return normalize_response(response.json())
+```
+
+--------------------------------------------------------------------------------
+FILE 11: level-2/01-python-structure/solution/src/weather/sources/weatherapi.py
+--------------------------------------------------------------------------------
+```python
+"""WeatherAPI source. Requires WEATHERAPI_KEY."""
+
+import os
+
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def normalize_response(data: dict) -> dict:
+    return {
+        "source": "WeatherAPI",
+        "temp_c": data["current"]["temp_c"],
+        "wind_kph": data["current"]["wind_kph"],
+        "humidity": data["current"]["humidity"],
+        "desc": data["current"]["condition"]["text"],
+    }
+
+
+def fetch(city: str) -> dict:
+    key = os.getenv("WEATHERAPI_KEY")
+    if not key:
+        raise RuntimeError("WEATHERAPI_KEY missing")
+
+    response = requests.get(
+        "https://api.weatherapi.com/v1/current.json",
+        params={"key": key, "q": city, "aqi": "no"},
+        timeout=10,
+    )
+    response.raise_for_status()
+    return normalize_response(response.json())
+```
+
+--------------------------------------------------------------------------------
+FILE 12: level-2/01-python-structure/solution/src/weather/cli.py
+--------------------------------------------------------------------------------
+```python
+"""Command line entry point for the weather package."""
+
+import sys
+
+from weather.sources import open_meteo, openweather, weatherapi
+
+
+SOURCES = [
+    ("Open-Meteo", open_meteo.fetch),
+    ("OpenWeatherMap", openweather.fetch),
+    ("WeatherAPI", weatherapi.fetch),
+]
+
+
+def main() -> int:
+    city = sys.argv[1] if len(sys.argv) > 1 else "Roseau"
+
+    for name, fetch in SOURCES:
+        try:
+            result = fetch(city)
+            print(f"{name}: {result['temp_c']} deg C, {result['desc']}")
+        except Exception as exc:
+            print(f"{name}: failed - {exc}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+
+--------------------------------------------------------------------------------
+FILE 13: level-2/01-python-structure/solution/tests/test_sources.py
+--------------------------------------------------------------------------------
+```python
+from weather.sources import open_meteo, openweather, weatherapi
+
+
+def test_open_meteo_normalize_current():
+    result = open_meteo.normalize_current(
+        {
+            "temperature_2m": 29.4,
+            "wind_speed_10m": 12.3,
+            "relative_humidity_2m": 76,
+            "weather_code": 61,
+        }
+    )
+
+    assert result == {
+        "source": "Open-Meteo",
+        "temp_c": 29.4,
+        "wind_kph": 12.3,
+        "humidity": 76,
+        "desc": "slight rain",
+    }
+
+
+def test_openweather_normalize_response():
+    result = openweather.normalize_response(
+        {
+            "main": {"temp": 30.1, "humidity": 82},
+            "wind": {"speed": 4.5},
+            "weather": [{"description": "scattered clouds"}],
+        }
+    )
+
+    assert result["source"] == "OpenWeatherMap"
+    assert result["temp_c"] == 30.1
+    assert result["wind_kph"] == 16.2
+    assert result["humidity"] == 82
+    assert result["desc"] == "scattered clouds"
+
+
+def test_weatherapi_normalize_response():
+    result = weatherapi.normalize_response(
+        {
+            "current": {
+                "temp_c": 28.7,
+                "wind_kph": 9.0,
+                "humidity": 70,
+                "condition": {"text": "Partly cloudy"},
+            }
+        }
+    )
+
+    assert result == {
+        "source": "WeatherAPI",
+        "temp_c": 28.7,
+        "wind_kph": 9.0,
+        "humidity": 70,
+        "desc": "Partly cloudy",
+    }
+
+
+from unittest.mock import patch, MagicMock
+
+@patch("weather.sources.open_meteo.requests.get")
+def test_open_meteo_fetch_mocked(mock_get):
+    """
+    Test the full fetch process of Open-Meteo offline by mocking requests.get.
+    This demonstrates how to test API logic without making live network calls.
+    """
+    # 1. Mock Geocoding API response
+    mock_geo = MagicMock()
+    mock_geo.json.return_value = {
+        "results": [{"latitude": 15.30, "longitude": -61.39}]
+    }
+    mock_geo.raise_for_status = MagicMock()
+
+    # 2. Mock Forecast API response
+    mock_weather = MagicMock()
+    mock_weather.json.return_value = {
+        "current": {
+            "temperature_2m": 25.0,
+            "wind_speed_10m": 12.0,
+            "relative_humidity_2m": 80,
+            "weather_code": 1
+        }
+    }
+    mock_weather.raise_for_status = MagicMock()
+
+    # Configure our mock to return mock_geo first, then mock_weather
+    mock_get.side_effect = [mock_geo, mock_weather]
+
+    # Run the function
+    result = open_meteo.fetch("Roseau")
+
+    # Assert expected properties based on mock responses
+    assert result == {
+        "source": "Open-Meteo",
+        "temp_c": 25.0,
+        "wind_kph": 12.0,
+        "humidity": 80,
+        "desc": "mainly clear"
+    }
+    
+    # Assert requests.get was indeed called twice
+    assert mock_get.call_count == 2
+```
+
+--------------------------------------------------------------------------------
+FILE 14: level-2/02-chaining-apis/solution/notify.py
+--------------------------------------------------------------------------------
+```python
+"""
+Level 2 / Phase 02 - Chaining APIs (solution).
+"""
+
+import os
+import sys
+from pathlib import Path
+
+import requests
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")
+
+PHASE_01_SRC = Path(__file__).resolve().parents[2] / "01-python-structure" / "solution" / "src"
+sys.path.insert(0, str(PHASE_01_SRC))
+
+from weather.sources import open_meteo  # noqa: E402
+
+
+def get_today_forecast(city: str) -> dict:
+    return open_meteo.fetch(city)
+
+
+def build_message(weather: dict) -> dict:
+    city = weather.get("city", "Roseau")
+    humidity = weather.get("humidity", 0)
+    desc = weather.get("desc", "").lower()
+    temp = weather.get("temp_c", 0)
+
+    if "rain" in desc or "drizzle" in desc or "shower" in desc or humidity > 85:
+        text = f"Rain expected in {city}. Bring an umbrella. Humidity: {humidity}%."
+    elif temp > 30:
+        text = f"Hot day in {city}: {temp} deg C. Stay hydrated."
+    else:
+        text = f"Weather in {city}: {temp} deg C, {weather.get('desc', 'clear')}."
+
+    return {"content": text}
+
+
+def send_to_discord(payload: dict) -> int:
+    url = os.getenv("DISCORD_WEBHOOK_URL")
+    if not url:
+        raise RuntimeError("DISCORD_WEBHOOK_URL is missing")
+
+    response = requests.post(url, json=payload, timeout=10)
+    return response.status_code
+
+
+def main() -> int:
+    city = sys.argv[1] if len(sys.argv) > 1 else "Roseau"
+    weather = get_today_forecast(city)
+    weather["city"] = city
+    payload = build_message(weather)
+    status = send_to_discord(payload)
+    print(f"Sent to Discord: HTTP {status}")
+    return 0 if 200 <= status < 300 else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+
+--------------------------------------------------------------------------------
+FILE 15: level-2/04-webhooks/solution/server.py
+--------------------------------------------------------------------------------
+```python
+"""
+Level 2 / Phase 04 - Webhook receiver (solution).
+"""
+
+import logging
+from datetime import datetime, timezone
+import hmac
+import hashlib
+
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+
+# Shared secret key with the sender to cryptographically verify requests
+WEBHOOK_SHARED_SECRET = b"super-secret-key-shared-with-sender"
+
+
+def verify_signature(data: bytes, signature: str) -> bool:
+    """Validate webhook authenticity using HMAC-SHA256."""
+    expected_signature = hmac.new(
+        WEBHOOK_SHARED_SECRET, 
+        msg=data, 
+        digestmod=hashlib.sha256
+    ).hexdigest()
+    # Use hmac.compare_digest to protect against timing attacks
+    return hmac.compare_digest(expected_signature, signature)
+
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    payload = request.get_json(silent=True) or {}
+    app.logger.info("Received webhook payload: %s", payload)
+    app.logger.info("Headers: %s", dict(request.headers))
+    return (
+        jsonify(
+            {
+                "status": "received",
+                "received_at": datetime.now(timezone.utc).isoformat(),
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/webhook-secure", methods=["POST"])
+def webhook_secure():
+    """
+    Exposes a cryptographically secured webhook endpoint.
+    Expects signature in 'X-Hub-Signature-256' header.
+    """
+    signature = request.headers.get("X-Hub-Signature-256")
+    if not signature:
+        app.logger.warning("Rejected webhook: Missing X-Hub-Signature-256 header")
+        return jsonify({"error": "Missing signature"}), 401
+        
+    raw_body = request.get_data()
+    if not verify_signature(raw_body, signature):
+        app.logger.warning("Rejected webhook: Invalid cryptographic signature")
+        return jsonify({"error": "Invalid signature"}), 403
+        
+    payload = request.get_json(silent=True) or {}
+    app.logger.info("Secured Webhook Verified! payload: %s", payload)
+    return (
+        jsonify(
+            {
+                "status": "verified & processed",
+                "processed_at": datetime.now(timezone.utc).isoformat(),
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "healthy"}), 200
+
+
+if __name__ == "__main__":
+    print("Starting webhook receiver on http://localhost:8080")
+    print("In another terminal, run: ngrok http 8080")
+    app.run(host="0.0.0.0", port=8080, debug=True)
+```
+
+--------------------------------------------------------------------------------
+FILE 16: level-2/05-newman-testing/.github-workflow-template.yml
+--------------------------------------------------------------------------------
+```yaml
+name: API tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run collection
+        env:
+          OWM_KEY: ${{ secrets.OWM_KEY }}
+          WEATHERAPI_KEY: ${{ secrets.WEATHERAPI_KEY }}
+        run: |
+          newman run level-2/05-newman-testing/collection.json \
+            -e level-2/05-newman-testing/env.json \
+            --reporters cli,json
+```
+
+================================================================================
+SECTION 7: RECREATION AND ENHANCEMENT GUIDELINES FOR CLAUDE
+================================================================================
+
+To recreate this course or build a superior, enterprise version, focus on the 
+following architectural and technical enhancements. Direct Claude to implement:
+
+7.1 STRIP OUT HARDCODED ASSUMPTIONS & EXPOSE UNIFORM PROTOCOLS
+- Recreate the sources module using formal Python protocols (`typing.Protocol`)
+  or abstract base classes (`abc.ABCMeta`) to enforce interfaces:
+  ```python
+  from typing import Protocol
+
+  class WeatherSource(Protocol):
+      def fetch(self, city: str) -> dict:
+          ...
+  ```
+- This ensures compile-time and static-typing compliance for any added third-party
+  source, reinforcing Phase 01 lessons.
+
+7.2 CONVERT FE TO A MODERN, COMPONENT-BASED REUSABLE DESIGN (SPA)
+- Transform the raw, table-based `index.html` file into a Single Page Application (SPA).
+- Use Vanilla CSS variables, responsive CSS grids, and customizable dark/light themes.
+- Replace alert-based dialogs with professional notification toast systems.
+
+7.3 NATIVE DEVELOPMENT PROXY INTEGRATION
+- Create a lightweight Python or NodeJS development edge server proxy mimicking
+  Cloudflare's Serverless environment locally.
+- This helps students build and verify proxy setups locally without having to deal
+  with CORS browser errors or immediate cloud hosting configurations.
+
+7.4 CONTAINERIZATION FOR FULL LOCAL SANDBOXES
+- Supply a standardized, lightweight `Dockerfile` and `docker-compose.yml`.
+- Mount local directories inside a development container that hosts:
+  * The Flask webhook listener.
+  * A mock third-party Weather server responding with predefined JSON payloads
+    so students can learn HTTP routing 100% offline without needing live internet
+    connections or real API credentials.
+
+7.5 EXPAND AUTOMATED FUNCTIONAL TESTING
+- Upgrade simple mock tests into comprehensive pytest suites with:
+  * `pytest-cov` to enforce test coverage rules.
+  * Integration mocks for testing the Discord webhook sender and Flask cryptographic
+    signature checks offline.
+
+7.6 ADVANCED STRUCTURAL LOGGING & FAULT-TOLERANCE
+- Implement structured JSON logs formatters to standard outputs instead of raw strings.
+- This helps students learn how enterprise search engines (like Datadog, Splunk, Elastic)
+  ingest and parse running system audits.
+- Introduce circuit breakers (`pybreaker`) inside parallel executor pipelines so
+  persistently failing services are temporarily bypassed to protect system threads.
+
+================================================================================
+END OF SPECIFICATION GUIDE
+================================================================================
