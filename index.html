@@ -4,39 +4,76 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="A two-level Weather API course for learning HTTP, Python requests, browser fetch, deployment, security, and API automation." />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#080b11" />
   <title>Weather API Course — LexLabs</title>
   <style>
+    /* Self-hosted fonts — offline, no external requests, font-src 'self' covers them */
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('fonts/inter.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'JetBrains Mono';
+      font-style: normal;
+      font-weight: 100 800;
+      font-display: swap;
+      src: url('fonts/jetbrains-mono.woff2') format('woff2');
+    }
+
     :root {
-      --bg:           #0f172a; /* Slate 900 */
-      --surface:      #1e293b; /* Slate 800 */
-      --surface2:     #334155; /* Slate 700 */
-      --border:       #1e293b; 
-      --border-light: #334155;
-      --accent:       #6366f1; /* Indigo 500 */
-      --accent-hover: #4f46e5; /* Indigo 600 */
-      --cyan:         #38bdf8; /* Sky 400 */
-      --green:        #10b981; /* Emerald 500 */
-      --yellow:       #f59e0b; /* Amber 500 */
-      --red:          #ef4444; /* Red 500 */
-      --text:         #f8fafc; /* Slate 50 */
+      --bg:           #080b11; /* near-black */
+      --surface:      #11161f; /* raised panel */
+      --surface2:     #1b2230; /* inset / hover */
+      --border:       #161d28;
+      --border-light: #232c3a;
+      --accent:       #2dd4bf; /* Teal 400 */
+      --accent-hover: #14b8a6; /* Teal 500 */
+      --accent-rgb:   45, 212, 191;
+      --cyan:         #22d3ee; /* Cyan 400 */
+      --green:        #34d399; /* Emerald 400 */
+      --yellow:       #fbbf24; /* Amber 400 */
+      --red:          #f87171; /* Red 400 */
+      --text:         #f1f5f9; /* Slate 100 */
       --muted:        #94a3b8; /* Slate 400 */
       --muted2:       #64748b; /* Slate 500 */
       --radius:       8px;
       --radius-sm:    6px;
-      --font-sans:    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      --font-mono:    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      --font-sans:    'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono:    'JetBrains Mono', "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
     }
 
     * { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior:smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    html { scroll-behavior:smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: var(--bg); }
     body {
       font-family: var(--font-sans);
-      background: var(--bg);
+      background: transparent;
       color: var(--text);
       min-height: 100vh;
       line-height: 1.6;
+      letter-spacing: -0.011em;
+      font-optical-sizing: auto;
+      text-rendering: optimizeLegibility;
     }
+
+    /* Ambient teal glows (CodeCrafters-style depth) */
+    .bg-decor {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+    }
+    .glow-1 { width: 520px; height: 520px; top: -180px; left: -120px; background: var(--accent); opacity: 0.20; }
+    .glow-2 { width: 460px; height: 460px; top: 8%;    right: -180px; background: var(--cyan);   opacity: 0.14; }
+    .glow-3 { width: 640px; height: 640px; bottom: -300px; left: 28%; background: var(--accent); opacity: 0.10; }
 
     /* Container alignment */
     .container {
@@ -48,7 +85,7 @@
     /* Sticky Navigation */
     nav {
       border-bottom: 1px solid var(--border-light);
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(8, 11, 17, 0.82);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       position: sticky;
@@ -153,12 +190,12 @@
     }
     .btn-primary {
       background: var(--accent);
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+      color: #04221c;
+      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25);
     }
     .btn-primary:hover {
       background: var(--accent-hover);
-      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.4);
       transform: translateY(-1px);
     }
     .btn-secondary {
@@ -593,7 +630,7 @@
     }
     .gist-row input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
     }
     .gist-actions {
       display: flex;
@@ -627,7 +664,7 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.8);
+      background: rgba(8, 11, 17, 0.85);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       z-index: 200;
@@ -750,7 +787,7 @@
 
     /* Details styling inside modal */
     .file-location {
-      background: rgba(99, 102, 241, 0.08);
+      background: rgba(var(--accent-rgb), 0.08);
       border-left: 3px solid var(--accent);
       padding: 0.75rem 1rem;
       border-radius: var(--radius-sm);
@@ -763,37 +800,58 @@
       margin-right: 0.5rem;
     }
 
-    .parts-checklist {
+    /* Stage timeline (modal execution checklist) */
+    .stage-list {
       list-style: none;
       padding: 0;
       margin: 1rem 0 1.5rem;
     }
-    .parts-checklist li {
-      padding: 0.65rem 1rem;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-sm);
-      margin-bottom: 0.5rem;
-      background: var(--bg);
-      font-size: 0.88rem;
+    .stage-item {
+      position: relative;
       display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
+      gap: 1rem;
+      padding-bottom: 1.15rem;
     }
-    .parts-checklist li::before {
+    .stage-item:last-child { padding-bottom: 0; }
+    /* vertical connector between markers */
+    .stage-item::before {
       content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--cyan);
-      margin-top: 0.6rem;
-      flex-shrink: 0;
+      position: absolute;
+      left: 13px;
+      top: 28px;
+      bottom: -2px;
+      width: 2px;
+      background: var(--border-light);
     }
-    .parts-checklist .part-label {
+    .stage-item:last-child::before { display: none; }
+    .stage-marker {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border-light);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    .stage-content {
+      padding-top: 0.15rem;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .stage-content .part-label {
       color: var(--cyan);
       font-weight: 700;
       margin-right: 0.5rem;
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
     }
 
     .reference-note {
@@ -810,6 +868,7 @@
     }
 
     /* Global Utils */
+    a { color: var(--accent); }
     code {
       font-family: var(--font-mono);
       background: var(--surface2);
@@ -868,6 +927,101 @@
     }
     footer a:hover {
       text-decoration: underline;
+    }
+
+    /* Hero terminal mockup */
+    .hero-terminal {
+      max-width: 640px;
+      margin: 2.75rem auto 0;
+      background: #0a0e15;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      overflow: hidden;
+      text-align: left;
+      box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+    }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .terminal-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .terminal-title {
+      margin-left: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--muted2);
+    }
+    .terminal-body {
+      margin: 0;
+      padding: 1.1rem 1.3rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.75;
+      white-space: pre;
+      overflow-x: auto;
+      color: var(--muted);
+    }
+    .terminal-body .prompt { color: var(--accent); font-weight: 700; }
+    .terminal-body .cmd    { color: var(--text); }
+    .terminal-body .ok     { color: var(--green); }
+    .blink { color: var(--accent); animation: blink 1.1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Powered-by strip */
+    .powered-by {
+      margin-top: 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+    }
+    .powered-by .pb-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted2);
+      font-weight: 700;
+    }
+    .powered-by .pb-item {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      border: 1px solid var(--border-light);
+      border-radius: 999px;
+      padding: 0.32rem 0.85rem;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .powered-by .pb-item:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    /* Stage count + "Start here" badge on phase cards */
+    .phase-stages { color: var(--cyan); }
+    .phase-badge {
+      position: absolute;
+      top: -9px;
+      left: 1.25rem;
+      background: var(--accent);
+      color: #04221c;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.35);
+    }
+
+    @media (max-width: 768px) {
+      .hero-terminal { font-size: 0.7rem; }
+      .terminal-body { font-size: 0.7rem; }
     }
 
     /* Responsive Viewports */
@@ -934,6 +1088,12 @@
 </head>
 <body>
 
+<div class="bg-decor" aria-hidden="true">
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
+</div>
+
 <nav>
   <div class="container nav-container">
     <div class="nav-brand">Weather API Course</div>
@@ -955,6 +1115,30 @@
       <a class="btn btn-primary" href="#tabs">Start Learning</a>
       <a class="btn btn-secondary" href="#deploy">Deploy Course Site</a>
       <a class="btn btn-secondary" href="https://github.com/Sharquille/weather-api-course" target="_blank" rel="noopener">View Repo</a>
+    </div>
+
+    <div class="hero-terminal" aria-label="Example terminal session from the course">
+      <div class="terminal-bar">
+        <span class="terminal-dot" style="background:#f87171"></span>
+        <span class="terminal-dot" style="background:#fbbf24"></span>
+        <span class="terminal-dot" style="background:#34d399"></span>
+        <span class="terminal-title">weather-api-course — bash</span>
+      </div>
+      <pre class="terminal-body"><span class="prompt">$</span> <span class="cmd">curl "wttr.in/Roseau?format=3"</span>
+Roseau: 🌦  +29°C
+<span class="prompt">$</span> <span class="cmd">python3 dashboard.py Roseau</span>
+Open-Meteo       29.4°C   slight rain
+OpenWeatherMap   30.1°C   scattered clouds
+WeatherAPI       28.7°C   partly cloudy
+<span class="ok">✓ 3 sources aggregated in 0.41s</span>
+<span class="prompt">$</span> <span class="blink">▋</span></pre>
+    </div>
+
+    <div class="powered-by">
+      <span class="pb-label">Built on free, real APIs</span>
+      <span class="pb-item">Open-Meteo</span>
+      <span class="pb-item">OpenWeatherMap</span>
+      <span class="pb-item">WeatherAPI</span>
     </div>
   </div>
 </div>
@@ -1591,13 +1775,21 @@ function formatInline(s) {
   return escapeHtml(s).replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
-function phaseCard(p, isDone, isLocked) {
-  const pills = p.pills.map(t => `<span class="pill">${escapeHtml(t)}</span>`).join('');
-  const cls   = [isDone ? 'done' : '', isLocked ? 'locked-card' : ''].filter(Boolean).join(' ');
+function phaseCard(p, isDone, isLocked, index) {
+  const pills   = p.pills.slice(0, 5).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join('');
+  const cls     = [isDone ? 'done' : '', isLocked ? 'locked-card' : ''].filter(Boolean).join(' ');
+  const stages  = Array.isArray(p.parts) ? p.parts.length : 0;
+  const stageTag = stages
+    ? ` &middot; <span class="phase-stages">${stages} stages</span>`
+    : '';
+  const startBadge = (index === 0 && !isDone && !isLocked)
+    ? '<span class="phase-badge">Start here</span>'
+    : '';
   return `
     <div class="phase-card ${cls}" id="card-${p.id}" onclick="openPhase('${p.id}')">
+      ${startBadge}
       <div class="phase-top">
-        <div class="phase-num">${escapeHtml(p.num)}</div>
+        <div class="phase-num">${escapeHtml(p.num)}${stageTag}</div>
         ${!isLocked
           ? `<button class="phase-check" type="button" aria-label="Toggle ${escapeHtml(p.title)} complete" onclick="event.stopPropagation(); toggle('${p.id}')">${isDone ? '✓' : ''}</button>`
           : '<div style="font-size:0.7rem; font-family:var(--font-mono); color:var(--muted2); font-weight:700; text-transform:uppercase; letter-spacing:0.05em" aria-label="Locked">Locked</div>'}
@@ -1630,7 +1822,7 @@ function render() {
 
   document.getElementById('l1-fill').style.width          = `${l1Pct}%`;
   document.getElementById('l1-progress-label').textContent = `${l1Done} / ${l1Total} phases`;
-  document.getElementById('l1-grid').innerHTML  = L1_PHASES.map(p => phaseCard(p, !!state[p.id], false)).join('');
+  document.getElementById('l1-grid').innerHTML  = L1_PHASES.map((p, i) => phaseCard(p, !!state[p.id], false, i)).join('');
   document.getElementById('l1-repos').innerHTML = L1_REPOS.map(repoCard).join('');
 
   const tabL2 = document.getElementById('tab-l2');
@@ -1649,7 +1841,7 @@ function render() {
 
   document.getElementById('l2-fill').style.width          = `${l2Pct}%`;
   document.getElementById('l2-progress-label').textContent = `${l2Done} / ${l2Total} phases`;
-  document.getElementById('l2-grid').innerHTML  = L2_PHASES.map(p => phaseCard(p, !!state[p.id], !l1Complete)).join('');
+  document.getElementById('l2-grid').innerHTML  = L2_PHASES.map((p, i) => phaseCard(p, !!state[p.id], !l1Complete, i)).join('');
   document.getElementById('l2-repos').innerHTML = L2_REPOS.map(repoCard).join('');
 }
 
@@ -1680,7 +1872,7 @@ function openPhase(id) {
   if (!p) return;
 
   const pills      = p.pills.map(t => `<span class="pill">${escapeHtml(t)}</span>`).join('');
-  const partsList  = p.parts.map(part => `<li><span class="part-label">${escapeHtml(part.label)}</span>${formatInline(part.text)}</li>`).join('');
+  const partsList  = p.parts.map((part, i) => `<li class="stage-item"><div class="stage-marker">${i + 1}</div><div class="stage-content"><span class="part-label">${escapeHtml(part.label)}</span>${formatInline(part.text)}</div></li>`).join('');
   const steps      = p.steps.map(s => `<li>${formatInline(s)}</li>`).join('');
   const checkpoint = p.checkpoint.map(c => `<li>${formatInline(c)}</li>`).join('');
   const deeper     = p.deeper.map(([t,u]) => `<li><a href="${escapeHtml(u)}" target="_blank" rel="noopener">${escapeHtml(t)} ↗</a></li>`).join('');
@@ -1700,8 +1892,8 @@ function openPhase(id) {
     <h3>Concept</h3>
     <p>${formatInline(p.concept)}</p>
 
-    <h3>Execution checklist</h3>
-    <ul class="parts-checklist">${partsList}</ul>
+    <h3>Stages</h3>
+    <ul class="stage-list">${partsList}</ul>
 
     <h3>Step-by-step instructions</h3>
     <ol>${steps}</ol>
