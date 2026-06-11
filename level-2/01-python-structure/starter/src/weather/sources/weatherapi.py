@@ -1,7 +1,9 @@
 """WeatherAPI source. Requires WEATHERAPI_KEY."""
 
+from typing import Any
 
-def fetch(city: str) -> dict:
+
+def fetch(city: str) -> dict[str, Any]:
     """Fetch weather and return a normalised weather dict."""
     # TODO: read WEATHERAPI_KEY from the environment.
     # TODO: call WeatherAPI current.json.

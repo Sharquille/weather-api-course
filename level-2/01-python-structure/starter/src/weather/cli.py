@@ -4,7 +4,6 @@ import sys
 
 from weather.sources import open_meteo, openweather, weatherapi
 
-
 SOURCES = [
     ("Open-Meteo", open_meteo.fetch),
     ("OpenWeatherMap", openweather.fetch),

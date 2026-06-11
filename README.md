@@ -62,6 +62,7 @@ asks each learner to create a separate repo for their own finished weather app.
 weather-api-course/
 ├── _headers                    Cloudflare Pages security headers
 ├── index.html                  Course site and progress tracker
+├── ARCHITECTURE_GUIDE.md       Professional patterns used in the course
 ├── PROGRESS_SYNC.md            GitHub Gist progress sync guide
 ├── requirements.txt            Shared Python dependencies
 ├── level-1/                    API fundamentals
@@ -86,6 +87,11 @@ weather-api-course/
 Most coding phases include a `starter/` folder and a `solution/` folder.
 Learners work in `starter/`. The `solution/` folder is a reference answer for
 review, debugging, and comparison after attempting the exercise.
+
+[ARCHITECTURE_GUIDE.md](ARCHITECTURE_GUIDE.md) explains the professional
+patterns embedded in the exercises: browser-side key management, linting and
+type checking with `ruff` and `mypy`, offline API mocking in tests, webhook
+signature verification, and edge proxies for hiding keys in production.
 
 ## Levels
 
@@ -153,6 +159,15 @@ Run quick checks from the repo root:
 
 ```bash
 python3 -m compileall level-1 level-2
+```
+
+The Level 2 Phase 01 package has its own quality gates (run from that phase's
+`solution/` or `starter/` folder after `pip install -e ".[dev]"`):
+
+```bash
+pytest -v
+ruff check .
+mypy src/
 ```
 
 Some scripts call live APIs and require keys. Those should be tested from their

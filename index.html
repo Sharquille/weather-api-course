@@ -54,6 +54,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     }
     .nav-container {
       display: flex;
@@ -138,13 +139,14 @@
       font-size: 0.85rem;
       font-weight: 600;
       padding: 0.625rem 1.25rem;
-      transition: all 0.15s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 0.4rem;
       font-family: var(--font-sans);
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     }
     .btn:active {
       transform: scale(0.98);
@@ -152,9 +154,12 @@
     .btn-primary {
       background: var(--accent);
       color: #fff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
     }
     .btn-primary:hover {
       background: var(--accent-hover);
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+      transform: translateY(-1px);
     }
     .btn-secondary {
       background: var(--surface);
@@ -164,6 +169,7 @@
     .btn-secondary:hover {
       background: var(--surface2);
       border-color: var(--muted2);
+      transform: translateY(-1px);
     }
     .btn-sm {
       font-size: 0.8rem;
@@ -336,12 +342,14 @@
       display: flex;
       flex-direction: column;
       position: relative;
-      transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+      transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
     .phase-card:hover {
       border-color: var(--accent);
-      transform: translateY(-2px);
-      background: rgba(30, 41, 59, 0.8);
+      transform: translateY(-4px);
+      background: rgba(30, 41, 59, 0.9);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
     }
     .phase-card.done {
       border-color: rgba(16, 185, 129, 0.4);
@@ -399,8 +407,8 @@
     }
     .phase-desc {
       color: var(--muted);
-      font-size: 0.85rem;
-      line-height: 1.5;
+      font-size: 0.88rem;
+      line-height: 1.55;
       margin-bottom: 1.25rem;
     }
     .phase-pills {
@@ -972,6 +980,31 @@ Root directory: /</code></pre>
   </div>
 </div>
 
+<div class="container deploy-panel" id="local-server" style="margin-top: -1.5rem;">
+  <div class="deploy-inner" style="border-color: var(--border-light);">
+    <div>
+      <h2>Or Run the Course Locally (No Cloudflare Required)</h2>
+      <p>Want to run everything on your own machine without deploying to the web? You can spin up Python's built-in HTTP server to serve the course site and save your progress locally in your browser's <code>localStorage</code>.</p>
+      <ul class="deploy-settings">
+        <li><span>Service Command</span><code>python3 -m http.server 8080</code></li>
+        <li><span>Local URL</span><code>http://localhost:8080</code></li>
+        <li><span>Progress Save</span><code>Browser LocalStorage</code></li>
+        <li><span>Cloud Sync</span><code>GitHub Gist (Optional)</code></li>
+      </ul>
+    </div>
+    <div class="deploy-code" aria-label="Local Python Server code block">
+      <pre><code># 1. Open your terminal in the repo root:
+$ cd weather-api-course
+
+# 2. Run the local Python web server:
+$ python3 -m http.server 8080
+
+# 3. Open your browser and navigate to:
+http://localhost:8080</code></pre>
+    </div>
+  </div>
+</div>
+
 <div class="container" id="tabs">
   <div class="tabs-wrap">
     <div class="tabs">
@@ -1196,12 +1229,12 @@ const L1_PHASES = [
     research:'Read https://docs.python.org/3/library/concurrent.futures.html. What is the difference between `map()` and `submit()`? Why threads and not processes for I/O? What is the GIL and why doesn\'t it matter here?',
     checkpoint:['What does `as_completed()` do and why is it useful?','How do you handle one source failing without losing the others?','What is the Python equivalent of `Promise.allSettled()` from JavaScript?','Why is parallel I/O faster than sequential?','What is the GIL and why doesn\'t it block this from being faster?'],
     deeper:[['concurrent.futures docs','https://docs.python.org/3/library/concurrent.futures.html'],['public-apis','https://github.com/public-apis/public-apis'],['GIL explained','https://realpython.com/python-gil/']],
-    run:'$ cd level-1/03-multi-source/solution\n$ python3 dashboard.py Roseau',
+    run:'$ cd level-1/03-multi-source/starter\n$ python3 dashboard.py Roseau',
     curlNote:false
   },
   {
     id:'l1p04', num:'Phase 04', title:'Browser fetch()',
-    file:'level-1/04-browser-fetch/solution/index.html',
+    file:'level-1/04-browser-fetch/starter/index.html',
     desc:'Same 3 APIs, now from inside the browser. fetch(), async/await, URLSearchParams, Promise.allSettled. Run on localhost.',
     pills:['fetch()','async/await','URLSearchParams','DOM','Promise.allSettled','CORS'],
     goal:'Call the same APIs from the browser.',
@@ -1214,17 +1247,17 @@ const L1_PHASES = [
       {label:'Part E', text:'Run on localhost — `python3 -m http.server 8080`, open in browser'}
     ],
     steps:[
-      '`cd level-1/04-browser-fetch/solution`',
+      '`cd level-1/04-browser-fetch/starter`',
       'Run: `python3 -m http.server 8080` (NOT just opening the file — fetch() needs http:// not file://)',
       'Open http://localhost:8080 in your browser',
+      'Paste your OWM and WeatherAPI keys into the "Local API Key Settings" panel and click "Save to Browser" — they go into `localStorage`, same place the fetch functions read from',
       'Open DevTools → Network tab → watch the 3 requests fire when you click the button',
-      'Set your OWM and WeatherAPI keys in browser console: `localStorage.setItem("OWM_KEY", "your_key")`',
       'Break one of the 3 functions on purpose — confirm the other 2 still render and the broken one shows an error row'
     ],
     research:'Read https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch. What is the difference between `response.ok` and `response.status`? What is `Promise.allSettled()` and why is it useful for multi-source dashboards?',
     checkpoint:['Why does the browser need CORS but curl doesn\'t?','What does `await` actually do?','Why is `response.json()` async?','How do you handle a network error in `fetch()`?','What\'s the difference between `Promise.all()` and `Promise.allSettled()`?'],
     deeper:[['MDN fetch','https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch'],['Promise.allSettled','https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled'],['CORS explained','https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS']],
-    run:'$ cd level-1/04-browser-fetch/solution\n$ python3 -m http.server 8080\n# Open http://localhost:8080 in your browser',
+    run:'$ cd level-1/04-browser-fetch/starter\n$ python3 -m http.server 8080\n# Open http://localhost:8080 in your browser',
     curlNote:false
   },
   {
@@ -1280,7 +1313,7 @@ const L1_PHASES = [
     research:'Find 3 real GitHub commits that leaked API keys. What happened next? What does GitHub\'s secret scanning do? How do you opt-in? What is "principle of least privilege" in API key terms?',
     checkpoint:['How would you know if your key was leaked?','Read-only vs write key — what\'s the difference?','What layers of protection beyond `.env` should you add?','What does CORS actually protect against? (Hint: not what you think.)','Why is query-param auth considered less secure than header auth?'],
     deeper:[['OWASP API Top 10','https://owasp.org/API-Security/editions/2023/en/0x11-t10/'],['GitHub secret scanning','https://docs.github.com/en/code-security/secret-scanning'],['TruffleHog (real scanner)','https://github.com/trufflesecurity/trufflehog']],
-    run:'$ cd level-1/06-api-security/solution\n$ python3 security_checks.py',
+    run:'$ cd level-1/06-api-security/starter\n$ python3 security_checks.py',
     curlNote:false
   },
   {
@@ -1308,7 +1341,7 @@ const L1_PHASES = [
     research:'What is `json.dumps()` vs `json.dump()`? What does `indent=2` do? `sort_keys=True`? Why does `json.loads()` raise on invalid JSON but `json.load()` reads from a file? How would you handle a 500MB JSON file?',
     checkpoint:['What is the difference between `json` and `simplejson`?','When would you use YAML instead of JSON?','How do you handle a JSON file that\'s 500MB? (Hint: it\'s not `json.load()`.)','What does `safe_get` prevent that direct `data["a"]["b"]["c"]` doesn\'t?','Why validate schema instead of trusting the API response?'],
     deeper:[['json module docs','https://docs.python.org/3/library/json.html'],['ijson (streaming JSON)','https://github.com/ICRAR/ijson'],['jsonschema library','https://github.com/python-jsonschema/jsonschema']],
-    run:'$ cd level-1/07-json-deep/solution\n$ python3 json_practice.py',
+    run:'$ cd level-1/07-json-deep/starter\n$ python3 json_practice.py',
     curlNote:false
   }
 ];
@@ -1349,15 +1382,17 @@ const L2_PHASES = [
     id:'l2p01', num:'Phase 01', title:'Python Project Structure',
     file:'level-2/01-python-structure/starter/',
     desc:'Convert dashboard.py into a proper package: src/, pyproject.toml, tests/, __init__.py. Install with pip install -e .',
-    pills:['src/ layout','pyproject.toml','pytest','__init__.py','type hints','-e install'],
+    pills:['src/ layout','pyproject.toml','pytest','mocking','ruff','mypy','-e install'],
     goal:'Move from one-file scripts to a package.',
     concept:'Real Python projects have layout, packaging, and tests. `src/` layout keeps tests from importing your code accidentally. `pyproject.toml` is the modern replacement for `setup.py`. `pip install -e .` installs your package in editable mode.',
     parts:[
       {label:'Step 1', text:'Restructure to `src/weather/` with submodules per source'},
       {label:'Step 2', text:'Create `pyproject.toml` (use setuptools or hatchling)'},
       {label:'Step 3', text:'Create `tests/test_sources.py` with pytest'},
-      {label:'Step 4', text:'`pip install -e .` then `pytest`'},
-      {label:'Step 5', text:'Verify CLI still works after refactor'}
+      {label:'Step 4', text:'`pip install -e ".[dev]"` then `pytest`'},
+      {label:'Step 5', text:'Verify CLI still works after refactor'},
+      {label:'Step 6', text:'Run the quality gates: `ruff check .` and `mypy src/` — the solution passes both clean'},
+      {label:'Step 7', text:'Optional: write a mocked test for `open_meteo.fetch()` with `unittest.mock.patch` — runs fully offline (see the TODO in the starter tests)'}
     ],
     steps:[
       'Create new structure: `mkdir -p src/weather/sources tests`',
@@ -1370,7 +1405,7 @@ const L2_PHASES = [
     research:'What is `pyproject.toml` and why is it replacing `setup.py`? How does `pip install -e .` work? What does `__init__.py` actually do? What\'s the difference between `src/` layout and flat layout?',
     checkpoint:['Why use `src/` layout?','What is `pyproject.toml`?','What does editable install mean?','Why pytest over unittest?','How do you run only one test file? One test?'],
     deeper:[['pytest docs','https://docs.pytest.org/'],['pyproject.toml guide','https://pip.pypa.io/en/stable/specifications/pyproject-toml/'],['Real Python project structure','https://docs.python-guide.org/writing/structure/']],
-    run:'$ pip install -e .\n$ pytest',
+    run:'$ cd level-2/01-python-structure/starter\n$ pip install -e ".[dev]"\n$ pytest -v\n$ ruff check .\n$ mypy src/',
     curlNote:false
   },
   {
@@ -1441,7 +1476,8 @@ const L2_PHASES = [
       {label:'Step 3', text:'Run it on port 8080, copy the ngrok HTTPS URL'},
       {label:'Step 4', text:'Go to webhook.site, copy their unique URL, set up a forwarding to your ngrok URL (or use their test feature)'},
       {label:'Step 5', text:'Confirm the body shows up in your Flask logs'},
-      {label:'Step 6', text:'Optional: replace Flask with an n8n workflow since you already self-host it'}
+      {label:'Step 6', text:'Optional: add a `/webhook-secure` endpoint with HMAC-SHA256 signature verification — how GitHub and Stripe secure webhooks (TODO block in the starter, full version in the solution)'},
+      {label:'Step 7', text:'Optional: replace Flask with an n8n workflow since you already self-host it'}
     ],
     steps:[
       'Install Flask: `pip install flask`',
@@ -1737,9 +1773,10 @@ pytest>=7.4.0</code></pre>
     </ul>
 
     <h3>6. Diagnostic run</h3>
-    <pre><code>$ cd level-1/00-curl-basics/starter
-$ bash exercises.sh
-# Confirm the terminal successfully returns the forecast for Roseau and passes diagnostics.</code></pre>
+    <pre><code>$ curl "wttr.in/Roseau?format=3"
+# Confirm the terminal returns a one-line forecast for Roseau.
+# Then open level-1/00-curl-basics/starter/exercises.sh and start
+# Phase 00 — run each exercise block one at a time, not the whole file.</code></pre>
 
     <div class="reference-note">
       <strong>Environment boundaries:</strong> Each system operates on its own configuration. Cloning the repository to your local runtime keeps configurations separated. Sharing deployed code takes place in Phase 05, using unique accounts.

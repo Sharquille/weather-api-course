@@ -43,6 +43,23 @@ python -m weather.cli Roseau
 
 Use `solution/` as a reference after attempting the starter.
 
+## Quality Gates: ruff And mypy
+
+The dev dependencies include two static analysis tools that real teams run
+before any code ships:
+
+- `ruff` — linter: catches unused imports, unsorted imports, and style errors.
+- `mypy` — type checker: verifies the type hints in your function signatures.
+
+```bash
+ruff check .
+mypy src/
+```
+
+Both are configured in `pyproject.toml` (`[tool.ruff.lint]` and `[tool.mypy]`,
+with mypy in strict mode). The solution passes both with zero findings — after
+your starter implementation works, run them and fix what they report.
+
 ## Research Task
 
 - What is `pyproject.toml`?
@@ -58,3 +75,5 @@ Use `solution/` as a reference after attempting the starter.
 - [ ] Why use pytest over unittest here?
 - [ ] How do you run one test file?
 - [ ] How do you run one test function?
+- [ ] What kind of bug does `ruff` catch vs `mypy`?
+- [ ] How does the mocked test in `tests/test_sources.py` run without internet?

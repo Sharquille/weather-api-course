@@ -21,6 +21,15 @@ python3 -m http.server 8080
 
 Open `http://localhost:8080`.
 
+## API Keys In The Browser
+
+The page includes a small "Local API Key Settings" panel. Paste your
+OpenWeatherMap and WeatherAPI keys there and click "Save to Browser". The keys
+are stored in your browser's `localStorage` (keys `OWM_KEY` and
+`WEATHERAPI_KEY`) and never leave your machine. The fetch functions read them
+from `localStorage` — this is the browser-side stand-in for the `.env` file you
+used in Phase 02.
+
 ## Key Ideas
 
 - `fetch()`

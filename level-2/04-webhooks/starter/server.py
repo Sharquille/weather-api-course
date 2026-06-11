@@ -21,6 +21,18 @@ def webhook():
     raise NotImplementedError
 
 
+# TODO (Optional/Advanced): Implement a cryptographically verified webhook endpoint
+# This teaches you how Stripe, GitHub, and Slack secure their public webhooks.
+#
+# @app.route("/webhook-secure", methods=["POST"])
+# def webhook_secure():
+#     # 1. Read signature header (e.g., 'X-Hub-Signature-256')
+#     # 2. Compute expected HMAC-SHA256 signature using request.get_data() and a shared secret
+#     # 3. Use hmac.compare_digest(expected, given) to verify
+#     # 4. If mismatch, return 403. Otherwise, log payload and return 200 OK.
+#     raise NotImplementedError
+
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "healthy"}), 200

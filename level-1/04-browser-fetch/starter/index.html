@@ -17,6 +17,20 @@
 <h1>🌤 Weather Dashboard — Phase 04 Starter</h1>
 <p>Three APIs, called in parallel from the browser.</p>
 
+<div id="key-manager" style="background: #f9f9f9; border: 1px solid #ddd; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; max-width: 400px;">
+  <h3 style="margin-top: 0;">🔑 Local API Key Settings</h3>
+  <div style="margin-bottom: 0.5rem;">
+    <label for="owm_key" style="display: inline-block; width: 140px; font-size: 0.9rem;">OpenWeatherMap Key:</label>
+    <input type="password" id="owm_key" style="padding: 0.25rem; font-size: 0.9rem;">
+  </div>
+  <div style="margin-bottom: 0.5rem;">
+    <label for="wapi_key" style="display: inline-block; width: 140px; font-size: 0.9rem;">WeatherAPI Key:</label>
+    <input type="password" id="wapi_key" style="padding: 0.25rem; font-size: 0.9rem;">
+  </div>
+  <button id="save-keys" style="padding: 0.25rem 0.5rem; font-size: 0.9rem;">Save to Browser</button>
+  <span id="save-msg" style="color: green; margin-left: 0.5rem; font-size: 0.9rem;"></span>
+</div>
+
 <input id="city" value="Roseau" placeholder="City name">
 <button id="go">Get Weather</button>
 
@@ -27,6 +41,18 @@
 <p id="status"></p>
 
 <script>
+// Local key management UI helpers
+document.getElementById("owm_key").value = localStorage.getItem("OWM_KEY") || "";
+document.getElementById("wapi_key").value = localStorage.getItem("WEATHERAPI_KEY") || "";
+
+document.getElementById("save-keys").addEventListener("click", () => {
+  localStorage.setItem("OWM_KEY", document.getElementById("owm_key").value.trim());
+  localStorage.setItem("WEATHERAPI_KEY", document.getElementById("wapi_key").value.trim());
+  const msg = document.getElementById("save-msg");
+  msg.textContent = "Saved!";
+  setTimeout(() => msg.textContent = "", 2000);
+});
+
 // ─────────────────────────────────────────────
 //  Part A — Open-Meteo (no key)
 // ─────────────────────────────────────────────

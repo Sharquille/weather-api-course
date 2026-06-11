@@ -1,6 +1,7 @@
 """OpenWeatherMap source. Requires OPENWEATHER_API_KEY."""
 
 import os
+from typing import Any
 
 import requests
 from dotenv import load_dotenv
@@ -8,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def normalize_response(data: dict) -> dict:
+def normalize_response(data: dict[str, Any]) -> dict[str, Any]:
     return {
         "source": "OpenWeatherMap",
         "temp_c": data["main"]["temp"],
@@ -18,7 +19,7 @@ def normalize_response(data: dict) -> dict:
     }
 
 
-def fetch(city: str) -> dict:
+def fetch(city: str) -> dict[str, Any]:
     key = os.getenv("OPENWEATHER_API_KEY")
     if not key:
         raise RuntimeError("OPENWEATHER_API_KEY missing")
