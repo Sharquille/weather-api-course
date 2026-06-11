@@ -854,6 +854,28 @@
       font-size: 0.78rem;
     }
 
+    /* Code viewer (starter / solution) */
+    .code-hint { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.25rem; }
+    .code-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 0.6rem 0 1rem; }
+    .code-file { margin-bottom: 1rem; }
+    .code-file-name {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--cyan);
+      background: var(--surface2);
+      padding: 0.4rem 0.7rem;
+      border: 1px solid var(--border-light);
+      border-bottom: none;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      word-break: break-all;
+    }
+    .code-file pre {
+      margin: 0;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      max-height: 360px;
+    }
+
     .reference-note {
       background: rgba(16, 185, 129, 0.06);
       border-left: 3px solid var(--green);
@@ -1757,6 +1779,28 @@ const L2_REPOS = [
   { name:'public-apis/public-apis',       phase:'Phase 02 + 06', desc:'Find APIs to chain in your capstone',              href:'https://github.com/public-apis/public-apis' },
 ];
 
+// Phases whose code spans several files (others derive starter↔solution from p.file).
+const PHASE_FILES = {
+  l2p01: {
+    starter: [
+      'level-2/01-python-structure/starter/src/weather/sources/open_meteo.py',
+      'level-2/01-python-structure/starter/src/weather/sources/openweather.py',
+      'level-2/01-python-structure/starter/src/weather/sources/weatherapi.py',
+      'level-2/01-python-structure/starter/src/weather/cli.py',
+      'level-2/01-python-structure/starter/tests/test_sources.py',
+      'level-2/01-python-structure/starter/pyproject.toml'
+    ],
+    solution: [
+      'level-2/01-python-structure/solution/src/weather/sources/open_meteo.py',
+      'level-2/01-python-structure/solution/src/weather/sources/openweather.py',
+      'level-2/01-python-structure/solution/src/weather/sources/weatherapi.py',
+      'level-2/01-python-structure/solution/src/weather/cli.py',
+      'level-2/01-python-structure/solution/tests/test_sources.py',
+      'level-2/01-python-structure/solution/pyproject.toml'
+    ]
+  }
+};
+
 // ════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════
@@ -1877,6 +1921,11 @@ function openPhase(id) {
   const checkpoint = p.checkpoint.map(c => `<li>${formatInline(c)}</li>`).join('');
   const deeper     = p.deeper.map(([t,u]) => `<li><a href="${escapeHtml(u)}" target="_blank" rel="noopener">${escapeHtml(t)} ↗</a></li>`).join('');
   const isDone     = !!load()[id];
+  const pf         = phaseFiles(p);
+  const codeActions = (pf.readme && !(pf.starter && pf.starter.length))
+    ? `<button class="btn btn-secondary btn-sm" onclick="loadPhaseFiles('${id}','readme')">View README</button>`
+    : `<button class="btn btn-secondary btn-sm" onclick="loadPhaseFiles('${id}','starter')">View starter code</button>
+       <button class="btn btn-secondary btn-sm" onclick="loadPhaseFiles('${id}','solution')">Reveal solution</button>`;
 
   document.getElementById('modal-content').innerHTML = `
     <h2>${escapeHtml(p.num)} — ${escapeHtml(p.title)}</h2>
@@ -1894,6 +1943,11 @@ function openPhase(id) {
 
     <h3>Stages</h3>
     <ul class="stage-list">${partsList}</ul>
+
+    <h3>Source &amp; solution</h3>
+    <p class="code-hint">Work the starter yourself first, then reveal the solution to compare. Files load from the running server.</p>
+    <div class="code-actions">${codeActions}</div>
+    <div id="code-view"></div>
 
     <h3>Step-by-step instructions</h3>
     <ol>${steps}</ol>
@@ -1985,6 +2039,59 @@ pytest>=7.4.0</code></pre>
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   document.body.style.overflow = '';
+}
+
+// ════════════════════════════════════════════════
+//  CODE VIEWER — fetch starter/solution files over http
+// ════════════════════════════════════════════════
+function phaseFiles(p) {
+  if (PHASE_FILES[p.id]) return PHASE_FILES[p.id];
+  const f = p.file;
+  if (f.endsWith('.md')) {
+    return { starter: [], solution: [], readme: f,
+      note: 'This phase is guided by its README — there are no starter/solution code files.' };
+  }
+  return { starter: [f], solution: [f.replace('/starter/', '/solution/')] };
+}
+
+async function loadFiles(files, label) {
+  const host = document.getElementById('code-view');
+  if (!host) return;
+  host.innerHTML = `<p class="code-hint"><span class="spinner"></span>Loading ${escapeHtml(label)}…</p>`;
+  try {
+    const blocks = [];
+    for (const path of files) {
+      const res = await fetch(path, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status} for ${path}`);
+      const text = await res.text();
+      blocks.push(
+        `<div class="code-file"><div class="code-file-name">${escapeHtml(path)}</div>` +
+        `<pre><code>${escapeHtml(text)}</code></pre></div>`
+      );
+    }
+    host.innerHTML = blocks.join('');
+  } catch (e) {
+    host.innerHTML =
+      `<div class="reference-note" style="border-color:var(--yellow)"><strong>Couldn't load files.</strong> ` +
+      `${escapeHtml(e.message)}.<br>If this page is open as a <code>file://</code> URL, serve it over http first — ` +
+      `run <code>wac serve</code> (or <code>python3 -m http.server 8080</code>) and reload.</div>`;
+  }
+}
+
+function loadPhaseFiles(id, which) {
+  const p = [...L1_PHASES, ...L2_PHASES].find(x => x.id === id);
+  if (!p) return;
+  const pf = phaseFiles(p);
+  let files = [], label = which;
+  if (which === 'starter') files = pf.starter || [];
+  else if (which === 'solution') files = pf.solution || [];
+  else if (which === 'readme') { files = pf.readme ? [pf.readme] : []; label = 'README'; }
+  if (!files.length) {
+    document.getElementById('code-view').innerHTML =
+      `<div class="reference-note">${escapeHtml(pf.note || 'No files for this phase.')}</div>`;
+    return;
+  }
+  loadFiles(files, label);
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });

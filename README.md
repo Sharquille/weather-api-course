@@ -35,6 +35,37 @@ python3 -m http.server 8080
 
 Then visit `http://localhost:8080`.
 
+When the site is served (not opened as a `file://` page), each phase lesson has
+a **Source & solution** panel: click *View starter code* or *Reveal solution* to
+read the actual files inline, so you can study objectives and code in the browser
+and keep the terminal for doing the work.
+
+## CLI Helper (`wac`)
+
+`wac.sh` lets you work any phase without typing long `cd` paths. Source it once
+so `wac cd` can change your shell's directory:
+
+```bash
+source "$(pwd)/wac.sh"      # add this line to ~/.zshrc to make it permanent
+```
+
+Then:
+
+```bash
+wac cd 1 00        # cd into level-1/00-curl-basics/starter
+wac run 1 01       # run the phase starter in its folder
+wac open 1 04      # open the starter in $EDITOR
+wac solution 2 04  # print the solution file(s)
+wac test           # run the Level 2 Phase 01 test suite
+wac serve          # serve the course site on http://localhost:8080
+wac list           # list every phase
+wac help           # full usage
+```
+
+`<level>` is `1` or `2`; `<phase>` is `0`–`7` (e.g. `00`, `4`, `07`). Running
+`./wac.sh <command>` without sourcing also works for everything except `cd`,
+which can only move a shell that sourced the file.
+
 ## Deploy The Course Site To Cloudflare Pages
 
 This repository is ready to deploy as a static Cloudflare Pages site from the
@@ -64,6 +95,8 @@ weather-api-course/
 ├── index.html                  Course site and progress tracker
 ├── ARCHITECTURE_GUIDE.md       Professional patterns used in the course
 ├── PROGRESS_SYNC.md            GitHub Gist progress sync guide
+├── wac.sh                      CLI helper (source it; see "CLI Helper")
+├── fonts/                      Self-hosted Inter + JetBrains Mono
 ├── requirements.txt            Shared Python dependencies
 ├── level-1/                    API fundamentals
 │   ├── 00-curl-basics/
