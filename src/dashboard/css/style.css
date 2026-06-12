@@ -1501,14 +1501,14 @@ footer a:hover {
 
 .ws-sandbox-panel {
   flex: 1;
-  background: var(--code-bg);
+  background: var(--bg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 .ws-tabs-header {
   height: 42px;
-  background: var(--code-panel);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   display: flex;
   padding: 0 0.5rem;
@@ -1541,24 +1541,25 @@ footer a:hover {
   overflow-y: auto;
   padding: 1.5rem;
   position: relative;
-  /* The sandbox is an always-dark IDE pane in BOTH themes. Re-map the theme
-     tokens locally so every sandbox widget (including inline styles in
-     main.js) resolves to dark-pane-safe colours — without this, light mode
-     renders near-black text inside the dark panels. */
-  --bg:           var(--code-bg);
-  --surface:      var(--code-panel);
-  --surface2:     #34322e;
-  --border:       var(--code-border);
-  --border-light: #4a4840;
-  --text:         var(--code-text);
-  --muted:        var(--code-muted);
-  --muted2:       #8a877c;
-  --accent:       #d97757;
-  --accent-hover: #c9633f;
-  --accent-rgb:   217, 119, 87;
-  --on-accent:    #2a1206;
-  --cyan:         #8fbac8;
-  background: var(--code-bg);
+  /* The simulation widgets follow the active theme (cream in light, charcoal
+     in dark). Only genuine terminals / code blocks stay dark — see the
+     .sb-console / pre scope below. */
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Always-dark sub-surfaces inside the sandbox: the simulation output console,
+   code blocks, the Code Viewer and the Lesson Guide. Re-map theme tokens to
+   dark-pane-safe values so their text stays readable in BOTH themes. */
+.sb-console,
+.ws-sandbox-body pre,
+.ws-code-container,
+.ws-markdown {
+  --text:   var(--code-text);
+  --muted:  var(--code-muted);
+  --muted2: #8a877c;
+  --accent: #d97757;
+  --cyan:   #8fbac8;
   color: var(--code-text);
 }
 
@@ -1600,7 +1601,7 @@ footer a:hover {
   letter-spacing: 0.02em;
 }
 .sb-input {
-  background: var(--code-bg);
+  background: var(--surface2);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
   color: var(--text);
@@ -1724,7 +1725,7 @@ footer a:hover {
 
 /* Animated thread pool visualizer */
 .tp-track {
-  background: var(--code-panel);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;

@@ -1100,7 +1100,7 @@ function renderIntroSandbox() {
           <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">An Interface isolates you from the raw, dangerous, complex internals of a system. Push a clean button to interact, or attempt to manual hotwire.</p>
           
           <div class="sb-grid-2">
-            <div style="background:var(--code-panel); padding:1rem; border-radius:8px; border:1px solid var(--border);">
+            <div style="background:var(--surface2); padding:1rem; border-radius:8px; border:1px solid var(--border);">
               <div style="font-weight:700; font-size:0.75rem; color:var(--cyan); margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Vending Front (The Clean Interface)</div>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:1rem;">
                 <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.4rem;" onclick="runVendingMachine('A1')">A1 (Soda)</button>
@@ -1108,12 +1108,12 @@ function renderIntroSandbox() {
                 <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.4rem;" onclick="runVendingMachine('C3')">C3 (Chips)</button>
                 <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.4rem;" onclick="runVendingMachine('D4')">D4 (Candy)</button>
               </div>
-              <div style="height:35px; background:var(--code-bg); border:1px dashed var(--border-light); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" id="vending-slot">
+              <div style="height:35px; background:var(--surface2); border:1px dashed var(--border-light); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" id="vending-slot">
                 [ Dispensation Slot Empty ]
               </div>
             </div>
             
-            <div style="background:var(--code-panel); padding:1rem; border-radius:8px; border:1px solid var(--border);">
+            <div style="background:var(--surface2); padding:1rem; border-radius:8px; border:1px solid var(--border);">
               <div style="font-weight:700; font-size:0.75rem; color:var(--red); margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Vending Back (Complex Raw Internals)</div>
               <div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.72rem; font-family:var(--font-mono); color:var(--muted);">
                 <div>MOTOR_VOLTAGE: <span id="v-motor" style="color:var(--yellow)">0V</span></div>
@@ -1146,7 +1146,7 @@ function renderIntroSandbox() {
           <div class="sb-panel-title">🔌 Function Boundaries & Pipeline Connectivity</div>
           <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">In code, we wrap complex databases, caches, and networking queries behind a simple function declaration. Connect the pipes to invoke the interface.</p>
           
-          <div style="background:var(--code-panel); padding:1.25rem; border-radius:8px; border:1px solid var(--border); margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; position:relative;">
+          <div style="background:var(--surface2); padding:1.25rem; border-radius:8px; border:1px solid var(--border); margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; position:relative;">
             <!-- Left Side Input -->
             <div id="pipe-input" style="border:2px solid var(--border-light); padding:0.5rem 1rem; border-radius:4px; font-family:var(--font-mono); font-size:0.8rem; background:var(--bg);">
               "Roseau" (City Input)
@@ -1205,7 +1205,7 @@ function renderIntroSandbox() {
             <button class="btn btn-secondary btn-sm" id="btn-cls-host" onclick="selectHttpClassification('host')">3. Highlight HOST</button>
           </div>
           
-          <div style="background:var(--code-bg); border:1px solid var(--border-light); padding:1rem; border-radius:8px; font-family:var(--font-mono); font-size:1rem; line-height:1.6; letter-spacing:0.02em; margin-bottom:1rem; user-select:none;">
+          <div style="background:var(--surface2); border:1px solid var(--border-light); padding:1rem; border-radius:8px; font-family:var(--font-mono); font-size:1rem; line-height:1.6; letter-spacing:0.02em; margin-bottom:1rem; user-select:none;">
             <span style="cursor:pointer; padding:2px; border-radius:3px;" id="byte-seg-method" onclick="clickByteSegment('method')">GET</span> 
             <span style="cursor:pointer; padding:2px; border-radius:3px;" id="byte-seg-path" onclick="clickByteSegment('path')">/v1/forecast?city=Roseau</span> HTTP/1.1<br>
             Host: <span style="cursor:pointer; padding:2px; border-radius:3px;" id="byte-seg-host" onclick="clickByteSegment('host')">api.open-meteo.com</span><br>
@@ -1232,7 +1232,7 @@ function renderIntroSandbox() {
           <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">Symmetry is rational. For every request element dispatched by a client, the server responds with a matching, symmetrical element in its envelope. Fill the blank mirrors below.</p>
           
           <div class="sb-grid-2" style="margin-bottom:1rem;">
-            <div style="background:var(--code-panel); padding:1rem; border-radius:8px; border:1px solid var(--border);">
+            <div style="background:var(--surface2); padding:1rem; border-radius:8px; border:1px solid var(--border);">
               <div style="font-weight:700; font-size:0.75rem; color:var(--cyan); margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Client Request</div>
               <div style="display:flex; flex-direction:column; gap:0.5rem; font-family:var(--font-mono); font-size:0.75rem; color:var(--text);">
                 <div>1. Method: <span style="color:var(--accent);">GET /index.html</span></div>
@@ -1241,7 +1241,7 @@ function renderIntroSandbox() {
               </div>
             </div>
             
-            <div style="background:var(--code-panel); padding:1rem; border-radius:8px; border:1px solid var(--border);">
+            <div style="background:var(--surface2); padding:1rem; border-radius:8px; border:1px solid var(--border);">
               <div style="font-weight:700; font-size:0.75rem; color:var(--green); margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Server Response Symmetrical Mirror</div>
               <div style="display:flex; flex-direction:column; gap:0.4rem;">
                 <div style="display:flex; align-items:center; gap:0.4rem;">
@@ -1294,14 +1294,14 @@ function renderIntroSandbox() {
           <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">An API contract is a promise. If the client expects a key called "temp" but the server changes it, the abstraction boundary collapses. Simulate a breach to see results.</p>
           
           <div class="sb-grid-2" style="margin-bottom:1rem;">
-            <div style="background:var(--code-bg); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
+            <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
               <div style="font-weight:700; font-size:0.72rem; color:var(--cyan); margin-bottom:0.5rem; text-transform:uppercase; font-family:var(--font-sans);">Client Code (client.py)</div>
-              <pre style="background:transparent; border:none; padding:0; margin:0; font-size:0.72rem; color:var(--code-muted);"><code style="font-family:var(--font-mono);">res = requests.get(url)
+              <pre style="background:var(--code-bg); border:none; padding:0; margin:0; font-size:0.72rem; color:var(--code-muted);"><code style="font-family:var(--font-mono);">res = requests.get(url)
 data = res.json()
 print("Temp in Roseau:", data["temp"])</code></pre>
             </div>
             
-            <div style="background:var(--code-bg); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
+            <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
               <div style="font-weight:700; font-size:0.72rem; color:var(--green); margin-bottom:0.5rem; text-transform:uppercase; font-family:var(--font-sans);">Server Payload</div>
               <div class="sb-field" style="margin-bottom:0.5rem;">
                 <label style="font-size:0.6rem;">Server Response Contract Key</label>
@@ -1310,7 +1310,7 @@ print("Temp in Roseau:", data["temp"])</code></pre>
                   <option value="temperature">Break Contract ("temperature": 28.5)</option>
                 </select>
               </div>
-              <pre id="contract-srv-payload" style="background:transparent; border:none; padding:0; margin:0; font-size:0.72rem; color:var(--green);"><code style="font-family:var(--font-mono);">{\n  "temp": 28.5,\n  "city": "Roseau"\n}</code></pre>
+              <pre id="contract-srv-payload" style="background:var(--code-bg); border:none; padding:0; margin:0; font-size:0.72rem; color:var(--green);"><code style="font-family:var(--font-mono);">{\n  "temp": 28.5,\n  "city": "Roseau"\n}</code></pre>
             </div>
           </div>
           
@@ -1834,7 +1834,7 @@ function renderRequestsSandbox() {
         <pre style="background:var(--code-bg); padding:0.5rem; border-radius:4px; margin:0 0 0.75rem 0;"><code id="req-py-code" class="cl-info" style="font-size:0.78rem;"></code></pre>
         
         <!-- Visual requests Lifecycle Tracker -->
-        <div id="requests-lifecycle-tracker" style="background:var(--code-panel); padding:0.75rem; border-radius:4px; border:1px solid var(--border); margin-bottom:0.75rem;">
+        <div id="requests-lifecycle-tracker" style="background:var(--surface2); padding:0.75rem; border-radius:4px; border:1px solid var(--border); margin-bottom:0.75rem;">
           <div style="font-weight:700; font-size:0.7rem; color:var(--cyan); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.05em;">Requests Lifecycle Step Trace</div>
           <div style="display:flex; flex-direction:column; gap:0.25rem; font-size:0.72rem; color:var(--muted); font-family:var(--font-mono);">
             <div id="tr-step-1">🔘 1. Compile request URL and parameters dict</div>
@@ -2051,7 +2051,7 @@ async function fetchAndNormalizeLive() {
         }
       };
       
-      normLog.innerHTML = `<pre style="background:transparent; border:none; padding:0; color:var(--green);"><code style="font-family:var(--font-mono);">${JSON.stringify(normObj, null, 2)}</code></pre>`;
+      normLog.innerHTML = `<pre style="background:var(--code-bg); border:none; padding:0; color:var(--green);"><code style="font-family:var(--font-mono);">${JSON.stringify(normObj, null, 2)}</code></pre>`;
     }, 1200);
   } catch(e) {
     rawLog.innerHTML = `<span class="cl-err">Fetch exception: ${escapeHtml(e.message)}</span>`;
@@ -2093,7 +2093,7 @@ function renderThreadSandbox() {
         </div>
         
         <!-- Live Race Timeline Comparison Charts -->
-        <div id="thread-time-chart" style="background:var(--code-panel); padding:0.75rem; border-radius:4px; border:1px solid var(--border); margin-top:0.75rem;">
+        <div id="thread-time-chart" style="background:var(--surface2); padding:0.75rem; border-radius:4px; border:1px solid var(--border); margin-top:0.75rem;">
           <div style="font-weight:700; font-size:0.7rem; color:var(--cyan); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.05em;">Execution Latency Race Chart</div>
           <div style="display:flex; flex-direction:column; gap:0.5rem; font-family:var(--font-mono); font-size:0.72rem;">
             <div>
@@ -2537,7 +2537,7 @@ function renderJsonSandbox() {
         <div class="sb-console">
           <div class="sb-console-header">JSON Source Node</div>
           <div class="sb-console-body" style="font-size:0.75rem; color:var(--code-muted);">
-<pre id="json-src-view" style="background:transparent; border:none; padding:0; margin:0;"></pre>
+<pre id="json-src-view" style="background:var(--code-bg); border:none; padding:0; margin:0;"></pre>
           </div>
         </div>
         <div class="sb-console">
