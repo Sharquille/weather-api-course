@@ -13,26 +13,81 @@
   src: url('../../../fonts/jetbrains-mono.woff2') format('woff2');
 }
 
+/* ──────────────────────────────────────────────
+   THEME SYSTEM — Claude desktop aesthetic.
+   Two themes flip via data-theme on <html>:
+   warm cream (light) and warm charcoal (dark),
+   both anchored by the terracotta brand accent.
+   Code/terminal/sandbox panes stay dark in both
+   themes — the Claude "dark code on cream" look.
+   ────────────────────────────────────────────── */
 :root {
-  --bg:           #080b11; /* near-black */
-  --surface:      #11161f; /* raised panel */
-  --surface2:     #1b2230; /* inset / hover */
-  --border:       #161d28;
-  --border-light: #232c3a;
-  --accent:       #2dd4bf; /* Teal 400 */
-  --accent-hover: #14b8a6; /* Teal 500 */
-  --accent-rgb:   45, 212, 191;
-  --cyan:         #22d3ee; /* Cyan 400 */
-  --green:        #34d399; /* Emerald 400 */
-  --yellow:       #fbbf24; /* Amber 400 */
-  --red:          #f87171; /* Red 400 */
-  --text:         #f1f5f9; /* Slate 100 */
-  --muted:        #94a3b8; /* Slate 400 */
-  --muted2:       #64748b; /* Slate 500 */
-  --radius:       8px;
-  --radius-sm:    6px;
+  /* Non-color tokens (shared) */
+  --radius:       10px;
+  --radius-sm:    7px;
   --font-sans:    'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono:    'JetBrains Mono', "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+
+  /* Always-dark code / terminal / sandbox surfaces (same in both themes) */
+  --code-bg:      #1e1d1b;
+  --code-panel:   #262421;
+  --code-border:  #38362f;
+  --code-text:    #ecebe2;
+  --code-muted:   #a8a496;
+
+  /* Semantic terminal colours (read on dark code panes) */
+  --green:        #5bbf8a;
+  --yellow:       #e0a33a;
+  --red:          #e0816b;
+}
+
+/* ── Claude DARK (warm charcoal) ── */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:           #262624; /* warm charcoal */
+  --surface:      #30302e; /* raised panel */
+  --surface2:     #3a3a37; /* inset / hover */
+  --border:       #3b3a36;
+  --border-light: #4c4b45;
+  --accent:       #d97757; /* Claude terracotta */
+  --accent-hover: #c9633f;
+  --accent-rgb:   217, 119, 87;
+  --on-accent:    #2a1206; /* text on accent fills */
+  --cyan:         #8fbac8; /* muted aqua secondary */
+  --text:         #f5f4ee; /* warm off-white */
+  --muted:        #c2bfb4;
+  --muted2:       #9c998d; /* AA on charcoal */
+
+  /* Workspace chrome (themeable) */
+  --ws-header:      #2c2c2a;
+  --ws-sidebar:     #222220;
+  --ws-instructions:#2a2a28;
+  --ws-stage-head:  #30302e;
+}
+
+/* ── Claude LIGHT (warm cream) ── */
+[data-theme="light"] {
+  color-scheme: light;
+  --bg:           #f4f2ec; /* warm cream */
+  --surface:      #faf9f4; /* raised card */
+  --surface2:     #eceae0; /* inset / input */
+  --border:       #e4e1d6;
+  --border-light: #d8d4c7;
+  --accent:       #a85232; /* deeper terracotta — AA (4.5:1) as text on cream */
+  --accent-hover: #934527;
+  --accent-rgb:   168, 82, 50;
+  --on-accent:    #ffffff;
+  --cyan:         #3c7a8c; /* deeper aqua for cream contrast */
+  --text:         #2b2a26; /* warm near-black */
+  --muted:        #5f5d54;
+  --muted2:       #6a675c; /* AA on cream */
+
+  /* Workspace chrome (themeable) */
+  --ws-header:      #faf9f4;
+  --ws-sidebar:     #efedE4;
+  --ws-instructions:#faf9f4;
+  --ws-stage-head:  #f1efe6;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -75,7 +130,7 @@ body {
 /* Sticky Navigation */
 nav {
   border-bottom: 1px solid var(--border-light);
-  background: rgba(8, 11, 17, 0.82);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   position: sticky;
@@ -180,7 +235,7 @@ nav {
 }
 .btn-primary {
   background: var(--accent);
-  color: #04221c;
+  color: var(--on-accent);
   box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25);
 }
 .btn-primary:hover {
@@ -658,7 +713,7 @@ nav {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(8, 11, 17, 0.85);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 200;
@@ -949,7 +1004,7 @@ footer a:hover {
 .hero-terminal {
   max-width: 640px;
   margin: 2.75rem auto 0;
-  background: #0a0e15;
+  background: var(--code-bg);
   border: 1px solid var(--border-light);
   border-radius: 10px;
   overflow: hidden;
@@ -1025,7 +1080,7 @@ footer a:hover {
   top: -9px;
   left: 1.25rem;
   background: var(--accent);
-  color: #04221c;
+  color: var(--on-accent);
   font-size: 0.62rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -1127,7 +1182,7 @@ footer a:hover {
   box-shadow: none !important;
   display: flex;
   flex-direction: column;
-  background: #080b11;
+  background: var(--bg);
   overflow: hidden;
 }
 .modal.workspace-mode .modal-close {
@@ -1155,8 +1210,8 @@ footer a:hover {
 
 .ws-header {
   height: 56px;
-  background: #0d121c;
-  border-bottom: 1px solid #161d28;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1238,8 +1293,8 @@ footer a:hover {
 }
 .ws-sidebar {
   width: 260px;
-  background: #0b1019;
-  border-right: 1px solid #161d28;
+  background: var(--ws-sidebar);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -1293,11 +1348,11 @@ footer a:hover {
 }
 .ws-stage-item.active .ws-stage-number {
   background: var(--accent);
-  color: #04221c;
+  color: var(--on-accent);
 }
 .ws-stage-item.completed .ws-stage-number {
   background: var(--green);
-  color: #022014;
+  color: var(--on-accent);
 }
 .ws-stage-label {
   font-size: 0.8rem;
@@ -1330,8 +1385,8 @@ footer a:hover {
 .ws-overall-progress {
   margin-top: auto;
   padding: 1rem;
-  border-top: 1px solid #161d28;
-  background: #0d121c;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
 }
 .ws-progress-stats {
   display: flex;
@@ -1361,16 +1416,16 @@ footer a:hover {
 }
 .ws-instructions-panel {
   width: 40%;
-  border-right: 1px solid #161d28;
-  background: #0d121c;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 .ws-stage-header {
   padding: 1.25rem;
-  border-bottom: 1px solid #161d28;
-  background: #0f1522;
+  border-bottom: 1px solid var(--border);
+  background: var(--ws-stage-head);
 }
 .ws-stage-eyebrow {
   color: var(--cyan);
@@ -1407,13 +1462,13 @@ footer a:hover {
 .ws-stage-scroll p {
   font-size: 0.88rem;
   line-height: 1.55;
-  color: #cbd5e1;
+  color: var(--muted);
   margin-bottom: 0.85rem;
 }
 .ws-stage-scroll li {
   font-size: 0.85rem;
   line-height: 1.5;
-  color: #cbd5e1;
+  color: var(--muted);
   margin-bottom: 0.4rem;
 }
 .ws-stage-scroll ul, .ws-stage-scroll ol {
@@ -1421,7 +1476,7 @@ footer a:hover {
   margin-bottom: 0.85rem;
 }
 .ws-stage-scroll pre {
-  background: #06090e;
+  background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 0.75rem;
@@ -1446,15 +1501,15 @@ footer a:hover {
 
 .ws-sandbox-panel {
   flex: 1;
-  background: #080b11;
+  background: var(--code-bg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 .ws-tabs-header {
   height: 42px;
-  background: #0d121c;
-  border-bottom: 1px solid #161d28;
+  background: var(--code-panel);
+  border-bottom: 1px solid var(--border);
   display: flex;
   padding: 0 0.5rem;
   flex-shrink: 0;
@@ -1526,7 +1581,7 @@ footer a:hover {
   letter-spacing: 0.02em;
 }
 .sb-input {
-  background: #080b11;
+  background: var(--code-bg);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
   color: var(--text);
@@ -1557,7 +1612,7 @@ footer a:hover {
 
 /* Live CLI / Console Window */
 .sb-console {
-  background: #06090e;
+  background: var(--code-bg);
   border: 1px solid var(--border-light);
   border-radius: var(--radius);
   font-family: var(--font-mono);
@@ -1620,7 +1675,7 @@ footer a:hover {
 }
 .ws-code-container {
   flex: 1;
-  background: #06090e;
+  background: var(--code-bg);
   border: 1px solid var(--border-light);
   border-radius: var(--radius);
   padding: 1rem;
@@ -1650,7 +1705,7 @@ footer a:hover {
 
 /* Animated thread pool visualizer */
 .tp-track {
-  background: #0d121c;
+  background: var(--code-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
@@ -1743,13 +1798,13 @@ footer a:hover {
 }
 .ws-markdown {
   flex: 1;
-  background: #06090e;
+  background: var(--code-bg);
   border: 1px solid var(--border-light);
   border-radius: var(--radius);
   padding: 1.5rem;
   overflow-y: auto;
   line-height: 1.65;
-  color: #cbd5e1;
+  color: var(--code-text);
 }
 .ws-markdown h2 {
   font-size: 1.25rem;
@@ -1785,7 +1840,7 @@ footer a:hover {
   color: var(--text);
 }
 .ws-markdown pre {
-  background: #02040a;
+  background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 1rem;
@@ -1815,7 +1870,7 @@ footer a:hover {
     width: 100%;
     flex-shrink: 0;
     border-right: none;
-    border-bottom: 1px solid #161d28;
+    border-bottom: 1px solid var(--border);
   }
   .ws-stages-list {
     flex-direction: row;
@@ -1839,7 +1894,7 @@ footer a:hover {
     overflow: visible;
   }
   .ws-instructions-panel {
-    border-bottom: 1px solid #161d28;
+    border-bottom: 1px solid var(--border);
   }
   .ws-stage-scroll {
     overflow-y: visible;
@@ -1979,7 +2034,7 @@ footer a:hover {
   position: absolute;
   left: 0; right: 9px; bottom: 0;
   height: 40px;
-  background: linear-gradient(to top, #0d121c, rgba(13, 18, 28, 0));
+  background: linear-gradient(to top, var(--surface), rgba(13, 18, 28, 0));
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -2000,10 +2055,35 @@ footer a:hover {
 .btn:focus-visible,
 .ws-tab-tab:focus-visible,
 .ws-stage-item:focus-visible,
+.phase-card:focus-visible,
+.setup-card:focus-visible,
+.theme-toggle:focus-visible,
 .sb-input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* Theme toggle button (Claude light/dark) */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+.theme-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.theme-toggle:active { transform: scale(0.94); }
+.theme-toggle svg { width: 18px; height: 18px; }
 
 /* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {

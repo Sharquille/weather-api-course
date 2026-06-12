@@ -1,12 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="A two-level Weather API course for learning HTTP, Python requests, browser fetch, deployment, security, and API automation." />
-  <meta name="theme-color" content="#080b11" />
+  <meta name="theme-color" content="#262624" />
   <title>Weather API Course — LexLabs</title>
-  <link rel="stylesheet" href="src/dashboard/css/style.css?v=5" />
+  <!-- Set the Claude theme before first paint to avoid a flash of the wrong theme. -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('wac_theme');
+        var sys = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', saved || sys);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="src/dashboard/css/style.css?v=7" />
 </head>
 <body>
 
@@ -24,6 +34,7 @@
       <a class="nav-link" href="#deploy">Deploy</a>
       <a class="nav-link" href="https://github.com/Sharquille/weather-api-course" target="_blank" rel="noopener">GitHub ↗</a>
       <a class="nav-link btn btn-secondary btn-sm" href="#gist-panel">Sync Progress</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle theme"></button>
     </div>
   </div>
 </nav>
@@ -121,7 +132,7 @@ http://localhost:8080</code></pre>
 
   <!-- LEVEL 1 -->
   <div class="tab-panel active" id="panel-l1">
-    <div class="setup-card" onclick="openSetup()">
+    <div class="setup-card" role="button" tabindex="0" aria-label="Open setup instructions" onclick="openSetup()" onkeydown="cardKey(event, openSetup)">
       <h3>Setup — do this first (5 minutes)</h3>
       <p>Clone the repo, create a Python virtual environment, install dependencies, and copy the .env template. Click for full instructions.</p>
     </div>
@@ -218,6 +229,6 @@ http://localhost:8080</code></pre>
   </div>
 </div>
 
-<script src="src/dashboard/js/main.js?v=5"></script>
+<script src="src/dashboard/js/main.js?v=7"></script>
 </body>
 </html>
