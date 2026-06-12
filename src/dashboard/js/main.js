@@ -546,6 +546,24 @@ function cardKey(e, fn) {
   if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); fn(); }
 }
 
+// Non-blocking toast for the locked Level 2 tab (replaces native alert()).
+let lockToastTimer = null;
+function showLockToast(msg) {
+  let el = document.getElementById('lock-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'lock-toast';
+    el.className = 'lock-toast';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(lockToastTimer);
+  lockToastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
 // ════════════════════════════════════════════════
 //  THEME (Claude light / dark)
 // ════════════════════════════════════════════════
@@ -3101,7 +3119,7 @@ function switchTab(level) {
   const l1Complete = L1_PHASES.filter(p => state[p.id]).length === L1_PHASES.length;
   if (level === 'l2' && !l1Complete) {
     const done = L1_PHASES.filter(p => state[p.id]).length;
-    alert(`Level 2 is locked. Complete all ${L1_PHASES.length} Level 1 phases first. (${done}/${L1_PHASES.length} complete)`);
+    showLockToast(`Level 2 is locked — complete all ${L1_PHASES.length} Level 1 phases first (${done}/${L1_PHASES.length} done).`);
     return;
   }
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
