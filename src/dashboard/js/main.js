@@ -650,6 +650,24 @@ let currentPhaseId = null;
 let activeStageIndex = 0;
 let activeWsTab = 'sandbox';
 
+// Replay a CSS entrance animation by toggling its class (with a forced reflow).
+function replayAnim(el, cls) {
+  if (!el) return;
+  el.classList.remove(cls);
+  void el.offsetWidth; // force reflow so the animation restarts
+  el.classList.add(cls);
+}
+
+// Show the bottom scroll-fade hint only when the instructions pane overflows.
+function updateScrollHints() {
+  const scroll = document.getElementById('ws-stage-scroll');
+  const panel = document.querySelector('.ws-instructions-panel');
+  if (!scroll || !panel) return;
+  const more = scroll.scrollHeight > scroll.clientHeight + 4
+    && scroll.scrollTop + scroll.clientHeight < scroll.scrollHeight - 4;
+  panel.classList.toggle('can-scroll', more);
+}
+
 function openPhase(id) {
   const all = [...L1_PHASES, ...L2_PHASES];
   const p   = all.find(x => x.id === id);
@@ -861,6 +879,16 @@ function renderActiveStage() {
     </div>
   `;
 
+  // Entrance animations + scroll affordances
+  const scroll = document.getElementById('ws-stage-scroll');
+  replayAnim(scroll, 'fade-in');
+  replayAnim(document.getElementById('ws-stage-title'), 'fade-in');
+  if (scroll && !scroll.dataset.scrollBound) {
+    scroll.addEventListener('scroll', updateScrollHints, { passive: true });
+    scroll.dataset.scrollBound = '1';
+  }
+  requestAnimationFrame(updateScrollHints);
+
   renderSandboxTab();
 }
 
@@ -878,6 +906,7 @@ function goToStage(delta) {
 // ════════════════════════════════════════════════
 function renderSandboxTab() {
   const body = document.getElementById('ws-sandbox-body');
+  replayAnim(body, 'fade-in');
   if (activeWsTab === 'readme') {
     const p = [...L1_PHASES, ...L2_PHASES].find(x => x.id === currentPhaseId);
     const pf = phaseFiles(p);
@@ -3017,7 +3046,17 @@ function loadPhaseFiles(id, which) {
   loadFiles(files, label);
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); return; }
+  // Arrow-key stage navigation while a workspace is open (ignore when typing)
+  const overlay = document.getElementById('modal-overlay');
+  const inWorkspace = overlay && overlay.classList.contains('open') && overlay.classList.contains('workspace-mode');
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
+  if (inWorkspace && !typing) {
+    if (e.key === 'ArrowRight') { goToStage(1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { goToStage(-1); e.preventDefault(); }
+  }
+});
 
 // ════════════════════════════════════════════════
 //  TABS
