@@ -7,10 +7,9 @@
       "runtimeArgs": ["-m", "http.server", "8092"],
       "port": 8092
     }
-  ]
-}
-{
+  ],
   "attribution": {
+    "contributor": "Claude",
     "commit": "",
     "pr": ""
   }
