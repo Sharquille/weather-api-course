@@ -25,7 +25,7 @@ def scan_file_for_secrets(filepath: str) -> list[str]:
     p = Path(filepath)
     if not p.exists():
         return []
-    text = p.read_text()
+    text = p.read_text(encoding="utf-8")
     findings = []
     for i, line in enumerate(text.splitlines(), start=1):
         stripped = line.strip()

@@ -30,7 +30,7 @@ def scan_file_for_secrets(filepath: str) -> list[str]:
     This is a simplified version of what tools like GitGuardian do.
     """
     # TODO 1: Read the file at filepath
-    #   Use Path(filepath).read_text()
+    #   Use Path(filepath).read_text(encoding="utf-8")
     #   If the file doesn't exist, return an empty list
 
     # TODO 2: Define patterns to look for

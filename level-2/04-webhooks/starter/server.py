@@ -7,6 +7,8 @@ import logging
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+# Limit request size to 1MB to prevent DoS via memory exhaustion
+app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
 logging.basicConfig(level=logging.INFO)
 
 

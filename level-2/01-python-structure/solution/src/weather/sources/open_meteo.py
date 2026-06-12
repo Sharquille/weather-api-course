@@ -50,8 +50,8 @@ def fetch(city: str) -> dict[str, Any]:
     first: dict[str, Any] = geo_data["results"][0]
     current_fields = "temperature_2m,wind_speed_10m,relative_humidity_2m,weather_code"
     params: dict[str, str | float] = {
-        "latitude": first["latitude"],
-        "longitude": first["longitude"],
+        "latitude": first.get("latitude", 0.0),
+        "longitude": first.get("longitude", 0.0),
         "current": current_fields,
         "wind_speed_unit": "kmh",
     }
