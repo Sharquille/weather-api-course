@@ -766,7 +766,7 @@ function renderWorkspace() {
     </div>
   `;
   
-  renderWorkspace(); // Note: We actually trigger rendering inside selectStage / renderActiveStage
+  renderActiveStage(); // Note: We actually trigger rendering inside selectStage / renderActiveStage
 }
 
 function togglePhaseComplete() {
