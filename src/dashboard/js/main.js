@@ -1416,11 +1416,11 @@ function clickByteSegment(seg) {
   
   if (introDecompSelection === seg) {
     if (seg === 'method') {
-      span.style.background = 'rgba(45, 212, 191, 0.25)';
+      span.style.background = 'rgba(var(--accent-rgb), 0.28)';
       span.style.color = 'var(--accent)';
       introDecompState.method = true;
     } else if (seg === 'path') {
-      span.style.background = 'rgba(34, 211, 238, 0.25)';
+      span.style.background = 'rgba(var(--cyan-rgb, 143, 186, 200), 0.25)';
       span.style.color = 'var(--cyan)';
       introDecompState.path = true;
     } else if (seg === 'host') {
