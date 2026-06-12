@@ -686,9 +686,17 @@ function renderWorkspace() {
   // Determine available tabs to reduce clutter (noise reduction)
   const pf = phaseFiles(p);
   const hasCode = pf.starter.length > 0 || pf.solution.length > 0;
+  const hasReadme = !!pf.readme;
   const hasVerify = p.run && !p.run.includes('Launch the interactive') && !p.run.includes('Wherever you deploy');
 
+  // If the active tab no longer exists for this phase, fall back to the sandbox.
+  const availableTabs = ['sandbox', ...(hasReadme ? ['readme'] : []), ...(hasCode ? ['code'] : []), ...(hasVerify ? ['verify'] : [])];
+  if (!availableTabs.includes(activeWsTab)) activeWsTab = 'sandbox';
+
   let tabButtons = `<button class="ws-tab-tab ${activeWsTab === 'sandbox' ? 'active' : ''}" id="tab-sandbox" onclick="switchWsTab('sandbox')">🧪 Interactive Sandbox</button>`;
+  if (hasReadme) {
+    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'readme' ? 'active' : ''}" id="tab-readme" onclick="switchWsTab('readme')">📖 Lesson Guide</button>`;
+  }
   if (hasCode) {
     tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'code' ? 'active' : ''}" id="tab-code" onclick="switchWsTab('code')">📄 Code Viewer</button>`;
   }
@@ -794,11 +802,13 @@ function selectStage(index) {
 }
 
 function switchWsTab(tab) {
+  const tabBtn = document.getElementById(`tab-${tab}`);
+  if (!tabBtn) return; // tab not available for this phase — ignore
   activeWsTab = tab;
-  
+
   // Toggle tab header active style
   document.querySelectorAll('.ws-tab-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.add('active');
+  tabBtn.classList.add('active');
 
   renderSandboxTab();
 }
@@ -841,9 +851,26 @@ function renderActiveStage() {
 
     <h3>Research Task</h3>
     <p>${formatInline(p.research)}</p>
+
+    <div class="ws-stage-nav">
+      <button class="btn btn-secondary btn-sm" id="ws-prev-stage" onclick="goToStage(-1)" ${activeStageIndex === 0 ? 'disabled' : ''}>&larr; Previous</button>
+      <span class="ws-stage-nav-count">Stage ${activeStageIndex + 1} of ${p.parts.length}</span>
+      ${activeStageIndex < p.parts.length - 1
+        ? `<button class="btn btn-primary btn-sm" id="ws-next-stage" onclick="goToStage(1)">Next stage &rarr;</button>`
+        : `<button class="btn btn-primary btn-sm" id="ws-next-stage" onclick="togglePhaseComplete()">Finish phase ✓</button>`}
+    </div>
   `;
 
   renderSandboxTab();
+}
+
+function goToStage(delta) {
+  const p = [...L1_PHASES, ...L2_PHASES].find(x => x.id === currentPhaseId);
+  const next = activeStageIndex + delta;
+  if (next < 0 || next >= p.parts.length) return;
+  selectStage(next);
+  const scroll = document.getElementById('ws-stage-scroll');
+  if (scroll) scroll.scrollTop = 0;
 }
 
 // ════════════════════════════════════════════════
@@ -851,6 +878,23 @@ function renderActiveStage() {
 // ════════════════════════════════════════════════
 function renderSandboxTab() {
   const body = document.getElementById('ws-sandbox-body');
+  if (activeWsTab === 'readme') {
+    const p = [...L1_PHASES, ...L2_PHASES].find(x => x.id === currentPhaseId);
+    const pf = phaseFiles(p);
+    body.innerHTML = `
+      <div class="ws-readme-viewer">
+        <div class="ws-code-header">
+          <span class="ws-code-title">📖 ${escapeHtml(pf.readme || 'Lesson Guide')}</span>
+          <a class="btn btn-secondary btn-sm" href="${escapeHtml(pf.readme || '#')}" target="_blank" rel="noopener">Open raw ↗</a>
+        </div>
+        <div id="ws-readme-body" class="ws-markdown">
+          <p class="cl-info"><span class="spinner"></span> Loading lesson guide…</p>
+        </div>
+      </div>
+    `;
+    loadReadme(pf.readme);
+    return;
+  }
   if (activeWsTab === 'code') {
     body.innerHTML = `
       <div class="ws-code-viewer">
@@ -2838,6 +2882,59 @@ function phaseFiles(p) {
       note: 'This phase is guided by its README — there are no starter/solution code files.' };
   }
   return { starter: [f], solution: [f.replace('/starter/', '/solution/')] };
+}
+
+// Minimal, safe Markdown -> HTML renderer (escape first, then format).
+function renderMarkdown(md) {
+  const lines = String(md).replace(/\r\n/g, '\n').split('\n');
+  let html = '';
+  let inCode = false, codeLang = '', codeBuf = [];
+  let listType = null; // 'ul' | 'ol'
+
+  const closeList = () => { if (listType) { html += `</${listType}>`; listType = null; } };
+  const inline = s => formatInline(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+  for (const raw of lines) {
+    const fence = raw.match(/^```(\w*)/);
+    if (fence) {
+      if (inCode) { html += `<pre><code>${escapeHtml(codeBuf.join('\n'))}</code></pre>`; inCode = false; codeBuf = []; }
+      else { closeList(); inCode = true; codeLang = fence[1]; }
+      continue;
+    }
+    if (inCode) { codeBuf.push(raw); continue; }
+
+    if (!raw.trim()) { closeList(); continue; }
+
+    const h = raw.match(/^(#{1,4})\s+(.*)$/);
+    if (h) { closeList(); const lvl = h[1].length + 1; html += `<h${lvl}>${inline(h[2])}</h${lvl}>`; continue; }
+
+    const ol = raw.match(/^\s*\d+\.\s+(.*)$/);
+    const ul = raw.match(/^\s*[-*]\s+(.*)$/);
+    if (ol) { if (listType !== 'ol') { closeList(); html += '<ol>'; listType = 'ol'; } html += `<li>${inline(ol[1])}</li>`; continue; }
+    if (ul) { if (listType !== 'ul') { closeList(); html += '<ul>'; listType = 'ul'; } html += `<li>${inline(ul[1])}</li>`; continue; }
+
+    closeList();
+    html += `<p>${inline(raw)}</p>`;
+  }
+  closeList();
+  if (inCode) html += `<pre><code>${escapeHtml(codeBuf.join('\n'))}</code></pre>`;
+  return html;
+}
+
+async function loadReadme(path) {
+  const host = document.getElementById('ws-readme-body');
+  if (!host || !path) return;
+  try {
+    const res = await fetch(path, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${path}`);
+    const text = await res.text();
+    host.innerHTML = renderMarkdown(text);
+  } catch (e) {
+    host.innerHTML = `<p class="cl-err">Couldn't load the lesson guide: ${escapeHtml(e.message)}.<br>` +
+      `Serve the site over http (<code>python3 -m http.server 8080</code>) rather than opening the file directly.</p>`;
+  }
 }
 
 async function loadWsFiles(which) {
