@@ -1,13 +1,49 @@
 # Weather API Course
 
-A two-level, hands-on course for learning HTTP, REST APIs, Python automation,
-browser `fetch()`, deployment, security, and scheduled API workflows by building
-weather integrations.
+A two-level, hands-on course where you build real weather integrations to learn
+HTTP, REST APIs, Python automation, browser `fetch()`, deployment, security, and
+scheduled API workflows.
 
-The course is designed for two learners working independently on their own
-machines. Each person clones the same course repo, keeps their own API keys in
-local `.env` files, and deploys their own finished app when they reach the
-deployment phase.
+## What you'll be able to do
+
+By the end of this course you will be able to:
+
+- Call any HTTP API from **curl, Python, and the browser**, and read the raw
+  request/response to debug it.
+- Authenticate with API keys and **keep them out of git**.
+- Aggregate **multiple sources in parallel** and degrade gracefully when one fails.
+- **Deploy your own app** to a public URL on Cloudflare Pages.
+- Ship a **scheduled, tested automation** that chains APIs and notifies a channel.
+
+## Prerequisites
+
+- Comfort in a terminal (`cd`, running commands)
+- Basic Python — functions, dicts, imports
+- A GitHub account
+
+No prior API experience is assumed.
+
+## Scope
+
+**In scope:** REST/HTTP fundamentals, API keys & secrets, JSON handling, CORS,
+deployment, cron scheduling, sending/receiving webhooks, and CI.
+
+**Out of scope (by design):** OAuth 2.0 authorization flows, GraphQL, async web
+frameworks, and production-grade auth/authorization. Each is named in the
+relevant phase's *Go deeper* links so you know where to continue.
+
+## Format & assessment
+
+Self-paced. **Level 1** is 10 phases (~10–12 hrs) and **Level 2** is 7 phases
+(~12–16 hrs); Level 2 unlocks once every Level 1 phase is complete. Each phase
+has checkpoint questions (with reveal-to-check answers in the course site) and a
+run command; the course ends in a deployed, tested **capstone** graded against a
+3-level rubric.
+
+The course is designed for learners working independently on their own machines.
+Each person clones the same course repo, keeps their own API keys in local
+`.env` files, and deploys their own finished app when they reach the deployment
+phase.
 
 ## Quick Start
 

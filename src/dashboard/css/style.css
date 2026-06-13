@@ -1809,6 +1809,166 @@ footer a:hover {
   pointer-events: none;
 }
 
+/* Estimated-time badge (phase cards) + workspace time line */
+.phase-time { color: var(--muted2); }
+.ws-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  margin-bottom: 1.25rem;
+}
+.ws-time svg { width: 14px; height: 14px; }
+.ws-time strong { color: var(--text); font-weight: 700; }
+
+/* Checkpoint questions as reveal-to-check Q/A */
+.ck-hint {
+  font-size: 0.8rem !important;
+  color: var(--muted2) !important;
+  margin-bottom: 0.6rem !important;
+}
+.ck {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+.ck > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  transition: background 0.15s ease;
+}
+.ck > summary::-webkit-details-marker { display: none; }
+.ck > summary::before {
+  content: "?";
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.ck > summary:hover { background: rgba(var(--accent-rgb), 0.06); }
+.ck[open] > summary { border-bottom: 1px solid var(--border); }
+.ck-answer {
+  padding: 0.7rem 0.85rem 0.8rem 2.1rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.ck-answer code { font-size: 0.8em; }
+
+/* Capstone rubric */
+.ck-criteria { padding-left: 1.2rem; margin-bottom: 1rem; }
+.rubric { display: flex; flex-direction: column; gap: 0.6rem; }
+.rubric-level {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  padding: 0.7rem 0.9rem;
+}
+.rubric-tier {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+.rubric-level p { margin: 0 !important; font-size: 0.84rem !important; color: var(--muted) !important; }
+
+/* Course Contract card (landing) */
+.contract-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-top: 1rem;
+}
+.contract-head h2 { margin-bottom: 0.25rem; }
+.contract-head p { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.5rem; }
+.contract-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.contract-col h3 {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.contract-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.contract-col li {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text);
+  padding-left: 1.1rem;
+  position: relative;
+}
+.contract-col li::before {
+  content: "›";
+  position: absolute;
+  left: 0;
+  color: var(--muted2);
+  font-weight: 700;
+}
+.contract-col li strong { font-weight: 700; }
+.contract-soft { color: var(--muted) !important; font-style: italic; }
+.contract-soft::before { content: "" !important; }
+.scope-in, .scope-out {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.05rem 0.4rem;
+  border-radius: 4px;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+.scope-in { background: rgba(var(--green-rgb), 0.18); color: var(--green); }
+.scope-out { background: rgba(var(--red-rgb), 0.16); color: var(--red); }
+.contract-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.contract-foot strong { color: var(--text); font-weight: 600; }
+@media (max-width: 768px) {
+  .contract-card { padding: 1.5rem; }
+  .contract-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+}
+
 /* Lesson Guide (README) viewer */
 .ws-readme-viewer {
   display: flex;

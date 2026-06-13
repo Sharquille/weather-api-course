@@ -494,6 +494,127 @@ const L2_PHASES = [
   }
 ];
 
+// ════════════════════════════════════════════════
+//  PHASE GUIDE — realistic time estimates + checkpoint
+//  answer keys (so self-assessment can be verified) and
+//  the capstone rubric.
+// ════════════════════════════════════════════════
+const PHASE_GUIDE = {
+  l1p_intro: { time: '20–30 min', answers: [
+    'Hiding complex implementation behind a simpler interface, so you can use a system without knowing its internals.',
+    'Raw TCP is just an unstructured byte stream; HTTP layers on a standard grammar (methods, paths, headers, status codes) that clients and servers both agree on, so any two of them can interoperate.',
+    'The client\'s assumptions break — it crashes, mis-parses, or reads the wrong field. The abstraction "leaks" and the caller is forced to deal with it.',
+    'Like a conversation, every request expects a matching response: a question gets an answer, a status code mirrors the outcome, a Content-Type mirrors the body format.'
+  ]},
+  l1p00: { time: '45–60 min', answers: [
+    'GET retrieves data and should have no side effects; POST sends a body to create or change server state.',
+    '404 means the route/resource doesn\'t exist (a client-side mistake); 500 means the server errored while handling an otherwise-valid request (a server-side bug).',
+    '`-v` prints the full HTTP conversation — your request line and headers (`>`) and the server\'s status and headers (`<`) — so you see exactly what was sent and returned.',
+    '401 = not authenticated (missing/invalid credentials); 403 = authenticated but not allowed to access this resource.',
+    'An HTML page is meant for a browser to render; an API returns structured data (usually JSON) meant for a program to parse.'
+  ]},
+  l1p01: { time: '60–90 min', answers: [
+    'It raises an HTTPError for 4xx/5xx responses, so failures surface as exceptions instead of silently continuing.',
+    '`status_code` is the exact number (200, 404, …); `.ok` is a boolean (True for <400). Use `.ok` for a quick pass/fail, `status_code` when you branch on a specific code.',
+    'The request can hang forever if the server never responds, freezing your program.',
+    'A `params` dict lets `requests` URL-encode and join values safely; hand-building the string invites encoding bugs and `?`/`&` mistakes.',
+    '`json=` serializes the dict to a JSON body and sets `Content-Type: application/json`; `data=` sends form-encoded key/value pairs instead.'
+  ]},
+  l1p02: { time: '60–90 min', answers: [
+    'It loads a local `.env` file into the environment automatically, so secrets live in one untracked file instead of being hardcoded or exported by hand.',
+    '`.gitignore` keeps `.env` out of version control, so keys are never committed or pushed publicly.',
+    'Revoke/rotate the key in the provider\'s dashboard immediately — assume it\'s compromised the moment it\'s pushed. Scrubbing git history is secondary.',
+    '401 = missing/invalid credentials; 403 = valid credentials but not permitted; 429 = too many requests (rate limited).',
+    'Make one minimal, cheap call (or hit a validation endpoint) and check the status before running real workloads, so you don\'t burn quota.'
+  ]},
+  l1p03: { time: '90 min–2 hrs', answers: [
+    'It yields futures as they finish (not in submission order), so you handle each result or exception the moment it\'s ready.',
+    'Wrap each source call in try/except (or check each future) so one failure shows "N/A" for that source while the others still render.',
+    '`concurrent.futures` with `as_completed` — it waits for all calls and never lets one failure abort the rest, like `Promise.allSettled()`.',
+    'The time is dominated by network waiting, not CPU; firing requests concurrently overlaps the waits, so total time ≈ the slowest source, not the sum.',
+    'The GIL only serializes CPU-bound bytecode; network I/O releases the GIL while waiting, so threads genuinely overlap I/O-bound work.'
+  ]},
+  l1p04: { time: '90 min', answers: [
+    'The browser enforces the Same-Origin Policy to protect a user\'s logged-in sessions across sites; curl is a standalone tool with no origin or ambient credentials, so CORS doesn\'t apply to it.',
+    'It pauses the async function until the Promise resolves, then resumes with its value — without blocking the main thread.',
+    'Reading and parsing the body is itself asynchronous (it streams in over the network), so `.json()` returns a Promise you await.',
+    '`fetch` only rejects on network failure (use try/catch); for HTTP errors you must check `response.ok` / `response.status` yourself.',
+    '`Promise.all()` rejects as soon as any promise fails; `Promise.allSettled()` waits for all and returns a status+result per promise, so one failure doesn\'t lose the rest.'
+  ]},
+  l1p05: { time: '45–60 min', answers: [
+    'A build command compiles/bundles your app before deploy; if it\'s empty the platform just publishes the files as-is, which is correct for a no-build static site.',
+    'The folder the platform publishes — the directory whose files get served as your site.',
+    'In the Cloudflare Pages project settings (Environment variables), encrypted and per-environment — never in the repo.',
+    'Pushing to a non-production branch (or opening a PR) creates an isolated preview deployment at its own URL, so you can test before promoting to production.',
+    'Revoke/rotate the key in the provider dashboard immediately and move it to env vars — treat it as leaked the instant it\'s pushed.'
+  ]},
+  l1p06: { time: '60–90 min', answers: [
+    'Provider dashboards show usage spikes, GitHub secret scanning and tools like TruffleHog detect committed keys, and unexpected billing or rate-limit hits are signals.',
+    'A read-only key can only fetch data; a write key can change or delete state. Use least privilege — read-only wherever possible.',
+    'Scoped/least-privilege keys, rotation, a server-side proxy so the key never reaches the client, rate limiting, and monitoring/alerts.',
+    'CORS protects the user: it stops a malicious site\'s JavaScript from using the victim\'s browser to make credentialed requests elsewhere. It does NOT protect your API from non-browser clients (curl ignores it).',
+    'Query-param keys land in URLs, which get logged by servers/proxies and saved in browser history; a header keeps the secret out of the logged URL.'
+  ]},
+  l1p07: { time: '60–90 min', answers: [
+    'They\'re compatible APIs; `simplejson` is a third-party library that\'s sometimes faster/more configurable than the stdlib `json`. The stdlib `json` is fine here.',
+    'YAML when a human edits the file (config, comments, readability); JSON for machine-to-machine data interchange.',
+    'Stream it with an incremental parser like `ijson` instead of `json.load()`-ing the whole file into memory.',
+    'It navigates nested keys without raising KeyError/TypeError when an intermediate key is missing — it returns a default instead of crashing.',
+    'APIs change and send partial/malformed data; validating the shape up front catches problems early instead of blowing up deep in your code.'
+  ]},
+  l1p08: { time: '60 min', answers: [
+    'Same-Origin Policy — the browser rule restricting how a document/script from one origin may interact with resources from another, to protect user data.',
+    'CORS is browser-enforced; curl isn\'t a browser and carries no origin or ambient credentials, so the Same-Origin Policy doesn\'t apply.',
+    'OPTIONS — the preflight request the browser sends before certain cross-origin requests.',
+    '`Access-Control-Allow-Origin` and `Access-Control-Allow-Methods` (also `Access-Control-Allow-Headers`).'
+  ]},
+  l2p00: { time: '60–90 min', answers: [
+    'A collection groups related requests; an environment is a named set of variables (keys, base URLs) you swap so the same requests run against different setups.',
+    'Newman is Postman\'s CLI runner — it executes an exported collection from the terminal/CI without the GUI, so your requests and tests become automatable.',
+    'A script that runs before a request is sent — e.g. to set a variable, compute a signature, or generate a timestamp.',
+    'Plain structured JSON (v2.1 schema): request items with method, URL, headers, body, and embedded test scripts — readable and diffable in git.'
+  ]},
+  l2p01: { time: '2–3 hrs', answers: [
+    'It stops tests from accidentally importing your code from the working directory; they run against the installed package, catching packaging bugs.',
+    'The modern standard config file (PEP 518/621) declaring build system, project metadata, and dependencies — the replacement for `setup.py`.',
+    '`pip install -e .` links the install to your source, so code edits take effect without reinstalling.',
+    'Less boilerplate (plain functions + `assert`), powerful fixtures/parametrization, and clearer failure output than `unittest`.',
+    '`pytest path/to/test_file.py` for one file; `pytest path::test_name` (or `-k "name"`) for a single test.'
+  ]},
+  l2p02: { time: '60 min', answers: [
+    'A user-defined HTTP callback: a service POSTs data to your URL when an event happens, instead of you polling for it.',
+    'Create a webhook in a channel\'s settings → copy the URL → `requests.post(url, json={"content": "..."})` → the message appears in the channel.',
+    'Inspect the API response (e.g. is rain forecast in the next N hours?) and branch — build one message or another based on the data.',
+    '`204 No Content` — Discord returns 204 on a successful webhook POST (a 2xx with no body).'
+  ]},
+  l2p03: { time: '45 min', answers: [
+    'Run at 07:00 every day — the fields are minute(0) hour(7) day-of-month(*) month(*) day-of-week(*).',
+    '`>>` appends to the file; `>` overwrites it. Use `>>` for logs so each run doesn\'t wipe the history.',
+    'A file persists output across runs (cron has no terminal) with timestamps you can inspect later to confirm it ran and debug failures.',
+    'Idempotency = running twice has the same effect as once. It matters so a retry or double-trigger doesn\'t send duplicate messages — guard with a state/date file.',
+    'Check the cron and job log files, use absolute paths (cron has a minimal env/PATH), and temporarily set the schedule to every minute to watch it fire.'
+  ]},
+  l2p04: { time: '90 min', answers: [
+    'The direction flips — you become the server receiving an inbound POST, instead of the client making the request.',
+    'Your server runs on localhost with no public URL; ngrok opens a secure public tunnel to your local port so external services can reach it.',
+    'Your endpoint received and accepted the payload — returning 200 is how you acknowledge delivery.',
+    'Verify an HMAC signature: the sender signs the payload with a shared secret and sends the signature in a header; you recompute and compare (constant-time) before trusting the body.',
+    'n8n is a self-hostable automation tool that can receive webhooks visually — an alternative to hand-writing the Flask receiver for the same job.'
+  ]},
+  l2p05: { time: '60–90 min', answers: [
+    'A job runs on one runner; steps are the ordered commands/actions inside a job; `runs-on` selects the runner OS (e.g. `ubuntu-latest`).',
+    'Secrets are encrypted (API keys, tokens); vars are plain config values. Use secrets for anything sensitive, vars for non-sensitive settings.',
+    '`push` runs on commits to a branch; `pull_request` runs against PRs — use PR triggers to gate merges, push triggers for branch CI.',
+    'Use `actions/cache` (or a `setup-*` action\'s built-in caching) keyed on your lockfile hash, so dependencies aren\'t re-downloaded every run.',
+    'It checks your repository\'s code out into the runner so later steps can access your files.'
+  ]},
+  l2p06: { time: '4–8 hrs', rubric: [
+    { level: 'Baseline — it works', text: 'Chains 2+ real APIs and produces the intended output when run manually. All keys live in env vars, never in code.' },
+    { level: 'Solid — automated & tested', text: 'Runs unattended on a schedule, is idempotent (no duplicate notifications), notifies a channel, and has passing tests (pytest for code and/or Newman for the API).' },
+    { level: 'Portfolio-ready — shipped & documented', text: 'Deployed to a public host, CI runs the tests on every push, and the README lets a stranger set it up from scratch and explains each design choice.' }
+  ]}
+};
+
 const L1_REPOS = [
   { name:'miguelgrinberg/REST-tutorial',  phase:'Phase 01', desc:'Clean Python REST server + JS client',         href:'https://github.com/miguelgrinberg/REST-tutorial' },
   { name:'dwyl/learn-api-design',         phase:'Phase 01', desc:'Best reference for REST design decisions',      href:'https://github.com/dwyl/learn-api-design' },
@@ -612,6 +733,8 @@ function phaseCard(p, isDone, isLocked, index) {
   const stageTag = stages
     ? ` &middot; <span class="phase-stages">${stages} stages</span>`
     : '';
+  const time = (PHASE_GUIDE[p.id] || {}).time;
+  const timeTag = time ? ` &middot; <span class="phase-time">${escapeHtml(time)}</span>` : '';
   const startBadge = (index === 0 && !isDone && !isLocked)
     ? '<span class="phase-badge">Start here</span>'
     : '';
@@ -619,7 +742,7 @@ function phaseCard(p, isDone, isLocked, index) {
     <div class="phase-card ${cls}" id="card-${p.id}" role="button" tabindex="0" aria-label="Open lesson: ${escapeHtml(p.title)}" onclick="openPhase('${p.id}')" onkeydown="cardKey(event, () => openPhase('${p.id}'))">
       ${startBadge}
       <div class="phase-top">
-        <div class="phase-num">${escapeHtml(p.num)}${stageTag}</div>
+        <div class="phase-num">${escapeHtml(p.num)}${stageTag}${timeTag}</div>
         ${!isLocked
           ? `<button class="phase-check" type="button" aria-label="Toggle ${escapeHtml(p.title)} complete" onclick="event.stopPropagation(); toggle('${p.id}')">${isDone ? '✓' : ''}</button>`
           : '<div style="font-size:0.7rem; font-family:var(--font-mono); color:var(--muted2); font-weight:700; text-transform:uppercase; letter-spacing:0.05em" aria-label="Locked">Locked</div>'}
@@ -899,7 +1022,39 @@ function renderActiveStage() {
   document.getElementById('ws-stage-title').textContent = part.label;
 
   // Build active instructions HTML
+  const guide = PHASE_GUIDE[p.id] || {};
+  const timeHtml = guide.time
+    ? `<div class="ws-time" aria-label="Estimated time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg> Estimated time: <strong>${escapeHtml(guide.time)}</strong></div>`
+    : '';
+
+  let checkHtml;
+  if (guide.rubric) {
+    checkHtml = `
+      <h3>Definition of Done</h3>
+      <ul class="ck-criteria">${p.checkpoint.map(c => `<li>${formatInline(c)}</li>`).join('')}</ul>
+      <h3>Capstone rubric</h3>
+      <div class="rubric">${guide.rubric.map(r => `
+        <div class="rubric-level">
+          <span class="rubric-tier">${escapeHtml(r.level)}</span>
+          <p>${formatInline(r.text)}</p>
+        </div>`).join('')}</div>`;
+  } else if (guide.answers) {
+    checkHtml = `
+      <h3>Checkpoint questions</h3>
+      <p class="ck-hint">Answer each in your own words first, then reveal to check yourself.</p>
+      ${p.checkpoint.map((c, i) => `
+        <details class="ck">
+          <summary>${formatInline(c)}</summary>
+          <div class="ck-answer">${formatInline(guide.answers[i] || '')}</div>
+        </details>`).join('')}`;
+  } else {
+    checkHtml = `
+      <h3>Checkpoint questions</h3>
+      <ul>${p.checkpoint.map(c => `<li>${formatInline(c)}</li>`).join('')}</ul>`;
+  }
+
   document.getElementById('ws-stage-scroll').innerHTML = `
+    ${timeHtml}
     <h3>Goal</h3>
     <p>${formatInline(p.goal)}</p>
 
@@ -917,8 +1072,7 @@ function renderActiveStage() {
     <h3>Step-by-step instructions</h3>
     <ol>${p.steps.map(s => `<li>${formatInline(s)}</li>`).join('')}</ol>
 
-    <h3>Checkpoint questions</h3>
-    <ul>${p.checkpoint.map(c => `<li>${formatInline(c)}</li>`).join('')}</ul>
+    ${checkHtml}
 
     <h3>Research Task</h3>
     <p>${formatInline(p.research)}</p>
@@ -1384,7 +1538,7 @@ function peepUnderFunctionShroud() {
   const p = document.getElementById('function-shroud');
   if (p.style.display === 'none') {
     p.style.display = 'block';
-    p.textContent = `def get_temperature(city):\n    # 1. Geocode lookup query\n    lat, lon = geocode_database_lookup(city)\n    # 2. HTTP network payload transit\n    res = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true")\n    # 3. JSON serialization parsing\n    parsed = json.loads(res.text)\n    # 4. Extract nested schema values\n    return parsed["current_weather"]["temperature"]`;
+    p.textContent = `def get_temperature(city):\n    # 1. Geocode lookup query\n    lat, lon = geocode_database_lookup(city)\n    # 2. HTTP network payload transit\n    res = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m")\n    # 3. JSON serialization parsing\n    parsed = json.loads(res.text)\n    # 4. Extract nested schema values\n    return parsed["current"]["temperature_2m"]`;
   } else {
     p.style.display = 'none';
   }
@@ -1812,7 +1966,7 @@ function renderRequestsSandbox() {
           </div>
           <div class="sb-field">
             <label>URL Parameters Dict</label>
-            <input type="text" class="sb-input sb-input-mono" id="req-params" value='{"latitude": 15.3, "longitude": -61.38, "current_weather": true}' oninput="updateRequestsCode()">
+            <input type="text" class="sb-input sb-input-mono" id="req-params" value='{"latitude": 15.3, "longitude": -61.38, "current": "temperature_2m"}' oninput="updateRequestsCode()">
           </div>
         </div>
         <div class="sb-grid-2">
@@ -1871,7 +2025,7 @@ function updateRequestsCode() {
   code += `    response = ${method.toLowerCase()}(url, params=params, timeout=${timeout})\n`;
   code += `    response.raise_for_status()\n`;
   code += `    data = response.json()\n`;
-  code += `    print("Temperature:", data["current_weather"]["temperature"])\n`;
+  code += `    print("Temperature:", data["current"]["temperature_2m"])\n`;
   code += `except requests.exceptions.RequestException as e:\n`;
   code += `    print("Network/HTTP Error occurred:", e)`;
   
