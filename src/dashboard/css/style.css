@@ -39,12 +39,12 @@
   --disabled-opacity: 0.5;
 
   /* Radius (HeroUI default curves) */
-  --radius: 0.75rem; /* 12px */
+  --radius: 0.5rem; /* 8px */
   --radius-xs: calc(var(--radius) * 0.25); /* 3px */
   --radius-sm: calc(var(--radius) * 0.5);  /* 6px */
   --radius-md: calc(var(--radius) * 0.75); /* 9px */
-  --radius-lg: calc(var(--radius) * 1);    /* 12px */
-  --radius-xl: calc(var(--radius) * 1.5);  /* 18px */
+  --radius-lg: calc(var(--radius) * 1);    /* 8px */
+  --radius-xl: calc(var(--radius) * 1.5);  /* 12px */
 
   /* Easing curves (HeroUI Fluid Standard - Apple style) */
   --ease:         cubic-bezier(0.32, 0.72, 0, 1);
@@ -120,7 +120,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   line-height: 1.6;
-  letter-spacing: -0.015em;
+  letter-spacing: 0;
   font-optical-sizing: auto;
   text-rendering: optimizeLegibility;
 }
@@ -157,7 +157,7 @@ nav {
 .nav-brand {
   font-weight: 700;
   font-size: 1rem;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   color: var(--text);
   display: flex;
   align-items: center;
@@ -173,7 +173,7 @@ nav {
 }
 .nav-right {
   display: flex;
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: center;
 }
 .nav-link {
@@ -190,7 +190,7 @@ nav {
 /* Hero Section */
 .hero {
   text-align: center;
-  padding: 5rem 1.5rem 3.5rem;
+  padding: 4.25rem 1.5rem 3rem;
   max-width: 840px;
   margin: 0 auto;
 }
@@ -207,7 +207,7 @@ nav {
   font-weight: 800;
   line-height: 1.15;
   margin-bottom: 1.25rem;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 .hero h1 span {
   background: linear-gradient(135deg, var(--accent), var(--cyan));
@@ -238,7 +238,7 @@ nav {
   justify-content: center;
   gap: 0.4rem;
   font-family: var(--font-sans);
-  letter-spacing: 0.015em;
+  letter-spacing: 0;
   box-shadow: none;
 }
 .btn:active {
@@ -274,7 +274,7 @@ nav {
 
 /* Fluent 2 Web Pivot Tabs */
 .tabs-wrap {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   border-bottom: 1px solid var(--border);
 }
 .tabs {
@@ -312,8 +312,8 @@ nav {
   background: var(--surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius);
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 2rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
 }
 .progress-header {
   display: flex;
@@ -325,7 +325,7 @@ nav {
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   color: var(--muted);
 }
 .progress-header span:last-child {
@@ -360,7 +360,7 @@ nav {
   color: var(--yellow);
   font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0;
   text-transform: uppercase;
   margin-bottom: 1rem;
   display: inline-flex;
@@ -390,10 +390,10 @@ nav {
 .setup-card {
   background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.06) 0%, transparent 100%);
   border: 1px solid var(--border-light);
-  border-left: 4px solid var(--accent);
+  border-left: 3px solid var(--accent);
   border-radius: var(--radius);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 1.15rem 1.25rem;
+  margin-bottom: 1.5rem;
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
@@ -415,19 +415,20 @@ nav {
 /* Grid Layouts */
 .phases {
   display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  margin-bottom: 3rem;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  margin-bottom: 2.5rem;
 }
 
-/* Phase Cards (Fluent 2 Web Spec) */
+/* Phase Cards (Fluent 2 Web Spec with M3 Status Bars) */
 .phase-card {
   background: var(--surface);
   border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.5rem;
+  padding: 1.15rem;
   cursor: pointer;
-  min-height: 250px;
+  min-height: 236px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -455,30 +456,59 @@ nav {
 }
 .phase-card:hover {
   border-color: var(--accent);
+  border-left-color: var(--accent);
   background: var(--surface2);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 .phase-card.done {
-  border-color: rgba(var(--green-rgb), 0.45);
+  border-color: var(--border);
+  border-left-color: var(--green);
 }
 .phase-card.done:hover {
   border-color: var(--green);
+  border-left-color: var(--green);
 }
 .phase-card.locked-card {
-  opacity: 0.4;
+  opacity: 0.55;
   pointer-events: none;
+  border-left-color: var(--border);
+}
+
+/* Progress Node Indicator Dot */
+.phase-node-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  position: relative;
+  margin-right: var(--space-2);
+  vertical-align: middle;
+  transition: all 0.25s var(--ease);
+}
+.phase-card:hover .phase-node-indicator {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+.phase-card.done .phase-node-indicator {
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+.phase-card.locked-card .phase-node-indicator {
+  background: var(--border);
+  box-shadow: none;
 }
 .phase-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 .phase-num {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -509,20 +539,44 @@ nav {
 .phase-title {
   font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.01em;
+  margin-bottom: 0.45rem;
+  letter-spacing: 0;
 }
 .phase-desc {
   color: var(--muted);
   font-size: 0.88rem;
   line-height: 1.55;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.85rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.phase-output {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in oklch, var(--surface2), var(--accent) 4%);
+  color: var(--text);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  padding: 0.45rem 0.6rem;
+  margin-bottom: 1rem;
+}
+.phase-output span {
+  color: var(--accent);
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
 }
 .phase-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   margin-top: auto;
 }
 .pill {
@@ -558,7 +612,7 @@ nav {
   font-size: 1.35rem;
   font-weight: 750;
   margin-bottom: 1.25rem;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 /* Repo Cards */
@@ -595,7 +649,7 @@ nav {
   margin-bottom: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 .repo-desc {
   font-size: 0.82rem;
@@ -617,11 +671,17 @@ nav {
   gap: 2.5rem;
   align-items: center;
 }
+.deploy-inner-compact {
+  align-items: stretch;
+}
+.deploy-option {
+  min-width: 0;
+}
 .deploy-inner h2 {
   font-size: 1.25rem;
   font-weight: 750;
   margin-bottom: 0.75rem;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 .deploy-inner p {
   color: var(--muted);
@@ -660,82 +720,6 @@ nav {
   background: transparent;
   padding: 0;
   font-size: 0.8rem;
-}
-
-/* Gist Save Panel */
-.gist-panel {
-  margin-bottom: 3.5rem;
-}
-.gist-inner {
-  background: var(--surface);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius);
-  padding: 2rem;
-}
-.gist-inner h3 {
-  font-size: 1.25rem;
-  font-weight: 750;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.02em;
-}
-.gist-row {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-}
-.gist-row label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text);
-  min-width: 120px;
-}
-.gist-row input {
-  flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  padding: 0.5rem 0.75rem;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.gist-row input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
-}
-.gist-row input.error {
-  border-color: var(--red);
-  box-shadow: 0 0 0 3px rgba(var(--red-rgb), 0.18);
-}
-.gist-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-  flex-wrap: wrap;
-}
-.gist-note {
-  font-size: 0.8rem;
-  color: var(--muted);
-  line-height: 1.6;
-  margin-top: 1rem;
-  border-top: 1px solid var(--border);
-  padding-top: 1rem;
-}
-.gist-note a {
-  color: var(--accent);
-  text-decoration: none;
-}
-.gist-note a:hover {
-  text-decoration: underline;
-}
-#gist-status {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  margin-top: 0.75rem;
-  min-height: 1.2em;
 }
 
 /* Modal Backdrop */
@@ -794,7 +778,7 @@ nav {
   font-weight: 800;
   margin-bottom: 0.5rem;
   padding-right: 2rem;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 .modal .modal-meta {
   display: flex;
@@ -1120,6 +1104,64 @@ footer a:hover {
   box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.35);
 }
 
+/* Learning method strip */
+.learning-method {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.85fr) 1.5fr;
+  gap: 1.5rem;
+  align-items: stretch;
+  margin: 0 auto 2.5rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+}
+.method-copy h2 {
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.18;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0;
+}
+.method-copy p {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+.method-card {
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+.method-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+.method-card h3 {
+  font-size: 0.9rem;
+  margin-bottom: 0.35rem;
+}
+.method-card p {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 @media (max-width: 768px) {
   .hero-terminal { font-size: 0.7rem; }
   .terminal-body { font-size: 0.7rem; }
@@ -1165,6 +1207,13 @@ footer a:hover {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+  .learning-method {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+  }
+  .method-grid {
+    grid-template-columns: 1fr 1fr;
+  }
   .gist-row {
     flex-direction: column;
     align-items: flex-start;
@@ -1184,6 +1233,11 @@ footer a:hover {
     align-items: flex-start;
     gap: 1rem;
   }
+}
+
+@media (max-width: 520px) {
+  .method-grid { grid-template-columns: 1fr; }
+  .phase-card { min-height: 0; }
 }
 
 /* ==========================================
@@ -1256,7 +1310,7 @@ footer a:hover {
 .ws-brand {
   font-weight: 700;
   font-size: 0.85rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--text);
 }
@@ -1333,7 +1387,7 @@ footer a:hover {
 .ws-sidebar-title {
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   color: var(--muted2);
   padding: 1.25rem 1rem 0.5rem;
   text-transform: uppercase;
@@ -1461,7 +1515,7 @@ footer a:hover {
   color: var(--cyan);
   font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   text-transform: uppercase;
   display: block;
   margin-bottom: 0.25rem;
@@ -1469,7 +1523,7 @@ footer a:hover {
 .ws-stage-title {
   font-size: 1.1rem;
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   color: var(--text);
 }
 .ws-stage-scroll {
@@ -1481,7 +1535,7 @@ footer a:hover {
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   color: var(--cyan);
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
@@ -1530,6 +1584,106 @@ footer a:hover {
   padding: 0;
   color: inherit;
 }
+.ws-stage-scroll details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  margin: 0.75rem 0;
+  overflow: hidden;
+}
+.ws-stage-scroll details > summary {
+  cursor: pointer;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.ws-stage-scroll details > div {
+  padding: 0 0.85rem 0.85rem;
+}
+.lesson-brief {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+}
+.lesson-brief-kicker {
+  display: block;
+  color: var(--accent);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  margin-bottom: 0.2rem;
+}
+.lesson-brief strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.35;
+  margin-bottom: 0.45rem;
+}
+.lesson-brief p {
+  margin: 0 !important;
+  color: var(--muted) !important;
+}
+.learning-loop {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.loop-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 0.85rem;
+}
+.loop-card.active {
+  background: color-mix(in oklch, var(--surface2), var(--accent) 5%);
+  border-color: color-mix(in oklch, var(--border-light), var(--accent) 35%);
+}
+.loop-label {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--surface2);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.loop-card h3 {
+  margin: 0 0 0.35rem !important;
+  color: var(--text) !important;
+  font-size: 0.86rem !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+.loop-card p {
+  margin: 0 !important;
+}
+.loop-action {
+  margin-top: 0.65rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.65rem;
+  color: var(--text);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.lesson-disclosure > ol,
+.lesson-disclosure > p {
+  padding: 0 0.9rem 0.85rem 1.65rem;
+}
+.lesson-disclosure > p {
+  padding-left: 0.9rem;
+}
 
 .ws-sandbox-panel {
   flex: 1;
@@ -1560,6 +1714,7 @@ footer a:hover {
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  white-space: nowrap;
 }
 .ws-tab-tab:hover {
   color: var(--text);
@@ -1600,7 +1755,7 @@ footer a:hover {
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   color: var(--text);
   margin-bottom: 1rem;
   display: flex;
@@ -1618,7 +1773,7 @@ footer a:hover {
   font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 .sb-input {
   background: var(--surface2);
@@ -1676,7 +1831,7 @@ footer a:hover {
   padding-bottom: 0.5rem;
   margin-bottom: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
 }
 .sb-console-body {
   flex: 1;
@@ -2119,6 +2274,7 @@ footer a:hover {
   .ws-tabs-header { overflow-x: auto; }
   .ws-tab-tab { padding: 0 0.65rem; white-space: nowrap; flex-shrink: 0; }
   .sb-grid-2, .sb-grid-3 { grid-template-columns: 1fr; }
+  .learning-loop { grid-template-columns: 1fr; }
   .ws-stage-nav { flex-wrap: wrap; }
 }
 

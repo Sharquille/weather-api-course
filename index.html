@@ -16,7 +16,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="src/dashboard/css/style.css?v=11" />
+  <link rel="stylesheet" href="src/dashboard/css/style.css?v=13" />
 </head>
 <body>
 
@@ -30,11 +30,12 @@
   <div class="container nav-container">
     <div class="nav-brand">Weather API Course</div>
     <div class="nav-right">
+      <a class="nav-link" href="#method">Method</a>
       <a class="nav-link" href="#contract">Contract</a>
-      <a class="nav-link" href="#tabs">Course Map</a>
-      <a class="nav-link" href="#deploy">Deploy</a>
+      <a class="nav-link" href="#tabs">Lessons</a>
+      <a class="nav-link" href="#run-deploy">Run</a>
       <a class="nav-link" href="https://github.com/Sharquille/weather-api-course" target="_blank" rel="noopener">GitHub ↗</a>
-      <a class="nav-link btn btn-secondary btn-sm" href="#gist-panel">Sync Progress</a>
+      <button class="btn btn-secondary btn-sm" onclick="resetProgress()">Reset Progress</button>
       <button class="theme-toggle" id="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle theme"></button>
     </div>
   </div>
@@ -44,10 +45,10 @@
   <div class="hero">
     <div class="eyebrow">HTTP &bull; Python &bull; Browser &bull; Automation</div>
     <h1>Build API fluency with a <span>real weather project.</span></h1>
-    <p>Start with <code>curl</code>, move into Python and browser JavaScript, then ship scheduled automations with tests, deployment, and clear documentation.</p>
+    <p>Each phase turns one API idea into a working artifact: inspect the raw HTTP, build the smallest useful version, debug the failure mode, then prove it with a checkpoint.</p>
     <div class="hero-btns">
-      <a class="btn btn-primary" href="#tabs">Start Learning</a>
-      <a class="btn btn-secondary" href="#deploy">Deploy Course Site</a>
+      <a class="btn btn-primary" href="#tabs">Start Phase 00</a>
+      <a class="btn btn-secondary" href="#method">See the method</a>
       <a class="btn btn-secondary" href="https://github.com/Sharquille/weather-api-course" target="_blank" rel="noopener">View Repo</a>
     </div>
 
@@ -75,6 +76,38 @@ WeatherAPI       28.7°C   partly cloudy
       <span class="pb-item">WeatherAPI</span>
     </div>
   </div>
+</div>
+
+<div class="container" id="method">
+  <section class="learning-method" aria-labelledby="method-title">
+    <div class="method-copy">
+      <span class="eyebrow">Learning design</span>
+      <h2 id="method-title">Short loops, real feedback, visible mastery.</h2>
+      <p>This refresh borrows the best parts of interactive STEM courses: visual intuition before terminology, practice before polish, and mastery checks before moving on.</p>
+    </div>
+    <div class="method-grid">
+      <div class="method-card">
+        <span class="method-step">1</span>
+        <h3>See the idea</h3>
+        <p>Start with a concrete mental model: request, response, contract, failure, or pipeline.</p>
+      </div>
+      <div class="method-card">
+        <span class="method-step">2</span>
+        <h3>Do one action</h3>
+        <p>Run a command, edit a TODO, trigger a sandbox, or inspect a network trace.</p>
+      </div>
+      <div class="method-card">
+        <span class="method-step">3</span>
+        <h3>Debug the edge</h3>
+        <p>Break a key, force a timeout, trigger CORS, or compare two response shapes.</p>
+      </div>
+      <div class="method-card">
+        <span class="method-step">4</span>
+        <h3>Prove mastery</h3>
+        <p>Answer the checkpoint, run the verifier, then mark the phase complete.</p>
+      </div>
+    </div>
+  </section>
 </div>
 
 <div class="container" id="contract">
@@ -121,48 +154,25 @@ WeatherAPI       28.7°C   partly cloudy
   </div>
 </div>
 
-<div class="container deploy-panel" id="deploy">
-  <div class="deploy-inner">
-    <div>
-      <h2>Cloudflare Pages Deployment</h2>
-      <p>This course site is a static HTML app. It can deploy directly from the repo root with no JavaScript build pipeline.</p>
+<div class="container deploy-panel" id="run-deploy">
+  <div class="deploy-inner deploy-inner-compact">
+    <div class="deploy-option">
+      <h2>Run Locally</h2>
+      <p>Best while learning. Progress saves in this browser, and source/solution panels can load files over HTTP.</p>
       <ul class="deploy-settings">
-        <li><span>Production branch</span><code>main</code></li>
+        <li><span>Command</span><code>python3 -m http.server 8080</code></li>
+        <li><span>URL</span><code>http://localhost:8080</code></li>
+        <li><span>Progress</span><code>localStorage</code></li>
+      </ul>
+    </div>
+    <div class="deploy-option">
+      <h2>Deploy Course Site</h2>
+      <p>The course site is static HTML, CSS, and JS. Cloudflare Pages can publish it from the repo root without a build step.</p>
+      <ul class="deploy-settings">
+        <li><span>Framework preset</span><code>None</code></li>
         <li><span>Build command</span><code>exit 0</code></li>
-        <li><span>Build output directory</span><code>/</code></li>
-        <li><span>Root directory</span><code>/</code></li>
+        <li><span>Output directory</span><code>/</code></li>
       </ul>
-    </div>
-    <div class="deploy-code" aria-label="Cloudflare Pages settings code block">
-      <pre><code>Framework preset: None
-Build command: exit 0
-Build output directory: /
-Root directory: /</code></pre>
-    </div>
-  </div>
-</div>
-
-<div class="container deploy-panel" id="local-server" style="margin-top: -1.5rem;">
-  <div class="deploy-inner" style="border-color: var(--border-light);">
-    <div>
-      <h2>Or Run the Course Locally (No Cloudflare Required)</h2>
-      <p>Want to run everything on your own machine without deploying to the web? You can spin up Python's built-in HTTP server to serve the course site and save your progress locally in your browser's <code>localStorage</code>.</p>
-      <ul class="deploy-settings">
-        <li><span>Service Command</span><code>python3 -m http.server 8080</code></li>
-        <li><span>Local URL</span><code>http://localhost:8080</code></li>
-        <li><span>Progress Save</span><code>Browser LocalStorage</code></li>
-        <li><span>Cloud Sync</span><code>GitHub Gist (Optional)</code></li>
-      </ul>
-    </div>
-    <div class="deploy-code" aria-label="Local Python Server code block">
-      <pre><code># 1. Open your terminal in the repo root:
-$ cd weather-api-course
-
-# 2. Run the local Python web server:
-$ python3 -m http.server 8080
-
-# 3. Open your browser and navigate to:
-http://localhost:8080</code></pre>
     </div>
   </div>
 </div>
@@ -228,33 +238,7 @@ http://localhost:8080</code></pre>
   </div>
 </div>
 
-<div class="container" id="gist-panel">
-  <div class="gist-panel">
-    <div class="gist-inner">
-      <h3>Save Progress to GitHub Gist</h3>
-      <p style="color:var(--muted); font-size:0.88rem; margin-bottom:1.25rem; line-height:1.6">
-        Progress saves to <code>localStorage</code> by default — clearing your cache wipes it. Connect a GitHub token to save to a private Gist instead. <a href="PROGRESS_SYNC.md" target="_blank" rel="noopener">Read the setup guide.</a>
-      </p>
-      <div class="gist-row">
-        <label for="gh-token">GitHub Token</label>
-        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" />
-      </div>
-      <div class="gist-row">
-        <label for="gist-id-input">Gist ID</label>
-        <input type="text" id="gist-id-input" placeholder="Auto-created on first save" />
-      </div>
-      <div class="gist-actions">
-        <button class="btn btn-primary btn-sm" onclick="saveToGist()">Save to Gist</button>
-        <button class="btn btn-secondary btn-sm" onclick="loadFromGist()">Load from Gist</button>
-        <button class="btn btn-secondary btn-sm" onclick="resetProgress()">Reset</button>
-      </div>
-      <div id="gist-status"></div>
-      <p class="gist-note">
-        Create a token at <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" rel="noopener">github.com/settings/tokens</a> — scope: <code>gist</code> only. Stored in localStorage, sent only to GitHub.
-      </p>
-    </div>
-  </div>
-</div>
+
 
 <footer>
   <div class="container footer-container">
@@ -274,6 +258,6 @@ http://localhost:8080</code></pre>
   </div>
 </div>
 
-<script src="src/dashboard/js/main.js?v=11"></script>
+<script src="src/dashboard/js/main.js?v=13"></script>
 </body>
 </html>

@@ -130,7 +130,6 @@ weather-api-course/
 ├── _headers                    Cloudflare Pages security headers
 ├── index.html                  Course site and progress tracker
 ├── ARCHITECTURE_GUIDE.md       Professional patterns used in the course
-├── PROGRESS_SYNC.md            GitHub Gist progress sync guide
 ├── wac.sh                      CLI helper (source it; see "CLI Helper")
 ├── fonts/                      Self-hosted Inter + JetBrains Mono
 ├── requirements.txt            Shared Python dependencies
@@ -196,13 +195,11 @@ cp level-1/02-auth-apis/starter/.env.example level-1/02-auth-apis/starter/.env
 Use `.env.example` for names and placeholders only. Put real keys in `.env`,
 which is ignored by Git.
 
-## Progress Sync
+## Progress
 
-The course site saves phase progress locally in your browser. To sync progress
-across browsers or devices, use the GitHub Gist sync panel in the site.
-
-Read [PROGRESS_SYNC.md](PROGRESS_SYNC.md) for setup, save/load behavior, privacy
-notes, and troubleshooting.
+The course site saves phase progress locally in your browser with
+`localStorage`. Use the **Reset Progress** button in the site header when you
+want to start over on the same device.
 
 ## About The Separate Deployment Repo
 

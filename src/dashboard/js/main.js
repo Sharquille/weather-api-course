@@ -616,6 +616,130 @@ const PHASE_GUIDE = {
   ]}
 };
 
+// Teaching layer inspired by interactive mastery courses: each phase gets a
+// visible artifact, a useful mistake to trigger, and a short transfer prompt.
+const LEARNING_GUIDE = {
+  l1p_intro: {
+    output: 'API mental model',
+    intuition: 'Treat every API as a small control panel hiding a more complex machine.',
+    try: 'Use the sandbox first, then name the boundary it protects.',
+    trap: 'Do not memorize terms before you can point to the input, output, and contract.',
+    transfer: 'Sketch one non-weather API as a request, response, and broken-contract case.'
+  },
+  l1p00: {
+    output: 'Annotated curl transcript',
+    intuition: 'HTTP is a conversation you can read line by line.',
+    try: 'Run one curl command at a time and label request lines with `>` and response lines with `<`.',
+    trap: 'Running the whole script at once hides the feedback loop.',
+    transfer: 'Take any public API URL and identify method, status, headers, and body.'
+  },
+  l1p01: {
+    output: 'Python weather CLI',
+    intuition: '`requests` is curl with variables, functions, and exceptions.',
+    try: 'After each TODO, run the script and use the error message as the next hint.',
+    trap: 'Skipping `timeout` and `raise_for_status()` makes failures look like mysterious data bugs.',
+    transfer: 'Swap the weather endpoint for another JSON API and keep the same function shape.'
+  },
+  l1p02: {
+    output: 'Two authenticated API clients',
+    intuition: 'A key is part of the request contract, not part of your source code.',
+    try: 'Intentionally break one key and make the script explain the failure clearly.',
+    trap: 'Normalizing too late makes every downstream display handle provider-specific shapes.',
+    transfer: 'Compare how three APIs ask for credentials: query param, header, or bearer token.'
+  },
+  l1p03: {
+    output: 'Graceful multi-source dashboard',
+    intuition: 'Parallel I/O turns three waits into one wait.',
+    try: 'Make one provider fail and confirm the table still shows the other providers.',
+    trap: 'A single uncaught exception should not erase useful data from successful sources.',
+    transfer: 'Use the same pattern for prices, news, or status checks from multiple services.'
+  },
+  l1p04: {
+    output: 'Browser weather widget',
+    intuition: '`fetch()` speaks HTTP too, but the browser enforces origin rules.',
+    try: 'Open DevTools Network and watch each request settle independently.',
+    trap: '`fetch()` does not throw for 404 or 500; you must check `response.ok`.',
+    transfer: 'Replace weather cards with any three API-backed cards using `Promise.allSettled()`.'
+  },
+  l1p05: {
+    output: 'Public Pages deployment',
+    intuition: 'Deploying is a repeatable pipeline from git commit to public URL.',
+    try: 'Push one tiny visible change and verify Cloudflare publishes a new version.',
+    trap: 'Deploying the course repo and deploying your learner app are separate projects.',
+    transfer: 'Write the build settings for any static site before opening the deploy UI.'
+  },
+  l1p06: {
+    output: 'Secret scanner and key validator',
+    intuition: 'Security starts by making accidental leaks visible.',
+    try: 'Scan the repo, then add a fake key string and prove the scanner catches it.',
+    trap: 'CORS is not API security; non-browser clients can ignore it.',
+    transfer: 'Design a key-handling checklist for the next API project you create.'
+  },
+  l1p07: {
+    output: 'JSON cache and schema checks',
+    intuition: 'JSON is data you own only after you validate and shape it.',
+    try: 'Delete a nested key from cached JSON and confirm your validator reports it.',
+    trap: 'Direct nested indexing turns missing data into crashes far from the source.',
+    transfer: 'Create a reusable `safe_get` utility for another nested response.'
+  },
+  l1p08: {
+    output: 'Mock server with CORS headers',
+    intuition: 'CORS is a browser permission handshake between origins.',
+    try: 'Trigger the CORS error first, then fix the backend headers and compare behavior.',
+    trap: 'Testing only with curl misses browser-only failures.',
+    transfer: 'Draw the preflight OPTIONS request before coding the handler.'
+  },
+  l2p00: {
+    output: 'Postman collection plus Newman run',
+    intuition: 'A collection is executable documentation for an API workflow.',
+    try: 'Open the exported JSON and find the exact request method, URL, and tests.',
+    trap: 'Leaving keys in exported environment files creates a secret leak.',
+    transfer: 'Turn a manual API check into a collection with at least two assertions.'
+  },
+  l2p01: {
+    output: 'Installable Python package',
+    intuition: 'Project structure is how scripts become reusable software.',
+    try: 'Run tests before and after `pip install -e .` to see what packaging changes.',
+    trap: 'A flat script can pass locally while still failing once imported as a package.',
+    transfer: 'Refactor one old script into `src/`, tests, and a CLI entry point.'
+  },
+  l2p02: {
+    output: 'Weather-to-webhook notifier',
+    intuition: 'Automation is an if-this-then-that chain with HTTP in the middle.',
+    try: 'Force both branches: rainy message and clear-weather message.',
+    trap: 'A webhook URL is a secret. Treat it like an API key.',
+    transfer: 'Chain any API signal into a Discord, Slack, Telegram, or email notification.'
+  },
+  l2p03: {
+    output: 'Scheduled daily job',
+    intuition: 'Schedulers run commands in a minimal environment, not your terminal session.',
+    try: 'Schedule it every minute temporarily, read the log, then switch to 7:00.',
+    trap: 'Relative paths and missing environment variables are the classic cron failure.',
+    transfer: 'Add idempotency to any job that could send duplicate messages.'
+  },
+  l2p04: {
+    output: 'Local webhook receiver',
+    intuition: 'Receiving a webhook flips you from API client to API server.',
+    try: 'POST unsigned data first, then add signature verification and compare responses.',
+    trap: 'A public ngrok URL without verification trusts anyone who finds it.',
+    transfer: 'Map one real service webhook into request body, signature header, and response status.'
+  },
+  l2p05: {
+    output: 'GitHub Actions API test workflow',
+    intuition: 'CI turns your API checks into a shared quality gate.',
+    try: 'Break one assertion on purpose and watch the workflow fail.',
+    trap: 'Secrets and vars are not interchangeable; keys belong in secrets.',
+    transfer: 'Add one status badge and one failing-test screenshot to your project notes.'
+  },
+  l2p06: {
+    output: 'Portfolio-ready API automation',
+    intuition: 'The capstone is design judgment: useful scope, reliable schedule, clear docs.',
+    try: 'Ship the smallest working version before adding extra APIs or UI.',
+    trap: 'Feature collecting can hide the real requirement: a reliable deployed artifact.',
+    transfer: 'Explain your final architecture as trigger, data sources, decision, notification, tests.'
+  }
+};
+
 const L1_REPOS = [
   { name:'miguelgrinberg/REST-tutorial',  phase:'Phase 01', desc:'Clean Python REST server + JS client',         href:'https://github.com/miguelgrinberg/REST-tutorial' },
   { name:'dwyl/learn-api-design',         phase:'Phase 01', desc:'Best reference for REST design decisions',      href:'https://github.com/dwyl/learn-api-design' },
@@ -752,9 +876,10 @@ function formatInline(s) {
 }
 
 function phaseCard(p, isDone, isLocked, index) {
-  const pills   = p.pills.slice(0, 5).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join('');
+  const pills   = p.pills.slice(0, 4).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join('');
   const cls     = [isDone ? 'done' : '', isLocked ? 'locked-card' : ''].filter(Boolean).join(' ');
   const stages  = Array.isArray(p.parts) ? p.parts.length : 0;
+  const learning = LEARNING_GUIDE[p.id] || {};
   const stageTag = stages
     ? ` &middot; <span class="phase-stages">${stages} stages</span>`
     : '';
@@ -767,13 +892,14 @@ function phaseCard(p, isDone, isLocked, index) {
     <div class="phase-card ${cls}" id="card-${p.id}" role="button" tabindex="0" aria-label="Open lesson: ${escapeHtml(p.title)}" onclick="openPhase('${p.id}')" onkeydown="cardKey(event, () => openPhase('${p.id}'))">
       ${startBadge}
       <div class="phase-top">
-        <div class="phase-num">${escapeHtml(p.num)}${stageTag}${timeTag}</div>
+        <div class="phase-num"><span class="phase-node-indicator" aria-hidden="true"></span>${escapeHtml(p.num)}${stageTag}${timeTag}</div>
         ${!isLocked
           ? `<button class="phase-check" type="button" aria-label="Toggle ${escapeHtml(p.title)} complete" onclick="event.stopPropagation(); toggle('${p.id}')">${isDone ? '✓' : ''}</button>`
           : '<div style="font-size:0.7rem; font-family:var(--font-mono); color:var(--muted2); font-weight:700; text-transform:uppercase; letter-spacing:0.05em" aria-label="Locked">Locked</div>'}
       </div>
       <div class="phase-title">${escapeHtml(p.title)}</div>
       <div class="phase-desc">${escapeHtml(p.desc)}</div>
+      ${learning.output ? `<div class="phase-output"><span>Build</span>${escapeHtml(learning.output)}</div>` : ''}
       <div class="phase-pills">${pills}</div>
       <div class="phase-cta">View full lesson &rarr;</div>
     </div>`;
@@ -835,10 +961,8 @@ function resetProgress() {
   save({});
   localStorage.removeItem('gh_token');
   localStorage.removeItem('gist_id');
-  document.getElementById('gh-token').value = '';
-  document.getElementById('gist-id-input').value = '';
   render();
-  setGistStatus('Reset complete.', 'var(--yellow)');
+  showLockToast('Progress reset on this device.');
 }
 
 // ════════════════════════════════════════════════
@@ -923,15 +1047,15 @@ function renderWorkspace() {
   const availableTabs = ['sandbox', ...(hasReadme ? ['readme'] : []), ...(hasCode ? ['code'] : []), ...(hasVerify ? ['verify'] : [])];
   if (!availableTabs.includes(activeWsTab)) activeWsTab = 'sandbox';
 
-  let tabButtons = `<button class="ws-tab-tab ${activeWsTab === 'sandbox' ? 'active' : ''}" id="tab-sandbox" onclick="switchWsTab('sandbox')">🧪 Interactive Sandbox</button>`;
+  let tabButtons = `<button class="ws-tab-tab ${activeWsTab === 'sandbox' ? 'active' : ''}" id="tab-sandbox" onclick="switchWsTab('sandbox')">Interactive Sandbox</button>`;
   if (hasReadme) {
-    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'readme' ? 'active' : ''}" id="tab-readme" onclick="switchWsTab('readme')">📖 Lesson Guide</button>`;
+    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'readme' ? 'active' : ''}" id="tab-readme" onclick="switchWsTab('readme')">Lesson Guide</button>`;
   }
   if (hasCode) {
-    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'code' ? 'active' : ''}" id="tab-code" onclick="switchWsTab('code')">📄 Code Viewer</button>`;
+    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'code' ? 'active' : ''}" id="tab-code" onclick="switchWsTab('code')">Code Viewer</button>`;
   }
   if (hasVerify) {
-    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'verify' ? 'active' : ''}" id="tab-verify" onclick="switchWsTab('verify')">💾 Terminal & Verify</button>`;
+    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'verify' ? 'active' : ''}" id="tab-verify" onclick="switchWsTab('verify')">Terminal & Verify</button>`;
   }
 
   document.getElementById('modal-content').innerHTML = `
@@ -1047,10 +1171,11 @@ function renderActiveStage() {
   const p = [...L1_PHASES, ...L2_PHASES].find(x => x.id === currentPhaseId);
   const part = p.parts[activeStageIndex];
   const state = load();
-  const l1Done = L1_PHASES.filter(x => state[x.id]).length;
   const total = L1_PHASES.length + L2_PHASES.length;
   const overallDone = [...L1_PHASES, ...L2_PHASES].filter(x => state[x.id]).length;
   const overallPct = Math.round((overallDone / total) * 100);
+  const learning = LEARNING_GUIDE[p.id] || {};
+  const stageAction = p.steps[activeStageIndex] || part.text;
 
   // Update progress bar
   document.getElementById('ws-pct-bar').style.width = `${overallPct}%`;
@@ -1088,30 +1213,61 @@ function renderActiveStage() {
       <h3>Checkpoint questions</h3>
       <ul>${p.checkpoint.map(c => `<li>${formatInline(c)}</li>`).join('')}</ul>`;
   }
+  const masteryOpen = activeStageIndex === p.parts.length - 1 ? ' open' : '';
 
   document.getElementById('ws-stage-scroll').innerHTML = `
     ${timeHtml}
-    <h3>Goal</h3>
-    <p>${formatInline(p.goal)}</p>
-
-    <h3>Active Stage Objective</h3>
-    <div class="file-location" style="margin-bottom:1rem;">
-      <strong>Objective:</strong> ${formatInline(part.text)}
+    <div class="lesson-brief">
+      <div>
+        <span class="lesson-brief-kicker">Practical output</span>
+        <strong>${formatInline(learning.output || p.title)}</strong>
+      </div>
+      <p>${formatInline(p.goal)}</p>
     </div>
 
-    <h3>Concept</h3>
-    <p>${formatInline(p.concept)}</p>
+    <div class="learning-loop" aria-label="Guided lesson loop">
+      <section class="loop-card">
+        <span class="loop-label">See</span>
+        <h3>Intuition</h3>
+        <p>${formatInline(learning.intuition || p.concept)}</p>
+      </section>
+      <section class="loop-card active">
+        <span class="loop-label">Do</span>
+        <h3>This Stage</h3>
+        <p>${formatInline(part.text)}</p>
+        <div class="loop-action">${formatInline(stageAction)}</div>
+      </section>
+      <section class="loop-card">
+        <span class="loop-label">Check</span>
+        <h3>Common Trap</h3>
+        <p>${formatInline(learning.trap || 'Do the smallest observable check before moving on.')}</p>
+      </section>
+    </div>
 
-    <h3>Local Workspace Directory</h3>
-    <pre><code>${escapeHtml(p.file)}</code></pre>
+    <details class="lesson-disclosure">
+      <summary>Full phase recipe</summary>
+      <ol>${p.steps.map(s => `<li>${formatInline(s)}</li>`).join('')}</ol>
+    </details>
 
-    <h3>Step-by-step instructions</h3>
-    <ol>${p.steps.map(s => `<li>${formatInline(s)}</li>`).join('')}</ol>
+    <details class="lesson-disclosure">
+      <summary>Concept note</summary>
+      <p>${formatInline(p.concept)}</p>
+    </details>
 
-    ${checkHtml}
+    <div class="file-location">
+      <strong>Workspace:</strong> ${formatInline(p.file)}
+    </div>
 
-    <h3>Research Task</h3>
-    <p>${formatInline(p.research)}</p>
+    <details class="lesson-disclosure"${masteryOpen}>
+      <summary>Mastery check</summary>
+      <div>${checkHtml}</div>
+    </details>
+
+    <details class="lesson-disclosure">
+      <summary>Transfer challenge</summary>
+      <p>${formatInline(learning.transfer || p.research)}</p>
+      <p>${formatInline(p.research)}</p>
+    </details>
 
     <div class="ws-stage-nav">
       <button class="btn btn-secondary btn-sm" id="ws-prev-stage" onclick="goToStage(-1)" ${activeStageIndex === 0 ? 'disabled' : ''}>&larr; Previous</button>
@@ -1201,7 +1357,6 @@ function renderSandboxTab() {
           <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">Have you completed this stage locally? Check it off to save your progress!</p>
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
             <button class="btn btn-primary btn-sm" onclick="togglePhaseComplete()">Toggle Phase Progress State</button>
-            <button class="btn btn-secondary btn-sm" onclick="saveToGist()">Sync to GitHub Gist</button>
           </div>
         </div>
       </div>
@@ -3380,63 +3535,6 @@ function switchTab(level) {
   }
 }
 
-// ════════════════════════════════════════════════
-//  GIST PERSISTENCE
-// ════════════════════════════════════════════════
-const GIST_FILE = 'wac-progress.json';
-
-function setGistStatus(msg, color = 'var(--muted)') {
-  const el = document.getElementById('gist-status');
-  el.style.color = color;
-  el.innerHTML   = msg;
-}
-
-async function saveToGist() {
-  const token  = document.getElementById('gh-token').value.trim() || localStorage.getItem('gh_token');
-  if (!token) { setGistStatus('Provide a valid GitHub personal access token.', 'var(--yellow)'); return; }
-  localStorage.setItem('gh_token', token);
-
-  const gistId  = document.getElementById('gist-id-input').value.trim() || localStorage.getItem('gist_id') || '';
-  const content = JSON.stringify(load(), null, 2);
-  const payload = { description: 'Weather API Course Progress Tracker', public: false,
-                    files: { [GIST_FILE]: { content } } };
-
-  setGistStatus('<span class="spinner"></span>Saving to GitHub Gist API…');
-  try {
-    const url    = gistId ? `https://api.github.com/gists/${gistId}` : 'https://api.github.com/gists';
-    const method = gistId ? 'PATCH' : 'POST';
-    const res    = await fetch(url, {
-      method,
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) throw new Error(`GitHub Gist API error: ${res.status}: ${await res.text()}`);
-    const data = await res.json();
-    localStorage.setItem('gist_id', data.id);
-    document.getElementById('gist-id-input').value = data.id;
-    setGistStatus(`Progress saved to <a href="${data.html_url}" target="_blank">gist ${data.id.slice(0,8)}...</a>`, 'var(--green)');
-  } catch(e) { setGistStatus(e.message, 'var(--red)'); }
-}
-
-async function loadFromGist() {
-  const token  = document.getElementById('gh-token').value.trim() || localStorage.getItem('gh_token');
-  const gistId = document.getElementById('gist-id-input').value.trim() || localStorage.getItem('gist_id');
-  if (!token || !gistId) { setGistStatus('Ensure both GitHub Token and Gist ID are configured.', 'var(--yellow)'); return; }
-
-  setGistStatus('<span class="spinner"></span>Synchronizing state from GitHub Gist…');
-  try {
-    const res = await fetch(`https://api.github.com/gists/${gistId}`,
-      { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) throw new Error(`GitHub Error Code: ${res.status}`);
-    const data    = await res.json();
-    const content = data.files[GIST_FILE]?.content;
-    if (!content) throw new Error('Progress record could not be parsed from target Gist');
-    save(JSON.parse(content));
-    render();
-    setGistStatus('Progress sync completed successfully.', 'var(--green)');
-  } catch(e) { setGistStatus(e.message, 'var(--red)'); }
-}
-
 // Pointer glow effect on phase cards.
 document.addEventListener('mousemove', e => {
   const card = /** @type {HTMLElement | null} */ (/** @type {HTMLElement} */ (e.target).closest('.phase-card'));
@@ -3451,8 +3549,4 @@ document.addEventListener('mousemove', e => {
 window.addEventListener('load', () => {
   render();
   updateThemeToggle(currentTheme()); // sync toggle icon with the theme set in <head>
-  const token  = localStorage.getItem('gh_token');
-  const gistId = localStorage.getItem('gist_id');
-  if (token)  document.getElementById('gh-token').value      = token;
-  if (gistId) document.getElementById('gist-id-input').value = gistId;
 });
