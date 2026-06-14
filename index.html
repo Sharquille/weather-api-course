@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="A two-level Weather API course for learning HTTP, Python requests, browser fetch, deployment, security, and API automation." />
-  <meta name="theme-color" content="#262624" />
+  <meta name="theme-color" content="#0a0e17" />
   <title>Weather API Course — LexLabs</title>
   <!-- Set the Claude theme before first paint to avoid a flash of the wrong theme. -->
   <script>
@@ -169,14 +169,14 @@ http://localhost:8080</code></pre>
 
 <div class="container" id="tabs">
   <div class="tabs-wrap">
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('l1')" id="tab-l1">Level 1 — Fundamentals</button>
-      <button class="tab-btn locked" onclick="switchTab('l2')" id="tab-l2">Level 2 — Automation</button>
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-l1" onclick="switchTab('l1')" id="tab-l1">Level 1 — Fundamentals</button>
+      <button class="tab-btn locked" role="tab" aria-selected="false" aria-controls="panel-l2" onclick="switchTab('l2')" id="tab-l2">Level 2 — Automation</button>
     </div>
   </div>
 
   <!-- LEVEL 1 -->
-  <div class="tab-panel active" id="panel-l1">
+  <div class="tab-panel active" id="panel-l1" role="tabpanel" aria-labelledby="tab-l1">
     <div class="setup-card" role="button" tabindex="0" aria-label="Open setup instructions" onclick="openSetup()" onkeydown="cardKey(event, openSetup)">
       <h3>Setup — do this first (5 minutes)</h3>
       <p>Clone the repo, create a Python virtual environment, install dependencies, and copy the .env template. Click for full instructions.</p>
@@ -199,7 +199,7 @@ http://localhost:8080</code></pre>
   </div>
 
   <!-- LEVEL 2 -->
-  <div class="tab-panel" id="panel-l2">
+  <div class="tab-panel" id="panel-l2" role="tabpanel" aria-labelledby="tab-l2">
     <div id="l2-lock-banner" class="lock-banner">
       <div class="lock-icon">Locked</div>
       <h3>Level 2 unlocks when Level 1 is complete</h3>
@@ -236,11 +236,11 @@ http://localhost:8080</code></pre>
         Progress saves to <code>localStorage</code> by default — clearing your cache wipes it. Connect a GitHub token to save to a private Gist instead. <a href="PROGRESS_SYNC.md" target="_blank" rel="noopener">Read the setup guide.</a>
       </p>
       <div class="gist-row">
-        <label>GitHub Token</label>
+        <label for="gh-token">GitHub Token</label>
         <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" />
       </div>
       <div class="gist-row">
-        <label>Gist ID</label>
+        <label for="gist-id-input">Gist ID</label>
         <input type="text" id="gist-id-input" placeholder="Auto-created on first save" />
       </div>
       <div class="gist-actions">

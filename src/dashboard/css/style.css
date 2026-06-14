@@ -14,78 +14,102 @@
 }
 
 /* ──────────────────────────────────────────────
-   THEME SYSTEM — Claude desktop aesthetic.
-   Two themes flip via data-theme on <html>:
-   warm cream (light) and warm charcoal (dark),
-   both anchored by the terracotta brand accent.
-   Code/terminal/sandbox panes stay dark in both
-   themes — the Claude "dark code on cream" look.
+   THEME SYSTEM — HeroUI v3 Ocean Theme Specs.
+   Clean, premium curves, fluid motion physics, 
+   ocean-ice blue lights, and radiant dark abysses.
    ────────────────────────────────────────────── */
 :root {
-  /* Non-color tokens (shared) */
-  --radius:       10px;
-  --radius-sm:    7px;
-  --font-sans:    'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono:    'JetBrains Mono', "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  /* Primitive Colors (Do not change between light and dark) */
+  --white: oklch(100% 0 0);
+  --black: oklch(0% 0 0);
+  --snow: oklch(0.9911 0 0);
+  --eclipse: oklch(0.2103 0.0059 285.89);
+
+  /* Spacing & Layout (Standard HeroUI 4px scale) */
+  --spacing: 0.25rem;
+  --space-1: calc(var(--spacing) * 1);  /* 4px */
+  --space-2: calc(var(--spacing) * 2);  /* 8px */
+  --space-3: calc(var(--spacing) * 3);  /* 12px */
+  --space-4: calc(var(--spacing) * 4);  /* 16px */
+  --space-5: calc(var(--spacing) * 6);  /* 24px */
+  --space-6: calc(var(--spacing) * 8);  /* 32px */
+  --space-8: calc(var(--spacing) * 12); /* 48px */
+
+  --border-width: 1px;
+  --disabled-opacity: 0.5;
+
+  /* Radius (HeroUI default curves) */
+  --radius: 0.75rem; /* 12px */
+  --radius-xs: calc(var(--radius) * 0.25); /* 3px */
+  --radius-sm: calc(var(--radius) * 0.5);  /* 6px */
+  --radius-md: calc(var(--radius) * 0.75); /* 9px */
+  --radius-lg: calc(var(--radius) * 1);    /* 12px */
+  --radius-xl: calc(var(--radius) * 1.5);  /* 18px */
+
+  /* Easing curves (HeroUI Fluid Standard - Apple style) */
+  --ease:         cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-std:     cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font-sans:    'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    'JetBrains Mono', Consolas, Menlo, Monaco, "Courier New", monospace;
 
   /* Always-dark code / terminal / sandbox surfaces (same in both themes) */
-  --code-bg:      #1e1d1b;
-  --code-panel:   #262421;
-  --code-border:  #38362f;
-  --code-text:    #ecebe2;
-  --code-muted:   #a8a496;
+  --code-bg:      oklch(0.12 0.015 230); /* deep ocean abyss */
+  --code-panel:   oklch(0.16 0.015 230);
+  --code-border:  oklch(0.22 0.020 230);
+  --code-text:    oklch(0.95 0.005 230);
+  --code-muted:   oklch(0.75 0.005 230);
 
-  /* Semantic terminal colours (read on dark code panes) */
-  --green:        #5bbf8a;
-  --green-rgb:    91, 191, 138;
-  --yellow:       #e0a33a;
-  --red:          #e0816b;
-  --red-rgb:      224, 129, 107;
+  /* Semantic status colors (read on dark code panes) */
+  --green:        oklch(0.7329 0.1935 150.81);
+  --green-rgb:    120, 195, 145;
+  --yellow:       oklch(0.7819 0.1585 72.33);
+  --red:          oklch(0.6532 0.2328 25.74);
+  --red-rgb:      215, 120, 110;
 }
 
-/* ── Claude DARK (warm charcoal) ── */
+/* ── HeroUI Ocean Dark ── */
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg:           #262624; /* warm charcoal */
-  --surface:      #30302e; /* raised panel */
-  --surface2:     #3a3a37; /* inset / hover */
-  --border:       #3b3a36;
-  --border-light: #4c4b45;
-  --accent:       #d97757; /* Claude terracotta */
-  --accent-hover: #c9633f;
-  --accent-rgb:   217, 119, 87;
-  --on-accent:    #2a1206; /* text on accent fills */
-  --cyan:         #8fbac8; /* muted aqua secondary */
-  --text:         #f5f4ee; /* warm off-white */
-  --muted:        #c2bfb4;
-  --muted2:       #9c998d; /* AA on charcoal */
+  --bg:           oklch(0.140 0.020 230);  /* abyss background */
+  --surface:      oklch(0.2103 0.0059 285.89); /* raised card */
+  --surface2:     oklch(0.274 0.006 286.033); /* inset grey-blue panel */
+  --border:       oklch(22% 0.006 286.033);
+  --border-light: oklch(27% 0.006 286.033);
+  --accent:       oklch(0.860 0.080 230);  /* soft cyan accent */
+  --accent-hover: oklch(0.920 0.080 230);
+  --accent-rgb:   220, 220, 250;
+  --on-accent:    var(--eclipse);          /* deep text on cyan */
+  --cyan:         oklch(0.860 0.080 230);
+  --text:         var(--snow);             /* foreground */
+  --muted:        oklch(70.5% 0.015 286.067);
+  --muted2:       oklch(60.0% 0.015 286.067);
 
-  /* Workspace chrome (themeable) */
-  --ws-sidebar:     #222220;
-  --ws-stage-head:  #30302e;
+  /* Workspace chrome */
+  --ws-sidebar:     oklch(0.110 0.020 230); /* deep abyss */
+  --ws-stage-head:  oklch(0.140 0.020 230);
 }
 
-/* ── Claude LIGHT (warm cream) ── */
+/* ── HeroUI Ocean Light ── */
 [data-theme="light"] {
   color-scheme: light;
-  --bg:           #f4f2ec; /* warm cream */
-  --surface:      #faf9f4; /* raised card */
-  --surface2:     #eceae0; /* inset / input */
-  --border:       #e4e1d6;
-  --border-light: #d8d4c7;
-  --accent:       #a85232; /* deeper terracotta — AA (4.5:1) as text on cream */
-  --accent-hover: #934527;
-  --accent-rgb:   168, 82, 50;
-  --on-accent:    #ffffff;
-  --cyan:         #3c7a8c; /* deeper aqua for cream contrast */
-  --text:         #2b2a26; /* warm near-black */
-  --muted:        #5f5d54;
-  --muted2:       #6a675c; /* AA on cream */
+  --bg:           oklch(0.985 0.010 215);  /* crisp cool ice-grey background (#f4f7f9) */
+  --surface:      var(--white);            /* pure white raised card (#ffffff) */
+  --surface2:     oklch(0.935 0.015 215);  /* soft grey-blue inset (#ebf0f2) */
+  --border:       oklch(0.88 0.02 215);    /* subtle cool border */
+  --border-light: oklch(0.93 0.01 215);
+  --accent:       oklch(0.48 0.14 210);    /* vibrant teal-blue / cyber-teal (#007fa3) */
+  --accent-hover: oklch(0.42 0.13 210);
+  --accent-rgb:   0, 127, 163;
+  --on-accent:    var(--snow);             /* snow white text on teal */
+  --cyan:         oklch(0.48 0.14 210);
+  --text:         oklch(0.20 0.03 215);    /* deep midnight slate text (#1b252c) */
+  --muted:        oklch(0.52 0.02 215);
+  --muted2:       oklch(0.60 0.01 215);
 
-  /* Workspace chrome (themeable) */
-  --ws-sidebar:     #efede4;
-  --ws-stage-head:  #f1efe6;
+  /* Workspace chrome */
+  --ws-sidebar:     oklch(0.950 0.012 215); /* cool grey-blue sidebar */
+  --ws-stage-head:  oklch(0.950 0.012 215);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -96,27 +120,15 @@ body {
   color: var(--text);
   min-height: 100vh;
   line-height: 1.6;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.015em;
   font-optical-sizing: auto;
   text-rendering: optimizeLegibility;
 }
 
-/* Ambient warm glows (terracotta depth) */
+/* Fluent Subtle Background Depth (Shadowed Layering) */
 .bg-decor {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  z-index: -1;
-  pointer-events: none;
+  display: none; /* remove gradients for clean fluent panel look */
 }
-.glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(110px);
-}
-.glow-1 { width: 520px; height: 520px; top: -180px; left: -120px; background: var(--accent); opacity: 0.20; }
-.glow-2 { width: 460px; height: 460px; top: 8%;    right: -180px; background: var(--accent); opacity: 0.10; }
-.glow-3 { width: 640px; height: 640px; bottom: -300px; left: 28%; background: var(--accent); opacity: 0.10; }
 
 /* Container alignment */
 .container {
@@ -211,49 +223,47 @@ nav {
   max-width: 680px;
 }
 
-/* Buttons */
+/* Buttons (MUI & M3 Specs) */
 .btn {
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.85rem;
-  font-weight: 600;
-  padding: 0.625rem 1.25rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 550;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.2s var(--ease);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
   font-family: var(--font-sans);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.015em;
+  box-shadow: none;
 }
 .btn:active {
-  transform: scale(0.98);
+  opacity: 0.9;
 }
 .btn-primary {
   background: var(--accent);
   color: var(--on-accent);
-  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25);
 }
 .btn-primary:hover {
   background: var(--accent-hover);
-  box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.4);
-  transform: translateY(-1px);
 }
 .btn-secondary {
-  background: var(--surface);
-  border-color: var(--border-light);
-  color: var(--text);
+  background: transparent;
+  border-color: var(--border);
+  color: var(--accent);
 }
 .btn-secondary:hover {
-  background: var(--surface2);
-  border-color: var(--muted2);
-  transform: translateY(-1px);
+  background: color-mix(in oklch, var(--bg), var(--accent) 8%);
+  border-color: var(--accent);
 }
 .btn-sm {
   font-size: 0.8rem;
-  padding: 0.4rem 0.85rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
 }
 .hero-btns {
   display: flex;
@@ -262,36 +272,35 @@ nav {
   flex-wrap: wrap;
 }
 
-/* Segmented Control Tabs */
+/* Fluent 2 Web Pivot Tabs */
 .tabs-wrap {
   margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
 }
 .tabs {
-  display: inline-flex;
-  background: var(--surface);
-  border: 1px solid var(--border-light);
-  padding: 4px;
-  border-radius: 24px;
-  margin-bottom: 2.5rem;
+  display: flex;
+  gap: var(--space-5);
+  margin-bottom: -1px;
 }
 .tab-btn {
   background: none;
   border: none;
   color: var(--muted);
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  padding: 0.5rem 1.25rem;
-  border-radius: 20px;
-  transition: all 0.15s ease;
+  padding: var(--space-3) 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s var(--ease);
+  font-family: var(--font-sans);
 }
 .tab-btn.active {
-  background: var(--bg);
   color: var(--text);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border-bottom-color: var(--accent);
 }
 .tab-btn:hover:not(.active):not(.locked) {
   color: var(--text);
+  border-bottom-color: var(--border);
 }
 .tab-btn.locked {
   cursor: not-allowed;
@@ -411,10 +420,10 @@ nav {
   margin-bottom: 3rem;
 }
 
-/* Phase Cards */
+/* Phase Cards (Fluent 2 Web Spec) */
 .phase-card {
   background: var(--surface);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.5rem;
   cursor: pointer;
@@ -422,14 +431,32 @@ nav {
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  isolation: isolate;
+  container-type: inline-size;
+  transition: all 0.25s var(--ease);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+/* Signature: Fluent Blue glow that tracks the pointer (set via --mx/--my in JS) */
+.phase-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 0%), rgba(var(--accent-rgb), 0.05), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease);
+  pointer-events: none;
+}
+.phase-card:hover::before { opacity: 1; }
+/* Narrow cards (container query) tighten their own padding */
+@container (max-width: 230px) {
+  .phase-card { padding: 1.15rem; }
 }
 .phase-card:hover {
   border-color: var(--accent);
-  transform: translateY(-4px);
   background: var(--surface2);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 .phase-card.done {
   border-color: rgba(var(--green-rgb), 0.45);
@@ -499,13 +526,17 @@ nav {
   margin-top: auto;
 }
 .pill {
-  background: var(--bg);
+  background: var(--surface2);
   border: 1px solid var(--border-light);
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-family: var(--font-mono);
-  padding: 0.15rem 0.5rem;
-  color: var(--cyan);
+  border-radius: 16px;
+  font-size: 0.72rem;
+  font-family: var(--font-sans);
+  padding: 0.15rem 0.65rem;
+  color: var(--text);
+  font-weight: 550;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 .phase-cta {
   font-size: 0.8rem;
@@ -1003,7 +1034,7 @@ footer a:hover {
   max-width: 640px;
   margin: 2.75rem auto 0;
   background: var(--code-bg);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--code-border);
   border-radius: 10px;
   overflow: hidden;
   text-align: left;
@@ -1014,8 +1045,8 @@ footer a:hover {
   align-items: center;
   gap: 0.5rem;
   padding: 0.7rem 1rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--code-panel);
+  border-bottom: 1px solid var(--code-border);
 }
 .terminal-dot { width: 11px; height: 11px; border-radius: 50%; }
 .terminal-title {
@@ -1385,7 +1416,7 @@ footer a:hover {
   margin-top: auto;
   padding: 1rem;
   border-top: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--ws-sidebar);
 }
 .ws-progress-stats {
   display: flex;
@@ -1424,7 +1455,7 @@ footer a:hover {
 .ws-stage-header {
   padding: 1.25rem;
   border-bottom: 1px solid var(--border);
-  background: var(--ws-stage-head);
+  background: var(--surface);
 }
 .ws-stage-eyebrow {
   color: var(--cyan);
@@ -1475,14 +1506,14 @@ footer a:hover {
   margin-bottom: 0.85rem;
 }
 .ws-stage-scroll pre {
-  background: var(--code-bg);
-  border: 1px solid var(--code-border);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 0.75rem;
   font-family: var(--font-mono);
   font-size: 0.78rem;
   line-height: 1.45;
-  color: var(--code-text); /* pane is always dark — don't inherit theme text */
+  color: var(--text);
   overflow-x: auto;
   margin-bottom: 0.85rem;
 }
@@ -1497,6 +1528,7 @@ footer a:hover {
 .ws-stage-scroll pre code {
   background: transparent;
   padding: 0;
+  color: inherit;
 }
 
 .ws-sandbox-panel {
@@ -1548,20 +1580,8 @@ footer a:hover {
   color: var(--text);
 }
 
-/* Always-dark sub-surfaces inside the sandbox: the simulation output console,
-   code blocks, the Code Viewer and the Lesson Guide. Re-map theme tokens to
-   dark-pane-safe values so their text stays readable in BOTH themes. */
-.sb-console,
-.ws-sandbox-body pre,
-.ws-code-container,
-.ws-markdown {
-  --text:   var(--code-text);
-  --muted:  var(--code-muted);
-  --muted2: #8a877c;
-  --accent: #d97757;
-  --cyan:   #8fbac8;
-  color: var(--code-text);
-}
+/* The simulation widgets follow the active theme (cream in light, charcoal
+   in dark) so that all panels look cohesive and unified. */
 
 /* Sandbox Widgets Styling */
 .sb-container {
@@ -1632,8 +1652,8 @@ footer a:hover {
 
 /* Live CLI / Console Window */
 .sb-console {
-  background: var(--code-bg);
-  border: 1px solid var(--border-light);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -1644,7 +1664,7 @@ footer a:hover {
   min-height: 180px;
   display: flex;
   flex-direction: column;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 .sb-console-header {
   display: flex;
@@ -1695,8 +1715,8 @@ footer a:hover {
 }
 .ws-code-container {
   flex: 1;
-  background: var(--code-bg);
-  border: 1px solid var(--border-light);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1rem;
   overflow: auto;
@@ -1978,13 +1998,13 @@ footer a:hover {
 }
 .ws-markdown {
   flex: 1;
-  background: var(--code-bg);
-  border: 1px solid var(--border-light);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.5rem;
   overflow-y: auto;
   line-height: 1.65;
-  color: var(--code-text);
+  color: var(--text);
 }
 .ws-markdown h2 {
   font-size: 1.25rem;
@@ -2020,7 +2040,7 @@ footer a:hover {
   color: var(--text);
 }
 .ws-markdown pre {
-  background: var(--code-bg);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 1rem;
@@ -2032,7 +2052,7 @@ footer a:hover {
   padding: 0;
   font-size: 0.8rem;
   line-height: 1.5;
-  color: var(--code-text);
+  color: var(--text);
 }
 
 /* ==========================================
@@ -2231,7 +2251,7 @@ footer a:hover {
 .ws-tab-tab { transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease; }
 .ws-tab-tab:hover { background: rgba(255,255,255,0.02); }
 
-/* Keyboard focus visibility for accessibility */
+/* Keyboard focus visibility for accessibility (M3 Focus Halo Spec) */
 .btn:focus-visible,
 .ws-tab-tab:focus-visible,
 .ws-stage-item:focus-visible,
@@ -2239,8 +2259,9 @@ footer a:hover {
 .setup-card:focus-visible,
 .theme-toggle:focus-visible,
 .sb-input:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 3px solid rgba(var(--accent-rgb), 0.3);
   outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 /* Theme toggle button (Claude light/dark) */

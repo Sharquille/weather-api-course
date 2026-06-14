@@ -1,3 +1,4 @@
+// @ts-check
 // ════════════════════════════════════════════════
 //  COURSE DATA — fully self-contained
 // ════════════════════════════════════════════════
@@ -659,16 +660,30 @@ const PHASE_FILES = {
 //  STATE
 // ════════════════════════════════════════════════
 const KEY = 'wac_v3_progress';
-const load  = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+
+/**
+ * @returns {Record<string, boolean>}
+ */
+const load  = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch { return {}; } };
+
+/**
+ * @param {Record<string, boolean>} s
+ */
 const save  = s  => localStorage.setItem(KEY, JSON.stringify(s));
 
-// Keyboard activation for role="button" elements (Enter / Space).
+/**
+ * Keyboard activation for role="button" elements (Enter / Space).
+ * @param {KeyboardEvent} e
+ * @param {Function} fn
+ */
 function cardKey(e, fn) {
   if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); fn(); }
 }
 
 // Non-blocking toast for the locked Level 2 tab (replaces native alert()).
 let lockToastTimer = null;
+/** @type {HTMLElement | null} */
+let modalTriggerElement = null;
 function showLockToast(msg) {
   let el = document.getElementById('lock-toast');
   if (!el) {
@@ -697,7 +712,7 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', t);
   try { localStorage.setItem(THEME_KEY, t); } catch {}
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', t === 'light' ? '#f4f2ec' : '#262624');
+  if (meta) meta.setAttribute('content', t === 'light' ? '#f4f7f9' : '#0a0e17');
   updateThemeToggle(t);
 }
 function toggleTheme() {
@@ -718,10 +733,20 @@ function updateThemeToggle(t) {
 // ════════════════════════════════════════════════
 //  RENDER
 // ════════════════════════════════════════════════
+/**
+ * @param {any} s
+ * @returns {string}
+ */
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  /** @type {Record<string, string>} */
+  const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+  return String(s).replace(/[&<>"']/g, c => map[c] || c);
 }
 
+/**
+ * @param {any} s
+ * @returns {string}
+ */
 function formatInline(s) {
   return escapeHtml(s).replace(/`([^`]+)`/g, '<code>$1</code>');
 }
@@ -849,6 +874,7 @@ function openPhase(id) {
   const p   = all.find(x => x.id === id);
   if (!p) return;
 
+  modalTriggerElement = /** @type {HTMLElement | null} */ (document.activeElement);
   currentPhaseId = id;
   activeStageIndex = 0;
   activeWsTab = 'sandbox';
@@ -856,12 +882,22 @@ function openPhase(id) {
   // Toggle workspace mode classes
   const overlay = document.getElementById('modal-overlay');
   const modal = document.querySelector('.modal');
-  overlay.classList.add('workspace-mode');
-  modal.classList.add('workspace-mode');
+  if (overlay && modal) {
+    overlay.classList.add('workspace-mode');
+    modal.classList.add('workspace-mode');
+  }
 
   renderWorkspace();
-  overlay.classList.add('open');
+  if (overlay) {
+    overlay.classList.add('open');
+  }
   document.body.style.overflow = 'hidden';
+
+  // Focus close button inside modal
+  setTimeout(() => {
+    const closeBtn = /** @type {HTMLElement | null} */ (document.querySelector('.modal-close'));
+    if (closeBtn) closeBtn.focus();
+  }, 50);
 }
 
 function renderWorkspace() {
@@ -3037,13 +3073,18 @@ function renderCapstoneSandbox() {
 }
 
 function openSetup() {
+  modalTriggerElement = /** @type {HTMLElement | null} */ (document.activeElement);
   // Backwards compatibility setup modal (standard card popup)
   const overlay = document.getElementById('modal-overlay');
   const modal = document.querySelector('.modal');
-  overlay.classList.remove('workspace-mode');
-  modal.classList.remove('workspace-mode');
+  if (overlay && modal) {
+    overlay.classList.remove('workspace-mode');
+    modal.classList.remove('workspace-mode');
+  }
 
-  document.getElementById('modal-content').innerHTML = `
+  const modalContent = document.getElementById('modal-content');
+  if (modalContent) {
+    modalContent.innerHTML = `
     <h2>Initial Environment Setup</h2>
     <div class="modal-meta"><span class="pill">~5 minutes</span></div>
 
@@ -3094,17 +3135,35 @@ pytest>=7.4.0</code></pre>
       <button class="btn btn-secondary btn-sm" onclick="closeModal()">Close</button>
     </div>
   `;
-  document.getElementById('modal-overlay').classList.add('open');
+  }
+  if (overlay) {
+    overlay.classList.add('open');
+  }
   document.body.style.overflow = 'hidden';
+
+  // Focus close button inside modal
+  setTimeout(() => {
+    const closeBtn = /** @type {HTMLElement | null} */ (document.querySelector('.modal-close'));
+    if (closeBtn) closeBtn.focus();
+  }, 50);
 }
 
 function closeModal() {
   const overlay = document.getElementById('modal-overlay');
   const modal = document.querySelector('.modal');
-  overlay.classList.remove('open');
-  overlay.classList.remove('workspace-mode');
-  modal.classList.remove('workspace-mode');
+  if (overlay) {
+    overlay.classList.remove('open');
+    overlay.classList.remove('workspace-mode');
+  }
+  if (modal) {
+    modal.classList.remove('workspace-mode');
+  }
   document.body.style.overflow = '';
+  // Restore focus
+  if (modalTriggerElement && typeof modalTriggerElement.focus === 'function') {
+    modalTriggerElement.focus();
+  }
+  modalTriggerElement = null;
 }
 
 // ════════════════════════════════════════════════
@@ -3255,9 +3314,35 @@ function loadPhaseFiles(id, which) {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeModal(); return; }
-  // Arrow-key stage navigation while a workspace is open (ignore when typing)
+  
   const overlay = document.getElementById('modal-overlay');
+  const isOpen = overlay && overlay.classList.contains('open');
   const inWorkspace = overlay && overlay.classList.contains('open') && overlay.classList.contains('workspace-mode');
+
+  // Trap focus inside modal when open
+  if (isOpen && e.key === 'Tab') {
+    const modal = document.querySelector('.modal');
+    if (modal) {
+      const focusables = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex="0"]');
+      if (focusables.length > 0) {
+        const first = /** @type {HTMLElement} */ (focusables[0]);
+        const last = /** @type {HTMLElement} */ (focusables[focusables.length - 1]);
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            last.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === last) {
+            first.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    }
+  }
+
+  // Arrow-key stage navigation while a workspace is open (ignore when typing)
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
   if (inWorkspace && !typing) {
     if (e.key === 'ArrowRight') { goToStage(1); e.preventDefault(); }
@@ -3276,11 +3361,23 @@ function switchTab(level) {
     showLockToast(`Level 2 is locked — complete all ${L1_PHASES.length} Level 1 phases first (${done}/${L1_PHASES.length} done).`);
     return;
   }
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`tab-${level}`).classList.add('active');
-  document.getElementById(`panel-${level}`).classList.add('active');
-  document.getElementById(`panel-${level}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  
+  const activeTab = document.getElementById(`tab-${level}`);
+  if (activeTab) {
+    activeTab.classList.add('active');
+    activeTab.setAttribute('aria-selected', 'true');
+  }
+  
+  const activePanel = document.getElementById(`panel-${level}`);
+  if (activePanel) {
+    activePanel.classList.add('active');
+    activePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -3339,6 +3436,17 @@ async function loadFromGist() {
     setGistStatus('Progress sync completed successfully.', 'var(--green)');
   } catch(e) { setGistStatus(e.message, 'var(--red)'); }
 }
+
+// Pointer glow effect on phase cards.
+document.addEventListener('mousemove', e => {
+  const card = /** @type {HTMLElement | null} */ (/** @type {HTMLElement} */ (e.target).closest('.phase-card'));
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  card.style.setProperty('--mx', `${x}px`);
+  card.style.setProperty('--my', `${y}px`);
+});
 
 window.addEventListener('load', () => {
   render();
