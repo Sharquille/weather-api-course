@@ -63,7 +63,8 @@ py -m venv .venv
 pip install -r requirements.txt
 ```
 
-Open the course site by opening `index.html`, or serve it locally:
+Open the landing page with `index.html`. Open the full course workspace at
+`course.html`, or serve the repo locally:
 
 ```bash
 python3 -m http.server 8080
@@ -128,7 +129,8 @@ asks each learner to create a separate repo for their own finished weather app.
 ```text
 weather-api-course/
 ├── _headers                    Cloudflare Pages security headers
-├── index.html                  Course site and progress tracker
+├── index.html                  Light landing page
+├── course.html                 Full course workspace and progress tracker
 ├── ARCHITECTURE_GUIDE.md       Professional patterns used in the course
 ├── wac.sh                      CLI helper (source it; see "CLI Helper")
 ├── fonts/                      Self-hosted Inter + JetBrains Mono

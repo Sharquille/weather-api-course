@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A two-level Weather API course for learning HTTP, Python requests, browser fetch, deployment, security, and API automation." />
+  <meta name="theme-color" content="#0a0e17" />
+  <title>Weather API Course Workspace — LexLabs</title>
+  <!-- Set the Claude theme before first paint to avoid a flash of the wrong theme. -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('wac_theme');
+        var sys = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', saved || sys);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="src/dashboard/css/style.css?v=14" />
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<div class="bg-decor" aria-hidden="true">
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
+</div>
+
+<nav>
+  <div class="container nav-container">
+    <a class="nav-brand" href="index.html">Weather API Course</a>
+    <div class="nav-right">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="https://github.com/Sharquille/weather-api-course" target="_blank" rel="noopener">GitHub ↗</a>
+      <button class="btn btn-secondary btn-sm" type="button" onclick="resetProgress()">Reset Progress</button>
+      <button class="theme-toggle" id="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content" class="page-shell">
+  <div class="container">
+    <header class="page-header">
+      <div class="page-header-copy">
+        <span class="page-header-kicker">Interactive Workspace</span>
+        <h1 class="page-header-title">Course Progress</h1>
+        <p class="page-header-note">Setup, progress tracking, phase cards, and the full lesson workspace now live here so the landing page stays focused and calm.</p>
+      </div>
+      <div class="page-header-meta" aria-label="Workspace metadata">
+        <span>Dashboard</span>
+        <span>Level 1 + Level 2</span>
+      </div>
+    </header>
+  </div>
+
+  <div class="container page-tabs" id="tabs">
+    <div class="tabs-wrap">
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-l1" onclick="switchTab('l1')" id="tab-l1">Level 1 — Fundamentals</button>
+        <button class="tab-btn locked" role="tab" aria-selected="false" aria-controls="panel-l2" onclick="switchTab('l2')" id="tab-l2">Level 2 — Automation</button>
+      </div>
+    </div>
+
+    <!-- LEVEL 1 -->
+    <div class="tab-panel active" id="panel-l1" role="tabpanel" aria-labelledby="tab-l1">
+      <div class="setup-card" role="button" tabindex="0" aria-label="Open setup instructions" onclick="openSetup()" onkeydown="cardKey(event, openSetup)">
+        <h3>Setup — do this first (5 minutes)</h3>
+        <p>Clone the repo, create a Python virtual environment, install dependencies, and copy the .env template. Click for full instructions.</p>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-header">
+          <span>Level 1 Progress</span>
+          <span id="l1-progress-label">0 / 10 phases</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="l1-fill" style="width:0%"></div></div>
+      </div>
+
+      <div class="phases" id="l1-grid"></div>
+
+      <div class="section">
+        <h2>Level 1 Reference Repos</h2>
+        <div class="repos" id="l1-repos"></div>
+      </div>
+    </div>
+
+    <!-- LEVEL 2 -->
+    <div class="tab-panel" id="panel-l2" role="tabpanel" aria-labelledby="tab-l2">
+      <div id="l2-lock-banner" class="lock-banner">
+        <div class="lock-icon">Locked</div>
+        <h3>Level 2 unlocks when Level 1 is complete</h3>
+        <p>Complete all Level 1 phases first. The skills build on each other — jumping ahead won't work.</p>
+        <div class="lock-progress">
+          <span id="l2-lock-label">0 / 10 complete</span>
+        </div>
+      </div>
+
+      <div id="l2-content" style="display:none">
+        <div class="progress-section">
+          <div class="progress-header">
+            <span>Level 2 Progress</span>
+            <span id="l2-progress-label">0 / 7 phases</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="l2-fill" style="width:0%"></div></div>
+        </div>
+
+        <div class="phases" id="l2-grid"></div>
+
+        <div class="section">
+          <h2>Level 2 Reference Repos</h2>
+          <div class="repos" id="l2-repos"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-container">
+    <div>
+      <p>Built for <a href="https://lexlabs.org" target="_blank" rel="noopener">LexLabs</a> — run locally, deploy the course site, then deploy your own app in Phase 05</p>
+    </div>
+    <div>
+      <p>APIs: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://openweathermap.org" target="_blank" rel="noopener">OpenWeatherMap</a> &middot; <a href="https://weatherapi.com" target="_blank" rel="noopener">WeatherAPI</a></p>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this) closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close modal">&times;</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script src="src/dashboard/js/main.js?v=13"></script>
+</body>
+</html>
