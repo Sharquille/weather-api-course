@@ -2,6 +2,8 @@
 // ════════════════════════════════════════════════
 //  COURSE DATA — fully self-contained
 // ════════════════════════════════════════════════
+const WAC_BUILD = 'focused-lab-v18';
+window.WAC_BUILD = WAC_BUILD;
 const L1_PHASES = [
   {
     id:'l1p_intro', num:'Phase Intro', title:'First Principles of APIs',
@@ -895,11 +897,19 @@ function phaseCard(p, isDone, isLocked, index) {
         <div class="phase-num"><span class="phase-node-indicator" aria-hidden="true"></span>${escapeHtml(p.num)}${stageTag}${timeTag}</div>
         ${!isLocked
           ? `<button class="phase-check" type="button" aria-label="Toggle ${escapeHtml(p.title)} complete" onclick="event.stopPropagation(); toggle('${p.id}')">${isDone ? '✓' : ''}</button>`
-          : '<div style="font-size:0.7rem; font-family:var(--font-mono); color:var(--muted2); font-weight:700; text-transform:uppercase; letter-spacing:0.05em" aria-label="Locked">Locked</div>'}
+          : '<div class="phase-locked" aria-label="Locked">Locked</div>'}
       </div>
       <div class="phase-title">${escapeHtml(p.title)}</div>
       <div class="phase-desc">${escapeHtml(p.desc)}</div>
-      ${learning.output ? `<div class="phase-output"><span>Build</span>${escapeHtml(learning.output)}</div>` : ''}
+      <div class="phase-learning-preview">
+        <div class="phase-loop-preview" aria-label="Lesson loop: see, do, check">
+          <span>See</span><span>Do</span><span>Check</span>
+        </div>
+        <div class="phase-action-row">
+          ${learning.output ? `<div class="phase-output"><span>Build</span>${escapeHtml(learning.output)}</div>` : ''}
+          ${learning.try ? `<div class="phase-try"><span>Try</span><p>${formatInline(learning.try)}</p></div>` : ''}
+        </div>
+      </div>
       <div class="phase-pills">${pills}</div>
       <div class="phase-cta">View full lesson &rarr;</div>
     </div>`;
@@ -974,6 +984,8 @@ function resetProgress() {
 let currentPhaseId = null;
 let activeStageIndex = 0;
 let activeWsTab = 'sandbox';
+let wsNotesOpen = false;
+let wsFocusMode = true;
 
 // Replay a CSS entrance animation by toggling its class (with a forced reflow).
 function replayAnim(el, cls) {
@@ -1002,6 +1014,8 @@ function openPhase(id) {
   currentPhaseId = id;
   activeStageIndex = 0;
   activeWsTab = 'sandbox';
+  wsNotesOpen = false;
+  wsFocusMode = true;
 
   // Toggle workspace mode classes
   const overlay = document.getElementById('modal-overlay');
@@ -1030,7 +1044,7 @@ function renderWorkspace() {
   
   // Render Stages sidebar items
   const stagesList = p.parts.map((part, i) => `
-    <div class="ws-stage-item ${i === activeStageIndex ? 'active' : ''} ${isDone ? 'completed' : ''}" role="button" tabindex="0" aria-label="Go to stage ${i + 1}: ${escapeHtml(part.label)}" onclick="selectStage(${i})" onkeydown="cardKey(event, () => selectStage(${i}))">
+    <div class="ws-stage-item ${i === activeStageIndex ? 'active' : ''} ${isDone ? 'completed' : ''}" role="button" tabindex="0" title="${escapeHtml(part.label)}" aria-label="Go to stage ${i + 1}: ${escapeHtml(part.label)}" onclick="selectStage(${i})" onkeydown="cardKey(event, () => selectStage(${i}))">
       <div class="ws-stage-number">${i + 1}</div>
       <span class="ws-stage-label">${escapeHtml(part.label)}</span>
       <span class="ws-stage-badge">${i === activeStageIndex ? 'CURRENT' : (isDone ? 'PASSED' : 'TODO')}</span>
@@ -1047,23 +1061,24 @@ function renderWorkspace() {
   const availableTabs = ['sandbox', ...(hasReadme ? ['readme'] : []), ...(hasCode ? ['code'] : []), ...(hasVerify ? ['verify'] : [])];
   if (!availableTabs.includes(activeWsTab)) activeWsTab = 'sandbox';
 
-  let tabButtons = `<button class="ws-tab-tab ${activeWsTab === 'sandbox' ? 'active' : ''}" id="tab-sandbox" onclick="switchWsTab('sandbox')">Interactive Sandbox</button>`;
+  let tabButtons = `<button class="ws-tab-tab ${activeWsTab === 'sandbox' ? 'active' : ''}" id="tab-sandbox" onclick="switchWsTab('sandbox')">Practice</button>`;
   if (hasReadme) {
-    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'readme' ? 'active' : ''}" id="tab-readme" onclick="switchWsTab('readme')">Lesson Guide</button>`;
+    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'readme' ? 'active' : ''}" id="tab-readme" onclick="switchWsTab('readme')">Guide</button>`;
   }
   if (hasCode) {
-    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'code' ? 'active' : ''}" id="tab-code" onclick="switchWsTab('code')">Code Viewer</button>`;
+    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'code' ? 'active' : ''}" id="tab-code" onclick="switchWsTab('code')">Code</button>`;
   }
   if (hasVerify) {
-    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'verify' ? 'active' : ''}" id="tab-verify" onclick="switchWsTab('verify')">Terminal & Verify</button>`;
+    tabButtons += `<button class="ws-tab-tab ${activeWsTab === 'verify' ? 'active' : ''}" id="tab-verify" onclick="switchWsTab('verify')">Verify</button>`;
   }
 
   document.getElementById('modal-content').innerHTML = `
-    <div class="ws-layout">
+    <div class="ws-layout ${wsNotesOpen ? 'notes-open' : ''} ${wsFocusMode ? 'focus-mode' : ''}">
       <!-- Header -->
       <div class="ws-header">
         <div class="ws-header-left">
           <span class="ws-brand">LexLabs CLI &bull; Web Workspace</span>
+          <span class="ws-build-badge">${escapeHtml(WAC_BUILD)}</span>
           <span class="ws-divider">/</span>
           <span class="ws-title">${escapeHtml(p.num)}: ${escapeHtml(p.title)}</span>
         </div>
@@ -1074,6 +1089,14 @@ function renderWorkspace() {
           </div>
         </div>
         <div class="ws-header-right">
+          <button class="ws-tool-btn ${wsFocusMode ? 'active' : ''}" id="ws-focus-toggle" type="button" onclick="toggleWorkspaceFocus()" aria-pressed="${wsFocusMode ? 'true' : 'false'}">
+            <span class="ws-tool-icon" aria-hidden="true">⛶</span>
+            ${wsFocusMode ? 'Focus on' : 'Focus off'}
+          </button>
+          <button class="ws-tool-btn ${wsNotesOpen ? 'active' : ''}" id="ws-notes-toggle" type="button" onclick="toggleWorkspaceNotes()" aria-pressed="${wsNotesOpen ? 'true' : 'false'}">
+            <span class="ws-tool-icon" aria-hidden="true">?</span>
+            ${wsNotesOpen ? 'Hide notes' : 'Open notes'}
+          </button>
           <button class="ws-exit-btn" onclick="closeModal()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ws-btn-icon"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             Exit Workspace
@@ -1103,11 +1126,15 @@ function renderWorkspace() {
         
         <!-- Active Workspace Center/Right -->
         <div class="ws-content">
+          <button class="ws-notes-scrim" type="button" onclick="toggleWorkspaceNotes(false)" aria-label="Close notes"></button>
           <!-- Left Split: Active Stage Details -->
-          <div class="ws-instructions-panel">
+          <div class="ws-instructions-panel" aria-hidden="${wsNotesOpen ? 'false' : 'true'}" ${wsNotesOpen ? '' : 'inert'}>
             <div class="ws-stage-header">
-              <span class="ws-stage-eyebrow" id="ws-stage-eyebrow">STAGE ${activeStageIndex + 1} / ${p.parts.length}</span>
-              <h2 class="ws-stage-title" id="ws-stage-title">${escapeHtml(p.parts[activeStageIndex].label)}</h2>
+              <div>
+                <span class="ws-stage-eyebrow" id="ws-stage-eyebrow">STAGE ${activeStageIndex + 1} / ${p.parts.length}</span>
+                <h2 class="ws-stage-title" id="ws-stage-title">${escapeHtml(p.parts[activeStageIndex].label)}</h2>
+              </div>
+              <button class="ws-drawer-close" type="button" onclick="toggleWorkspaceNotes(false)" aria-label="Close notes">×</button>
             </div>
             <div class="ws-stage-scroll" id="ws-stage-scroll">
               <!-- Active instructions details -->
@@ -1116,6 +1143,17 @@ function renderWorkspace() {
           
           <!-- Right Split: Tooling Sandbox & Code Tab panel -->
           <div class="ws-sandbox-panel">
+            <div class="ws-lab-strip">
+              <div class="ws-lab-copy">
+                <div class="ws-lab-meta">
+                  <span>Focused lab</span>
+                  <strong id="ws-lab-stage-count">Stage ${activeStageIndex + 1} / ${p.parts.length}</strong>
+                </div>
+                <h2 id="ws-lab-title">${escapeHtml(p.parts[activeStageIndex].label)}</h2>
+                <p id="ws-lab-task">${formatInline(p.steps[activeStageIndex] || p.parts[activeStageIndex].text)}</p>
+              </div>
+              <button class="btn btn-secondary btn-sm ws-lab-notes-btn" type="button" onclick="toggleWorkspaceNotes(true)">Open notes</button>
+            </div>
             <div class="ws-tabs-header">
                ${tabButtons}
             </div>
@@ -1129,6 +1167,49 @@ function renderWorkspace() {
   `;
   
   renderActiveStage(); // Note: We actually trigger rendering inside selectStage / renderActiveStage
+}
+
+function setWorkspaceChromeState() {
+  const layout = document.querySelector('.ws-layout');
+  if (!layout) return;
+  layout.classList.toggle('notes-open', wsNotesOpen);
+  layout.classList.toggle('focus-mode', wsFocusMode);
+  const notesPanel = document.querySelector('.ws-instructions-panel');
+  if (notesPanel) {
+    notesPanel.toggleAttribute('inert', !wsNotesOpen);
+    notesPanel.setAttribute('aria-hidden', wsNotesOpen ? 'false' : 'true');
+  }
+
+  const notesBtn = document.getElementById('ws-notes-toggle');
+  if (notesBtn) {
+    notesBtn.classList.toggle('active', wsNotesOpen);
+    notesBtn.setAttribute('aria-pressed', wsNotesOpen ? 'true' : 'false');
+    notesBtn.lastChild.textContent = wsNotesOpen ? ' Hide notes' : ' Open notes';
+  }
+
+  const focusBtn = document.getElementById('ws-focus-toggle');
+  if (focusBtn) {
+    focusBtn.classList.toggle('active', wsFocusMode);
+    focusBtn.setAttribute('aria-pressed', wsFocusMode ? 'true' : 'false');
+    focusBtn.lastChild.textContent = wsFocusMode ? ' Focus on' : ' Focus off';
+  }
+}
+
+function toggleWorkspaceNotes(force) {
+  wsNotesOpen = typeof force === 'boolean' ? force : !wsNotesOpen;
+  setWorkspaceChromeState();
+  if (wsNotesOpen) {
+    requestAnimationFrame(updateScrollHints);
+    requestAnimationFrame(() => document.querySelector('.ws-drawer-close')?.focus());
+  } else {
+    document.getElementById('ws-notes-toggle')?.focus();
+  }
+}
+
+function toggleWorkspaceFocus() {
+  wsFocusMode = !wsFocusMode;
+  if (wsFocusMode) wsNotesOpen = false;
+  setWorkspaceChromeState();
 }
 
 function togglePhaseComplete() {
@@ -1176,11 +1257,20 @@ function renderActiveStage() {
   const overallPct = Math.round((overallDone / total) * 100);
   const learning = LEARNING_GUIDE[p.id] || {};
   const stageAction = p.steps[activeStageIndex] || part.text;
+  const stagePct = p.parts.length > 1
+    ? Math.round((activeStageIndex / (p.parts.length - 1)) * 100)
+    : 100;
 
   // Update progress bar
   document.getElementById('ws-pct-bar').style.width = `${overallPct}%`;
   document.getElementById('ws-stage-eyebrow').textContent = `STAGE ${activeStageIndex + 1} / ${p.parts.length}`;
   document.getElementById('ws-stage-title').textContent = part.label;
+  const labCount = document.getElementById('ws-lab-stage-count');
+  const labTitle = document.getElementById('ws-lab-title');
+  const labTask = document.getElementById('ws-lab-task');
+  if (labCount) labCount.textContent = `Stage ${activeStageIndex + 1} / ${p.parts.length}`;
+  if (labTitle) labTitle.textContent = part.label;
+  if (labTask) labTask.innerHTML = formatInline(stageAction);
 
   // Build active instructions HTML
   const guide = PHASE_GUIDE[p.id] || {};
@@ -1217,6 +1307,19 @@ function renderActiveStage() {
 
   document.getElementById('ws-stage-scroll').innerHTML = `
     ${timeHtml}
+    <div class="lesson-map" style="--stage-pct:${stagePct}%">
+      <div class="lesson-map-head">
+        <span>Guided path</span>
+        <strong>${activeStageIndex + 1} / ${p.parts.length}</strong>
+      </div>
+      <div class="lesson-map-rail" aria-label="Lesson stages">
+        ${p.parts.map((item, i) => `
+          <button class="lesson-map-dot ${i < activeStageIndex ? 'done' : ''} ${i === activeStageIndex ? 'active' : ''}" type="button" onclick="selectStage(${i})" aria-label="Go to ${escapeHtml(item.label)}">
+            <span>${i + 1}</span>
+          </button>`).join('')}
+      </div>
+    </div>
+
     <div class="lesson-brief">
       <div>
         <span class="lesson-brief-kicker">Practical output</span>
@@ -1227,18 +1330,18 @@ function renderActiveStage() {
 
     <div class="learning-loop" aria-label="Guided lesson loop">
       <section class="loop-card">
-        <span class="loop-label">See</span>
+        <span class="loop-label"><span>1</span> See</span>
         <h3>Intuition</h3>
         <p>${formatInline(learning.intuition || p.concept)}</p>
       </section>
       <section class="loop-card active">
-        <span class="loop-label">Do</span>
+        <span class="loop-label"><span>2</span> Do</span>
         <h3>This Stage</h3>
         <p>${formatInline(part.text)}</p>
         <div class="loop-action">${formatInline(stageAction)}</div>
       </section>
       <section class="loop-card">
-        <span class="loop-label">Check</span>
+        <span class="loop-label"><span>3</span> Check</span>
         <h3>Common Trap</h3>
         <p>${formatInline(learning.trap || 'Do the smallest observable check before moving on.')}</p>
       </section>
@@ -3468,11 +3571,19 @@ function loadPhaseFiles(id, which) {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); return; }
-  
   const overlay = document.getElementById('modal-overlay');
   const isOpen = overlay && overlay.classList.contains('open');
   const inWorkspace = overlay && overlay.classList.contains('open') && overlay.classList.contains('workspace-mode');
+
+  if (e.key === 'Escape') {
+    if (inWorkspace && wsNotesOpen) {
+      toggleWorkspaceNotes(false);
+      e.preventDefault();
+      return;
+    }
+    closeModal();
+    return;
+  }
 
   // Trap focus inside modal when open
   if (isOpen && e.key === 'Tab') {

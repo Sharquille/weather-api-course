@@ -2,11 +2,32 @@ import os
 import sys
 import argparse
 import subprocess
+import http.server
 from pathlib import Path
 
 # Resolve repo root. Since this file is in src/wac_cli/wac_cli/cli.py,
 # the repo root is 4 parents up.
 WAC_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+
+
+class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
+        super().end_headers()
+
+
+def _serve_directory(root: Path, port: str):
+    os.chdir(root)
+    server = http.server.ThreadingHTTPServer(("", int(port)), NoCacheHandler)
+    print(f"Serving HTTP on http://localhost:{port}/  (no cache, Ctrl-C to stop)")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nStopped.")
+    finally:
+        server.server_close()
 
 def _wac_dir(level: str, phase: str) -> Path:
     try:
@@ -40,8 +61,7 @@ def _wac_exec(dir_path: Path):
         print("# Open exercises.sh and run each block individually. Running all now:\n")
         subprocess.run(["bash", "exercises.sh"])
     elif (dir_path / "index.html").exists():
-        print("Serving current directory at http://localhost:8080   (Ctrl-C to stop)")
-        subprocess.run([sys.executable, "-m", "http.server", "8080"])
+        _serve_directory(dir_path, "8080")
     elif (dir_path / "pyproject.toml").exists():
         print("Package phase. Set up once:   pip install -e \".[dev]\"")
         print("Then:   pytest      |      python -m weather.cli Roseau")
@@ -117,8 +137,7 @@ def cmd_test(args):
 def cmd_serve(args):
     port = args.port or "8080"
     print(f"Course site -> http://localhost:{port}   (Ctrl-C to stop)")
-    os.chdir(WAC_ROOT)
-    subprocess.run([sys.executable, "-m", "http.server", port])
+    _serve_directory(WAC_ROOT, port)
 
 def cmd_list(args):
     for L in ["1", "2"]:
