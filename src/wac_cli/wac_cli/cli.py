@@ -11,6 +11,17 @@ WAC_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 
 class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path in ("", "/"):
+            self.send_response(302)
+            self.send_header("Location", "/course.html")
+            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
+            self.end_headers()
+            return
+        super().do_GET()
+
     def end_headers(self):
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")
@@ -136,7 +147,7 @@ def cmd_test(args):
 
 def cmd_serve(args):
     port = args.port or "8080"
-    print(f"Course site -> http://localhost:{port}   (Ctrl-C to stop)")
+    print(f"Course workspace -> http://localhost:{port}/course.html   (Ctrl-C to stop)")
     _serve_directory(WAC_ROOT, port)
 
 def cmd_list(args):
