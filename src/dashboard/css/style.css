@@ -2169,6 +2169,28 @@ footer a:hover {
   margin: 0 !important;
   color: var(--muted) !important;
 }
+/* "Predict first" callout — make the learner commit before they See/Do */
+.lesson-predict {
+  border: 1px dashed color-mix(in oklch, var(--cyan), var(--border) 35%);
+  border-radius: var(--radius-sm);
+  background: color-mix(in oklch, var(--cyan) 8%, var(--bg));
+  padding: 0.72rem 0.82rem;
+  margin-bottom: 0.75rem;
+}
+.lesson-predict-kicker {
+  display: block;
+  color: var(--cyan);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+.lesson-predict p {
+  margin: 0 !important;
+  color: var(--text) !important;
+  font-size: 0.86rem !important;
+  line-height: 1.5 !important;
+}
 .learning-loop {
   display: grid;
   grid-template-columns: 1fr;

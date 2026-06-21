@@ -18,7 +18,7 @@
       } catch (e) {}
     })();
   </script>
-  <link id="wac-style" rel="stylesheet" href="src/dashboard/css/style.css?v=18" />
+  <link id="wac-style" rel="stylesheet" href="src/dashboard/css/style.css?v=19" />
   <script>
     (function () {
       var bust = 'v=18&t=' + Date.now();
@@ -83,7 +83,7 @@
       <div class="progress-section">
         <div class="progress-header">
           <span>Level 1 Progress</span>
-          <span id="l1-progress-label">0 / 10 phases</span>
+          <span id="l1-progress-label">0 / 11 phases</span>
         </div>
         <div class="progress-track"><div class="progress-fill" id="l1-fill" style="width:0%"></div></div>
       </div>
@@ -103,7 +103,7 @@
         <h3>Level 2 unlocks when Level 1 is complete</h3>
         <p>Complete all Level 1 phases first. The skills build on each other — jumping ahead won't work.</p>
         <div class="lock-progress">
-          <span id="l2-lock-label">0 / 10 complete</span>
+          <span id="l2-lock-label">0 / 11 complete</span>
         </div>
       </div>
 
@@ -148,7 +148,7 @@
 <script>
   (function () {
     var script = document.createElement('script');
-    script.src = 'src/dashboard/js/main.js?v=18&t=' + Date.now();
+    script.src = 'src/dashboard/js/main.js?v=19&t=' + Date.now();
     script.onload = function () {
       if (window.WAC_BUILD !== window.WAC_EXPECTED_BUILD) {
         document.body.classList.add('stale-build');

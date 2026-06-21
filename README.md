@@ -34,10 +34,11 @@ relevant phase's *Go deeper* links so you know where to continue.
 
 ## Format & assessment
 
-Self-paced. **Level 1** is 10 phases (~10–12 hrs) and **Level 2** is 7 phases
-(~12–16 hrs); Level 2 unlocks once every Level 1 phase is complete. Each phase
-has checkpoint questions (with reveal-to-check answers in the course site) and a
-run command; the course ends in a deployed, tested **capstone** graded against a
+Self-paced. **Level 1** is 11 phases (~11–13 hrs, ending in a transfer-gate
+capstone) and **Level 2** is 7 phases (~12–16 hrs); Level 2 unlocks once every
+Level 1 phase is complete. Each phase has checkpoint questions (with
+reveal-to-check answers in the course site) and a run command; the course ends in
+a deployed, tested **capstone** graded against a
 3-level rubric.
 
 The course is designed for learners working independently on their own machines.

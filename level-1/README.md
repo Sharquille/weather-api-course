@@ -4,9 +4,11 @@ Level 1 teaches the core API skills needed before automation: first principles,
 raw HTTP, Python requests, authenticated APIs, multi-source aggregation, browser
 fetch, deployment, API security, JSON handling, and CORS.
 
-There are **10 phases** — an interactive first-principles intro on the course
-site, then the 9 build phases below. Phases 06–08 deepen and harden the app you
-deploy in Phase 05, so do 05 first and keep your keys in `.env` from the start.
+There are **11 phases** — an interactive first-principles intro on the course
+site, then the 9 build phases below, then a transfer-gate capstone. Phases 06–08
+deepen and harden the app you deploy in Phase 05, so do 05 first and keep your
+keys in `.env` from the start. Phase 09 is a gate: apply everything to an API you
+have never seen before Level 2 unlocks.
 
 ## Phases
 
@@ -22,6 +24,7 @@ deploy in Phase 05, so do 05 first and keep your keys in `.env` from the start.
 | 06 | `06-api-security/` | Secret scanning, rate limits, key validation |
 | 07 | `07-json-deep/` | JSON files, cache, safe getters, schema checks |
 | 08 | `08-cors-mocking/` | CORS, Same-Origin Policy, preflight, mock server |
+| 09 | `09-capstone/` | Transfer gate: apply it all to an unfamiliar, non-weather API |
 
 ## How To Work
 

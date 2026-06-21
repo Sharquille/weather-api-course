@@ -11,7 +11,7 @@ const L1_PHASES = [
     desc:'Interactive Brilliant-style introduction. Master interface boundaries, abstraction layers, decompiling raw HTTP streams, and client-server symmetry.',
     pills:['First Principles','Abstraction','Interfaces','Serialization','Client-Server Symmetry','HTTP Contract'],
     goal:'Understand why APIs exist, how complex machinery is abstracted behind simple boundaries, and how machines talk to each other.',
-    concept:'An API is not magic — it is an interface. We use boundaries and abstraction to simplify complex electronic pipelines. When raw binary/text data traverses the wire, it strictly mirrors a request-response contract.',
+    concept:'An API is not magic — it is an interface. We use boundaries and abstraction to simplify complex electronic pipelines. When raw text traverses the wire (HTTP/1.1 is plain text; HTTP/2+ frames it as binary), it strictly mirrors a request-response contract.',
     parts:[
       {label:'Step 1', text:'The Vending Machine: Discovering the concept of an Interface and Abstraction boundaries.'},
       {label:'Step 2', text:'Code Abstractions: Connecting inputs to outputs using function boundaries.'},
@@ -28,7 +28,7 @@ const L1_PHASES = [
       'Step 5: Trigger API contract breaks and analyze client stack trace errors.'
     ],
     research:'Read about the history of the term "Application Programming Interface". Why did early OS developers choose "Interface" as the core metaphor? How does it differ from a physical interface like a steering wheel?',
-    checkpoint:['What does Abstraction mean in computer science?','Why are raw TCP sockets abstracted behind HTTP?','What happens when a Server breaks its interface contract?','How is symmetric client-server alignment like a conversational protocol?'],
+    checkpoint:['Two implementations of `get_temperature(city)`: one calls 3 services internally, one calls 1. Which is *more abstracted*, and why?','Why are raw TCP sockets abstracted behind HTTP?','What happens when a Server breaks its interface contract?','How is symmetric client-server alignment like a conversational protocol?'],
     deeper:[['Brilliant.org — Interactive CS','https://brilliant.org'],['REST API Design Concepts','https://restfulapi.net/'],['How the Internet Works','https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/How_does_the_Internet_work']],
     run:'Launch the interactive web sandbox to solve the first-principles puzzles',
     curlNote:false
@@ -70,6 +70,7 @@ const L1_PHASES = [
     pills:['requests','json','try/except','f-strings','sys.argv','POST','CLI'],
     goal:'Replace curl with a Python CLI tool.',
     concept:'`requests` is Python\'s de facto HTTP client. Same model as curl: build URL → add params/headers → send → inspect response → handle errors. The starter has a "curl equivalent" comment at the top showing the curl → Python mapping you already learned in Phase 00.',
+    predict:'Predict before you run it: you call `requests.get()` once on a server that returns HTTP 500, and once on a host with nothing listening. Do both raise the *same* exception? Which of the two does `raise_for_status()` actually catch? Write your guess, then prove it.',
     parts:[
       {label:'Part A', text:'Basic fetch — params dict, requests.get(), raise_for_status(), return nested "current" key'},
       {label:'Part B', text:'Error handling — Timeout, HTTPError, ConnectionError, return None gracefully'},
@@ -82,7 +83,7 @@ const L1_PHASES = [
       'Work through TODOs 1-13 in order. Each TODO has inline hints — read them.',
       'Run after each TODO: `python3 weather_basic.py`',
       'If it fails, READ the error. Fix it. Run again. The error IS the lesson.',
-      'Part B tests error handling — try passing a bad URL on purpose to see each error type',
+      'Part B tests error handling — to force each branch on purpose: `Timeout` → `https://httpbin.org/delay/30` with `timeout=1`; `HTTPError` → `https://httpbin.org/status/500`; `ConnectionError` → `http://localhost:9` (nothing is listening there)',
       'Part D shows the Python equivalent of the curl POST you did in Phase 00 Exercise 3'
     ],
     research:'Read https://open-meteo.com/en/docs and find: (1) the parameter for 7-day hourly forecast, (2) the parameter for temperature units. Modify your script to print tomorrow\'s high in Fahrenheit.',
@@ -114,7 +115,7 @@ const L1_PHASES = [
       'Test 429 handling: hammer the API 60 times in a loop if you want to see rate limit in action (or just trust the docs)'
     ],
     research:'Read both APIs\' auth docs. Why do both use query params instead of headers? What do their rate-limit docs say? Is one method more secure than the other?',
-    checkpoint:['Why use `python-dotenv` instead of `os.environ` directly?','What does `.gitignore` have to do with API security?','If you accidentally commit a key, what should you do IMMEDIATELY?','401 vs 403 vs 429 — three different problems, name them','How would you test key validation without burning real API calls?'],
+    checkpoint:['Why use `python-dotenv` instead of `os.environ` directly?','What does `.gitignore` have to do with API security?','If you accidentally commit a key, what should you do IMMEDIATELY?','You hit one endpoint with a valid key and get `200`, then `429`, then `401` in that order. Tell a plausible server-side story for each.','How would you test key validation without burning real API calls?'],
     deeper:[['OWASP API Top 10','https://owasp.org/API-Security/editions/2023/en/0x11-t10/'],['OWM docs','https://openweathermap.org/api'],['WeatherAPI docs','https://www.weatherapi.com/docs/'],['theskumar/python-dotenv','https://github.com/theskumar/python-dotenv']],
     run:'$ cd level-1/02-auth-apis/starter\n$ cp .env.example .env  # fill in real keys\n$ pip install requests python-dotenv\n$ python3 weather_auth.py Roseau',
     curlNote:false
@@ -126,6 +127,7 @@ const L1_PHASES = [
     pills:['ThreadPoolExecutor','parallel I/O','as_completed','graceful degradation','table rendering'],
     goal:'Hit 3 APIs simultaneously, handle partial failures.',
     concept:'Real apps fan out to multiple sources and aggregate. The hard part: some succeed, some fail — you keep what you got. ThreadPoolExecutor lets you fire all 3 calls in parallel; total time = slowest source, not sum of all sources.',
+    predict:'Predict before you run it: Open-Meteo takes 0.8s, OWM 1.2s, WeatherAPI 1.5s. How long does the **sequential** version take? How long does the **parallel** version take? Write both numbers down, then time it and compare.',
     parts:[
       {label:'Part A', text:'Build 3 source callables (open_meteo, openweather, weatherapi) that return normalised dicts'},
       {label:'Part B', text:'fetch_all() — ThreadPoolExecutor with map() or submit(), collect results, ignore exceptions'},
@@ -155,6 +157,7 @@ const L1_PHASES = [
     pills:['fetch()','async/await','URLSearchParams','DOM','Promise.allSettled','CORS'],
     goal:'Call the same APIs from the browser.',
     concept:'`fetch()` is the browser\'s `requests`. Same HTTP contract, returns Promises, CORS-aware. `await` unwraps a Promise. `Promise.allSettled()` is the JavaScript equivalent of Python\'s `as_completed()` — it waits for all, never throws, gives you success/failure per item.',
+    predict:'Predict before you run it: the exact same `curl` that just printed JSON in your terminal now runs as `fetch()` in the browser against the same URL. Does it (a) succeed, (b) fail with a CORS error, or (c) fail some other way? Decide *why* before you click.',
     parts:[
       {label:'Part A', text:'fetchOpenMeteo() — geocode first, then forecast, build URL with URLSearchParams'},
       {label:'Part B', text:'fetchOWM() — read key from localStorage, query-param auth, handle errors'},
@@ -171,7 +174,7 @@ const L1_PHASES = [
       'Break one of the 3 functions on purpose — confirm the other 2 still render and the broken one shows an error row'
     ],
     research:'Read https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch. What is the difference between `response.ok` and `response.status`? What is `Promise.allSettled()` and why is it useful for multi-source dashboards?',
-    checkpoint:['Why does the browser need CORS but curl doesn\'t?','What does `await` actually do?','Why is `response.json()` async?','How do you handle a network error in `fetch()`?','What\'s the difference between `Promise.all()` and `Promise.allSettled()`?'],
+    checkpoint:['Why does the browser need CORS but curl doesn\'t?','`console.log(fetchData())` prints `Promise {<pending>}`, not the data. Fix it two ways — once with `.then()`, once with `await` — and say what each one changed.','Why is `response.json()` async?','How do you handle a network error in `fetch()`?','What\'s the difference between `Promise.all()` and `Promise.allSettled()`?'],
     deeper:[['MDN fetch','https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch'],['Promise.allSettled','https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled'],['CORS explained','https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS']],
     run:'$ cd level-1/04-browser-fetch/starter\n$ python3 -m http.server 8080\n# Open http://localhost:8080 in your browser',
     curlNote:false
@@ -227,7 +230,7 @@ const L1_PHASES = [
       'Part D: validate both your keys before doing anything else — make this a habit'
     ],
     research:'Find 3 real GitHub commits that leaked API keys. What happened next? What does GitHub\'s secret scanning do? How do you opt-in? What is "principle of least privilege" in API key terms?',
-    checkpoint:['How would you know if your key was leaked?','Read-only vs write key — what\'s the difference?','What layers of protection beyond `.env` should you add?','What does CORS actually protect against? (Hint: not what you think.)','Why is query-param auth considered less secure than header auth?'],
+    checkpoint:['How would you know if your key was leaked?','Your weather app\'s key only ever *reads* forecasts. Someone leaks it. Why is the blast radius far smaller than if you\'d given that same key write/delete scope?','What layers of protection beyond `.env` should you add?','What does CORS actually protect against? (Hint: not what you think.)','Why is query-param auth considered less secure than header auth?'],
     deeper:[['OWASP API Top 10','https://owasp.org/API-Security/editions/2023/en/0x11-t10/'],['GitHub secret scanning','https://docs.github.com/en/code-security/secret-scanning'],['TruffleHog (real scanner)','https://github.com/trufflesecurity/trufflehog']],
     run:'$ cd level-1/06-api-security/starter\n$ python3 security_checks.py',
     curlNote:false
@@ -255,7 +258,7 @@ const L1_PHASES = [
       'Part E: fetch two different cities, compare temp/wind/humidity side by side'
     ],
     research:'What is `json.dumps()` vs `json.dump()`? What does `indent=2` do? `sort_keys=True`? Why does `json.loads()` raise on invalid JSON but `json.load()` reads from a file? How would you handle a 500MB JSON file?',
-    checkpoint:['What is the difference between `json` and `simplejson`?','When would you use YAML instead of JSON?','How do you handle a JSON file that\'s 500MB? (Hint: it\'s not `json.load()`.)','What does `safe_get` prevent that direct `data["a"]["b"]["c"]` doesn\'t?','Why validate schema instead of trusting the API response?'],
+    checkpoint:['Your script does `data = response.json()` and crashes with `JSONDecodeError` — but the HTTP status was `200`. What most likely happened, and how do you guard against it?','When would you use YAML instead of JSON?','How do you handle a JSON file that\'s 500MB? (Hint: it\'s not `json.load()`.)','What does `safe_get` prevent that direct `data["a"]["b"]["c"]` doesn\'t?','Why validate schema instead of trusting the API response?'],
     deeper:[['json module docs','https://docs.python.org/3/library/json.html'],['ijson (streaming JSON)','https://github.com/ICRAR/ijson'],['jsonschema library','https://github.com/python-jsonschema/jsonschema']],
     run:'$ cd level-1/07-json-deep/starter\n$ python3 json_practice.py',
     curlNote:false
@@ -267,6 +270,7 @@ const L1_PHASES = [
     pills:['CORS','SOP','Flask','preflight OPTIONS','Access-Control-Allow-Origin','handshake'],
     goal:'Understand and resolve CORS browser blocks.',
     concept:'In backend Python, requests directly connect. Inside a browser, Same-Origin Policy (SOP) restricts communication unless the backend explicitly responds with standard CORS headers authorizing the client\'s origin.',
+    predict:'Predict before you run it: when the browser is blocked by CORS, *who* actually blocked it — the server, or the browser? Did the request even reach the server? Decide your answer, then watch the Network tab to confirm whether a response came back at all.',
     parts:[
       {label:'Part A', text:'Start the mock server on port 5000 and the frontend server on port 8080. Open in the browser to trigger a CORS error.'},
       {label:'Part B', text:'Add preflight OPTIONS handshake checks returning Access-Control-Allow-Origin headers.'},
@@ -284,6 +288,36 @@ const L1_PHASES = [
     checkpoint:['What does SOP stand for and what is its purpose?','Why does curl bypass CORS but fetch() does not?','What HTTP method does the browser use for preflight checks?','Name two CORS headers you need to configure on the backend.'],
     deeper:[['MDN CORS','https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS'],['Flask CORS documentation','https://flask-cors.readthedocs.io/en/latest/'],['Same-Origin Policy','https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy']],
     run:'$ cd level-1/08-cors-mocking/starter\n$ python3 server.py',
+    curlNote:false
+  },
+  {
+    id:'l1p09', num:'Phase 09', title:'Level 1 Capstone',
+    file:'level-1/09-capstone/README.md',
+    desc:'Transfer gate: build a one-file Python client for an API you have never used — auth, errors, a useful result. No copy-paste from earlier phases.',
+    pills:['transfer','requests','error handling','new API','independence'],
+    goal:'Prove the Level 1 skills transfer to an API you have never seen.',
+    concept:'Everything so far used weather APIs you were guided through. Real fluency means walking up to an unfamiliar API and getting a useful result on your own. This is the gate to Level 2: no new concepts, just independent application of what you already practiced.',
+    predict:'Predict first: before you open the new API\'s docs, write down the four things you already know you\'ll need to find — its base URL, how it authenticates, the one field you actually want, and which errors it can return. You learned all four in Level 1.',
+    parts:[
+      {label:'Step 1', text:'Pick an API you have NEVER used from public-apis/public-apis (weather is off-limits). Prefer a free, no-card tier.'},
+      {label:'Step 2', text:'Read just enough of its docs to find the base URL, the auth method, and the one field you want.'},
+      {label:'Step 3', text:'Write a single Python file: requests.get with a params dict and a timeout.'},
+      {label:'Step 4', text:'Handle failure: Timeout, HTTPError (incl. 401/429), and ConnectionError — return a clear message, never a traceback.'},
+      {label:'Step 5', text:'Print one genuinely useful line of output. Any key lives in a .env, never in the file.'}
+    ],
+    steps:[
+      'Browse https://github.com/public-apis/public-apis and pick something you find interesting and have not used (NOT a weather API).',
+      'Find its base URL, whether it needs a key, and how that key is sent (header vs query param).',
+      'If it needs a key, sign up, put it in a `.env`, and load it with python-dotenv — do not hardcode it.',
+      'Write a weather-free `client.py`: build the request, set a `timeout`, call `raise_for_status()`.',
+      'Wrap the call in try/except for `Timeout`, `HTTPError`, `ConnectionError`; print a clear message for each.',
+      'Run it, then deliberately break the key/URL and re-run to confirm it fails gracefully.',
+      'Budget ~60 minutes. The point is doing it without copy-pasting Level 1 code.'
+    ],
+    research:'Which Level 1 phase did each part of this draw on? If any step felt shaky, that is the phase to revisit before starting Level 2.',
+    checkpoint:['Working script against a non-weather API','Key (if any) lives in `.env`, never in the file','`Timeout`, `HTTPError`, and `ConnectionError` each handled with a clear message','Prints one genuinely useful result','You wrote it without copy-pasting Level 1 solutions'],
+    deeper:[['public-apis/public-apis','https://github.com/public-apis/public-apis'],['requests Quickstart','https://requests.readthedocs.io/en/master/user/quickstart/'],['python-dotenv','https://github.com/theskumar/python-dotenv']],
+    run:'$ cd level-1/09-capstone\n$ python3 client.py',
     curlNote:false
   }
 ];
@@ -504,7 +538,7 @@ const L2_PHASES = [
 // ════════════════════════════════════════════════
 const PHASE_GUIDE = {
   l1p_intro: { time: '20–30 min', answers: [
-    'Hiding complex implementation behind a simpler interface, so you can use a system without knowing its internals.',
+    'They are *equally* abstracted at the boundary — both expose the same one-line call, so a caller can\'t tell them apart. Abstraction is about how much is *hidden behind the interface*, not how much work happens. The 3-service version simply conceals more complexity behind the same simple surface.',
     'Raw TCP is just an unstructured byte stream; HTTP layers on a standard grammar (methods, paths, headers, status codes) that clients and servers both agree on, so any two of them can interoperate.',
     'The client\'s assumptions break — it crashes, mis-parses, or reads the wrong field. The abstraction "leaks" and the caller is forced to deal with it.',
     'Like a conversation, every request expects a matching response: a question gets an answer, a status code mirrors the outcome, a Content-Type mirrors the body format.'
@@ -527,7 +561,7 @@ const PHASE_GUIDE = {
     'It loads a local `.env` file into the environment automatically, so secrets live in one untracked file instead of being hardcoded or exported by hand.',
     '`.gitignore` keeps `.env` out of version control, so keys are never committed or pushed publicly.',
     'Revoke/rotate the key in the provider\'s dashboard immediately — assume it\'s compromised the moment it\'s pushed. Scrubbing git history is secondary.',
-    '401 = missing/invalid credentials; 403 = valid credentials but not permitted; 429 = too many requests (rate limited).',
+    '200 = the key worked. 429 = you exceeded the rate limit (too many requests in the window) and got throttled. 401 = the key is now rejected outright — e.g. it was revoked, expired, or your free tier was suspended after the burst. Each is distinct: 429 is temporary (back off and retry); 401 is not (fix the credential).',
     'Make one minimal, cheap call (or hit a validation endpoint) and check the status before running real workloads, so you don\'t burn quota.'
   ]},
   l1p03: { time: '90 min–2 hrs', answers: [
@@ -539,7 +573,7 @@ const PHASE_GUIDE = {
   ]},
   l1p04: { time: '90 min', answers: [
     'The browser enforces the Same-Origin Policy to protect a user\'s logged-in sessions across sites; curl is a standalone tool with no origin or ambient credentials, so CORS doesn\'t apply to it.',
-    'It pauses the async function until the Promise resolves, then resumes with its value — without blocking the main thread.',
+    '`fetchData()` returns a Promise immediately, before the data arrives, so logging it shows a pending Promise. `.then(d => console.log(d))` registers a callback to run when it resolves. `const d = await fetchData(); console.log(d)` pauses the async function until it resolves, then continues with the unwrapped value. Both wait for resolution instead of logging the pending Promise.',
     'Reading and parsing the body is itself asynchronous (it streams in over the network), so `.json()` returns a Promise you await.',
     '`fetch` only rejects on network failure (use try/catch); for HTTP errors you must check `response.ok` / `response.status` yourself.',
     '`Promise.all()` rejects as soon as any promise fails; `Promise.allSettled()` waits for all and returns a status+result per promise, so one failure doesn\'t lose the rest.'
@@ -553,13 +587,13 @@ const PHASE_GUIDE = {
   ]},
   l1p06: { time: '60–90 min', answers: [
     'Provider dashboards show usage spikes, GitHub secret scanning and tools like TruffleHog detect committed keys, and unexpected billing or rate-limit hits are signals.',
-    'A read-only key can only fetch data; a write key can change or delete state. Use least privilege — read-only wherever possible.',
+    'Least privilege caps the damage. A leaked read-only key only lets an attacker read data the app already reads; a leaked write/delete key lets them modify or destroy state, run up paid usage, or pivot deeper. Scoping the key to exactly what the app needs (read-only) means a leak is an annoyance, not a breach.',
     'Scoped/least-privilege keys, rotation, a server-side proxy so the key never reaches the client, rate limiting, and monitoring/alerts.',
     'CORS protects the user: it stops a malicious site\'s JavaScript from using the victim\'s browser to make credentialed requests elsewhere. It does NOT protect your API from non-browser clients (curl ignores it).',
     'Query-param keys land in URLs, which get logged by servers/proxies and saved in browser history; a header keeps the secret out of the logged URL.'
   ]},
   l1p07: { time: '60–90 min', answers: [
-    'They\'re compatible APIs; `simplejson` is a third-party library that\'s sometimes faster/more configurable than the stdlib `json`. The stdlib `json` is fine here.',
+    'A `200` only means the HTTP request succeeded — it does not guarantee a JSON body. The server likely returned HTML or plain text (an error page, a rate-limit notice, a proxy/login block), so `.json()` fails to parse it. Guard by checking the `Content-Type` header, or wrap `.json()` in try/except and fall back to printing `response.text` to see what actually came back.',
     'YAML when a human edits the file (config, comments, readability); JSON for machine-to-machine data interchange.',
     'Stream it with an incremental parser like `ijson` instead of `json.load()`-ing the whole file into memory.',
     'It navigates nested keys without raising KeyError/TypeError when an intermediate key is missing — it returns a default instead of crashing.',
@@ -570,6 +604,11 @@ const PHASE_GUIDE = {
     'CORS is browser-enforced; curl isn\'t a browser and carries no origin or ambient credentials, so the Same-Origin Policy doesn\'t apply.',
     'OPTIONS — the preflight request the browser sends before certain cross-origin requests.',
     '`Access-Control-Allow-Origin` and `Access-Control-Allow-Methods` (also `Access-Control-Allow-Headers`).'
+  ]},
+  l1p09: { time: '~60 min', rubric: [
+    { level: 'Emerging', text: 'It runs, but only because you leaned on Level 1 solutions. Revisit the shakiest phase, then try one more cold API.' },
+    { level: 'Developing', text: 'You worked independently on this familiar shape — auth, a GET, error handling. Do one more against a different API shape (e.g. header auth) to firm it up.' },
+    { level: 'Transfer-ready', text: 'You could do this cold against any new API, can explain why each error branch fires, and could teach it back. You\'re ready for Level 2.' }
   ]},
   l2p00: { time: '60–90 min', answers: [
     'A collection groups related requests; an environment is a named set of variables (keys, base URLs) you swap so the same requests run against different setups.',
@@ -1277,6 +1316,9 @@ function renderActiveStage() {
   const timeHtml = guide.time
     ? `<div class="ws-time" aria-label="Estimated time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg> Estimated time: <strong>${escapeHtml(guide.time)}</strong></div>`
     : '';
+  const predictHtml = (activeStageIndex === 0 && p.predict)
+    ? `<div class="lesson-predict"><span class="lesson-predict-kicker">Predict first</span><p>${formatInline(p.predict)}</p></div>`
+    : '';
 
   let checkHtml;
   if (guide.rubric) {
@@ -1327,6 +1369,8 @@ function renderActiveStage() {
       </div>
       <p>${formatInline(p.goal)}</p>
     </div>
+
+    ${predictHtml}
 
     <div class="learning-loop" aria-label="Guided lesson loop">
       <section class="loop-card">
@@ -1498,6 +1542,9 @@ function renderSandboxTab() {
       break;
     case 'l1p08':
       renderCorsSandbox();
+      break;
+    case 'l1p09':
+      renderL1CapstoneSandbox();
       break;
     case 'l2p00':
       renderPostmanSandbox();
@@ -3328,6 +3375,60 @@ function renderCapstoneSandbox() {
       </div>
     </div>
   `;
+}
+
+function renderL1CapstoneSandbox() {
+  const body = document.getElementById('ws-sandbox-body');
+  body.innerHTML = `
+    <div class="sb-container">
+      <div class="sb-panel">
+        <div class="sb-panel-title">🎯 Transfer Challenge</div>
+        <p style="font-size:0.86rem; line-height:1.6; color:var(--code-text); margin-bottom:0.85rem;">
+          One file. One API you've never touched. ~60 minutes. No copy-paste from Level 1 — that's the whole point.
+        </p>
+        <ol style="font-size:0.82rem; line-height:1.6; color:var(--code-muted); margin:0 0 0.5rem 1.1rem; display:flex; flex-direction:column; gap:0.3rem;">
+          <li>Pick a non-weather API from <strong style="color:var(--code-text);">public-apis/public-apis</strong>.</li>
+          <li>Find its base URL, auth method, and the one field you want.</li>
+          <li><code>requests.get</code> with a params dict + a timeout.</li>
+          <li>Handle Timeout, HTTPError (401/429), ConnectionError — clear message, no traceback.</li>
+          <li>Print one useful line. Any key lives in <code>.env</code>.</li>
+        </ol>
+      </div>
+      <div class="sb-panel">
+        <div class="sb-panel-title">📊 Rate yourself honestly</div>
+        <p style="font-size:0.8rem; color:var(--code-muted); margin-bottom:0.75rem;">When it runs, where are you on the mastery scale?</p>
+        <div id="l1cap-scale" style="display:flex; flex-direction:column; gap:0.4rem;">
+          ${[
+            ['emerging','Got it working only by leaning on Level 1 solutions'],
+            ['developing','Worked independently on this familiar shape'],
+            ['secure','Can explain why each error branch fires and handles variation'],
+            ['transfer-ready','Could do this cold against any new API and teach it back']
+          ].map(([k,v]) => `
+            <button class="btn btn-secondary btn-sm" style="justify-content:flex-start; text-align:left; height:auto; padding:0.5rem 0.7rem;" onclick="rateL1Capstone(this, '${k}')">
+              <strong style="text-transform:uppercase; font-size:0.66rem; letter-spacing:0.04em; color:var(--accent); min-width:108px; display:inline-block;">${k}</strong>
+              <span style="color:var(--code-muted); font-size:0.78rem;">${v}</span>
+            </button>`).join('')}
+        </div>
+        <div id="l1cap-verdict" class="cl-info" style="margin-top:0.85rem; font-size:0.8rem;"></div>
+      </div>
+    </div>
+  `;
+}
+
+function rateL1Capstone(btn, level) {
+  document.querySelectorAll('#l1cap-scale .btn').forEach(b => b.classList.remove('btn-primary'));
+  document.querySelectorAll('#l1cap-scale .btn').forEach(b => b.classList.add('btn-secondary'));
+  btn.classList.remove('btn-secondary');
+  btn.classList.add('btn-primary');
+  const v = document.getElementById('l1cap-verdict');
+  if (!v) return;
+  const msg = {
+    emerging: '<span class="cl-warn">That\'s a fine start — but revisit the phase that felt shakiest before Level 2, then try one more cold API.</span>',
+    developing: '<span class="cl-info">Solid. Do one more against a *different* API shape (e.g. one that auths by header) to firm it up.</span>',
+    secure: '<span class="cl-ok">That\'s the bar for unlocking Level 2. Mark the phase complete.</span>',
+    'transfer-ready': '<span class="cl-ok">Excellent — you\'ve genuinely transferred Level 1. Level 2 automation will feel natural.</span>'
+  };
+  v.innerHTML = msg[level] || '';
 }
 
 function openSetup() {
