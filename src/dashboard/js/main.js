@@ -913,7 +913,9 @@ function escapeHtml(s) {
  * @returns {string}
  */
 function formatInline(s) {
-  return escapeHtml(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+  return escapeHtml(s)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 }
 
 function phaseCard(p, isDone, isLocked, index) {
@@ -1025,6 +1027,7 @@ let activeStageIndex = 0;
 let activeWsTab = 'sandbox';
 let wsNotesOpen = false;
 let wsFocusMode = true;
+let wsCodeLoadGen = 0;
 
 // Replay a CSS entrance animation by toggling its class (with a forced reflow).
 function replayAnim(el, cls) {
@@ -1070,10 +1073,16 @@ function openPhase(id) {
   }
   document.body.style.overflow = 'hidden';
 
-  // Focus close button inside modal
+  // Move keyboard focus into the workspace. The .modal-close button is
+  // display:none in workspace mode, so focus the first VISIBLE focusable instead
+  // (otherwise focus falls back to <body>, outside the modal).
   setTimeout(() => {
-    const closeBtn = /** @type {HTMLElement | null} */ (document.querySelector('.modal-close'));
-    if (closeBtn) closeBtn.focus();
+    const modalEl = document.querySelector('.modal');
+    if (!modalEl) return;
+    const focusables = modalEl.querySelectorAll('button, [href], input, select, textarea, [tabindex="0"]');
+    for (const el of focusables) {
+      if (/** @type {HTMLElement} */ (el).offsetParent !== null) { /** @type {HTMLElement} */ (el).focus(); break; }
+    }
   }, 50);
 }
 
@@ -2363,7 +2372,7 @@ function updateRequestsCode() {
   code += `url = "https://api.open-meteo.com/v1/forecast"\n`;
   code += `params = ${params}\n\n`;
   code += `try:\n`;
-  code += `    response = ${method.toLowerCase()}(url, params=params, timeout=${timeout})\n`;
+  code += `    response = requests.${method.toLowerCase()}(url, params=params, timeout=${timeout})\n`;
   code += `    response.raise_for_status()\n`;
   code += `    data = response.json()\n`;
   code += `    print("Temperature:", data["current"]["temperature_2m"])\n`;
@@ -3084,9 +3093,15 @@ function runJsonFilterChallenge() {
   const res = document.getElementById('json-res-view');
   
   try {
-    const fn = new Function('obj', `return obj.${path}`);
-    const evaled = fn(mockJsonData);
-    
+    // Safe path resolver — walks dotted/bracket paths (a.b[0].c) without eval,
+    // so no arbitrary JS can run from the input field.
+    const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.').map(k => k.trim()).filter(Boolean);
+    let evaled = mockJsonData;
+    for (const k of keys) {
+      if (evaled == null) { evaled = undefined; break; }
+      evaled = evaled[k];
+    }
+
     if (evaled !== undefined) {
       res.innerHTML = `
         <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; margin-bottom:0.25rem;">EVALUATED OUTPUT</div>
@@ -3383,11 +3398,11 @@ function renderL1CapstoneSandbox() {
     <div class="sb-container">
       <div class="sb-panel">
         <div class="sb-panel-title">🎯 Transfer Challenge</div>
-        <p style="font-size:0.86rem; line-height:1.6; color:var(--code-text); margin-bottom:0.85rem;">
+        <p style="font-size:0.86rem; line-height:1.6; color:var(--text); margin-bottom:0.85rem;">
           One file. One API you've never touched. ~60 minutes. No copy-paste from Level 1 — that's the whole point.
         </p>
-        <ol style="font-size:0.82rem; line-height:1.6; color:var(--code-muted); margin:0 0 0.5rem 1.1rem; display:flex; flex-direction:column; gap:0.3rem;">
-          <li>Pick a non-weather API from <strong style="color:var(--code-text);">public-apis/public-apis</strong>.</li>
+        <ol style="font-size:0.82rem; line-height:1.6; color:var(--muted); margin:0 0 0.5rem 1.1rem; display:flex; flex-direction:column; gap:0.3rem;">
+          <li>Pick a non-weather API from <strong style="color:var(--text);">public-apis/public-apis</strong>.</li>
           <li>Find its base URL, auth method, and the one field you want.</li>
           <li><code>requests.get</code> with a params dict + a timeout.</li>
           <li>Handle Timeout, HTTPError (401/429), ConnectionError — clear message, no traceback.</li>
@@ -3396,17 +3411,16 @@ function renderL1CapstoneSandbox() {
       </div>
       <div class="sb-panel">
         <div class="sb-panel-title">📊 Rate yourself honestly</div>
-        <p style="font-size:0.8rem; color:var(--code-muted); margin-bottom:0.75rem;">When it runs, where are you on the mastery scale?</p>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:0.75rem;">When it runs, where are you on the mastery scale? (Aim for transfer-ready before Level 2.)</p>
         <div id="l1cap-scale" style="display:flex; flex-direction:column; gap:0.4rem;">
           ${[
             ['emerging','Got it working only by leaning on Level 1 solutions'],
             ['developing','Worked independently on this familiar shape'],
-            ['secure','Can explain why each error branch fires and handles variation'],
-            ['transfer-ready','Could do this cold against any new API and teach it back']
+            ['transfer-ready','Could do this cold against any new API, explain each error branch, and teach it back']
           ].map(([k,v]) => `
             <button class="btn btn-secondary btn-sm" style="justify-content:flex-start; text-align:left; height:auto; padding:0.5rem 0.7rem;" onclick="rateL1Capstone(this, '${k}')">
-              <strong style="text-transform:uppercase; font-size:0.66rem; letter-spacing:0.04em; color:var(--accent); min-width:108px; display:inline-block;">${k}</strong>
-              <span style="color:var(--code-muted); font-size:0.78rem;">${v}</span>
+              <strong style="text-transform:uppercase; font-size:0.66rem; letter-spacing:0.04em; color:var(--accent); min-width:118px; display:inline-block;">${k}</strong>
+              <span style="color:var(--muted); font-size:0.78rem;">${v}</span>
             </button>`).join('')}
         </div>
         <div id="l1cap-verdict" class="cl-info" style="margin-top:0.85rem; font-size:0.8rem;"></div>
@@ -3423,10 +3437,9 @@ function rateL1Capstone(btn, level) {
   const v = document.getElementById('l1cap-verdict');
   if (!v) return;
   const msg = {
-    emerging: '<span class="cl-warn">That\'s a fine start — but revisit the phase that felt shakiest before Level 2, then try one more cold API.</span>',
-    developing: '<span class="cl-info">Solid. Do one more against a *different* API shape (e.g. one that auths by header) to firm it up.</span>',
-    secure: '<span class="cl-ok">That\'s the bar for unlocking Level 2. Mark the phase complete.</span>',
-    'transfer-ready': '<span class="cl-ok">Excellent — you\'ve genuinely transferred Level 1. Level 2 automation will feel natural.</span>'
+    emerging: '<span class="cl-warn">A fine start — but revisit the phase that felt shakiest, then try one more cold API before Level 2.</span>',
+    developing: '<span class="cl-info">Solid. Do one more against a different API shape (e.g. one that auths by header) to firm it up before Level 2.</span>',
+    'transfer-ready': '<span class="cl-ok">That\'s the bar for unlocking Level 2 — you\'ve genuinely transferred Level 1. Mark the phase complete.</span>'
   };
   v.innerHTML = msg[level] || '';
 }
@@ -3613,11 +3626,15 @@ async function loadWsFiles(which) {
 
   const host = document.getElementById('ws-code-body');
   if (!host) return;
+  // Generation guard: if the learner clicks starter→solution quickly, a slow
+  // earlier fetch must not overwrite the newer result.
+  const gen = (++wsCodeLoadGen);
   host.innerHTML = `<span class="spinner"></span> Loading ${which} files…`;
   try {
     const blocks = [];
     for (const path of files) {
       const res = await fetch(path, { cache: 'no-store' });
+      if (gen !== wsCodeLoadGen) return; // superseded by a newer load
       if (!res.ok) throw new Error(`HTTP ${res.status} for ${path}`);
       const text = await res.text();
       blocks.push(
@@ -3625,8 +3642,10 @@ async function loadWsFiles(which) {
         `<pre style="background:var(--code-bg); border:1px solid var(--border); padding:0.75rem; border-radius:4px; overflow-x:auto;"><code style="font-family:var(--font-mono); font-size:0.8rem; color:var(--code-text);">${escapeHtml(text)}</code></pre></div>`
       );
     }
+    if (gen !== wsCodeLoadGen) return; // superseded
     host.innerHTML = blocks.length ? blocks.join('') : `<p style="color:var(--muted)">${pf.note || 'No files available.'}</p>`;
   } catch (e) {
+    if (gen !== wsCodeLoadGen) return;
     host.innerHTML = `<p class="cl-err">Failed to load code files: ${escapeHtml(e.message)}</p>`;
   }
 }

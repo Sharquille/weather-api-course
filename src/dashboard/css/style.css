@@ -2858,8 +2858,11 @@ footer a:hover {
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
   }
-  /* Stages become a horizontal strip at the top */
-  .ws-sidebar {
+  /* Stages become a horizontal strip at the top. The focus-mode selector is
+     repeated here so its higher specificity doesn't keep the 64px desktop
+     width on mobile (which collapses the strip). */
+  .ws-sidebar,
+  .ws-layout.focus-mode .ws-sidebar {
     width: 100%;
     flex-shrink: 0;
     border-right: none;

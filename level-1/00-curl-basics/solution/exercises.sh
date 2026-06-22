@@ -27,7 +27,10 @@ curl -s -X DELETE "https://httpbin.org/delete"
 
 echo
 echo "=== Exercise 6: Expected 401 auth failure ==="
-curl -s -i -H "Authorization: Bearer fake-token" "https://httpbin.org/bearer"
+# httpbin's /bearer returns 401 only when the Authorization header is MISSING.
+# (It accepts ANY bearer token and returns 200 — a "fake" token would NOT 401.)
+# Omit the header to see the real 401, then add one back to watch it flip to 200.
+curl -s -i "https://httpbin.org/bearer"
 
 echo
 echo "=== Exercise 7: Hourly forecast ==="
